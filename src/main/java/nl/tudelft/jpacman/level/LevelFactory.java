@@ -118,7 +118,7 @@ public class LevelFactory {
 	 * @return The new super pellet.
 	 */
 	public Pellet createSuperPellet() {
-		return new Pellet(SUPERPELLET_VALUE, sprites.getPelletSprite());
+		return new Pellet(SUPERPELLET_VALUE, sprites.getSuperPelletSprite());
 	}
 
 	/**
