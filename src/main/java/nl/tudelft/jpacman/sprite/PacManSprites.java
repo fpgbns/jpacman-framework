@@ -130,7 +130,7 @@ public class PacManSprites extends SpriteStore {
 	}
 
 	/**
-	 * @return The sprite for the pellet.
+	 * @return The sprite for the super pellet.
 	 */
 	public Sprite getSuperPelletSprite() {
 		return loadSprite("/sprite/superPellet.png");

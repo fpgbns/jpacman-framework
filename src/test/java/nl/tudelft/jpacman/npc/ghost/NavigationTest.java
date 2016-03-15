@@ -14,15 +14,15 @@ import nl.tudelft.jpacman.board.BoardFactory;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
-import nl.tudelft.jpacman.level.LevelFactory;
-import nl.tudelft.jpacman.level.MapParser;
-import nl.tudelft.jpacman.level.Pellet;
+import nl.tudelft.jpacman.level.*;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+
+
 
 /**
  * Tests the various methods provided by the {@link Navigation} class.
@@ -37,6 +37,10 @@ public class NavigationTest {
 	 * Map parser used to construct boards.
 	 */
 	private MapParser parser;
+
+
+	private CollisionInteractionMap cim;
+
 
 	/**
 	 * Set up the map parser.
@@ -149,7 +153,7 @@ public class NavigationTest {
 	/**
 	 * Verifies that there is ghost on the default board
 	 * next to cell [1, 1].
-	 *  
+	 *
 	 * @throws IOException if board reading fails.
 	 */
 	@Test
@@ -158,5 +162,26 @@ public class NavigationTest {
 		Square s1 = b.squareAt(1, 1);
 		Unit unit = Navigation.findNearest(Ghost.class, s1);
 		assertNotNull(unit);
+	}
+
+
+	/**
+	 * Verifies that the game is able to make a difference between
+	 * a pellet and a super pellet.
+	 */
+	@Test
+	public void testHunterMode() {
+		Board b = parser
+				.parseMap(Lists.newArrayList("#####", "# .o#", "#####"))
+				.getBoard();
+		Square s1 = b.squareAt(1, 1);
+		Square s2 = b.squareAt(3, 1);
+		Unit unitPellet = Navigation.findUnit(Pellet.class, s2);
+		//To verify the unit is a Pellet.
+		assertNotNull(unitPellet);
+		Pellet pellet = (Pellet) unitPellet;
+		//To verify the unit is a super Pellet
+		//and his score is 50 for the player.
+		assertEquals(pellet.getValue(), 50);
 	}
 }

@@ -59,7 +59,6 @@ public class GhostFactory {
 	 * @see Clyde
 	 * @return A new Clyde.
 	 */
-	public Ghost createClyde() {
-		return new Clyde(sprites.getGhostSprite(GhostColor.ORANGE));
-	}
+	public Ghost createClyde() { return new Clyde(sprites.getGhostSprite(GhostColor.ORANGE)); }
+
 }
