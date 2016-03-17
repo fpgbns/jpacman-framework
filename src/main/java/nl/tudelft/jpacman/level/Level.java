@@ -14,6 +14,10 @@ import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.NPC;
+import nl.tudelft.jpacman.npc.ghost.EatableGhost;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.npc.ghost.GhostColor;
+import nl.tudelft.jpacman.sprite.PacManSprites;
 
 /**
  * A level of Pac-Man. A level consists of the board with the players and the
@@ -43,6 +47,10 @@ public class Level {
 	 * The NPCs of this level and, if they are running, their schedules.
 	 */
 	private final Map<NPC, ScheduledExecutorService> npcs;
+
+	private final Map<NPC, ScheduledExecutorService> enpcs;
+
+
 
 	/**
 	 * <code>true</code> iff this level is currently in progress, i.e. players
@@ -75,6 +83,8 @@ public class Level {
 	 */
 	private final List<LevelObserver> observers;
 
+	private static final PacManSprites SPRITE_STORE = new PacManSprites();
+
 	/**
 	 * Creates a new level for the board.
 	 * 
@@ -88,7 +98,7 @@ public class Level {
 	 *            The collection of collisions that should be handled.
 	 */
 	public Level(Board b, List<NPC> ghosts, List<Square> startPositions,
-			CollisionMap collisionMap) {
+				 CollisionMap collisionMap) {
 		assert b != null;
 		assert ghosts != null;
 		assert startPositions != null;
@@ -99,6 +109,7 @@ public class Level {
 		for (NPC g : ghosts) {
 			npcs.put(g, null);
 		}
+		this.enpcs = new HashMap<>();
 		this.startSquares = startPositions;
 		this.startSquareIndex = 0;
 		this.players = new ArrayList<>();
@@ -107,7 +118,8 @@ public class Level {
 	}
 
 	/**
-	 * Adds an observer that will be notified when the level is won or lost.
+	 * Adds an observer that will be notified when the level is won or lost
+	 * or change his state (Hunter mode).
 	 * 
 	 * @param observer
 	 *            The observer that will be notified.
@@ -236,6 +248,19 @@ public class Level {
 	}
 
 	/**
+	 * Starts all NPC movement scheduling.
+	 */
+	private void startENPCs() {
+		for (final NPC npc : enpcs.keySet()) {
+			ScheduledExecutorService service = Executors
+					.newSingleThreadScheduledExecutor();
+			service.schedule(new NpcMoveTask(service, npc),
+					npc.getInterval() / 2, TimeUnit.MILLISECONDS);
+			enpcs.put(npc, service);
+		}
+	}
+
+	/**
 	 * Stops all NPC movement scheduling and interrupts any movements being
 	 * executed.
 	 */
@@ -264,6 +289,12 @@ public class Level {
 				o.levelLost();
 			}
 		}
+		if (hunterMode()) {
+			for (LevelObserver o : observers) {
+				System.out.println("Level");
+				o.changeLevelMode();
+			}
+		}
 		if (remainingPellets() == 0) {
 			for (LevelObserver o : observers) {
 				o.levelWon();
@@ -285,6 +316,36 @@ public class Level {
 			}
 		}
 		return false;
+	}
+
+	public boolean hunterMode() {
+		for (Player p : players) {
+			if (p.getHunterMode()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	public void changeMode() {
+		Board b = getBoard();
+		for (int x = 0; x < b.getWidth(); x++) {
+			for (int y = 0; y < b.getHeight(); y++) {
+				for (Unit u : b.squareAt(x, y).getOccupants()) {
+					if (u instanceof Ghost) {
+						u.leaveSquare();
+						EatableGhost eg = new EatableGhost(SPRITE_STORE.getGhostSprite(GhostColor.VUL_BLUE));
+						eg.occupy(b.squareAt(x, y));
+						enpcs.put(eg, null);
+					}
+				}
+			}
+		}
+		for (Player p : players) {
+			p.setHunterMode(false);
+		}
+		startENPCs();
 	}
 
 	/**
@@ -366,5 +427,7 @@ public class Level {
 		 * this event is received.
 		 */
 		void levelLost();
+
+		void changeLevelMode();
 	}
 }

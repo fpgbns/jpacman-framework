@@ -59,6 +59,14 @@ public class GhostFactory {
 	 * @see Clyde
 	 * @return A new Clyde.
 	 */
-	public Ghost createClyde() { return new Clyde(sprites.getGhostSprite(GhostColor.ORANGE)); }
+	public Ghost createClyde() {return new Clyde(sprites.getGhostSprite(GhostColor.ORANGE)); }
+
+	/**
+	 * Creates eatable Ghost.
+	 *
+	 * @return new eatable ghost.
+	 */
+	public EatableGhost createEatableGhost() {return new EatableGhost(sprites.getGhostSprite(GhostColor.VUL_BLUE)); }
+
 
 }

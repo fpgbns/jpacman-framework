@@ -34,6 +34,8 @@ public class Player extends Unit {
 	 */
 	private boolean alive;
 
+	private boolean hunterMode = false;
+
 	/**
 	 * Creates a new player with a score of 0 points.
 	 * 
@@ -57,6 +59,14 @@ public class Player extends Unit {
 	 */
 	public boolean isAlive() {
 		return alive;
+	}
+
+	public boolean getHunterMode() {
+		return hunterMode;
+	}
+
+	public void setHunterMode(boolean mode) {
+		hunterMode = mode;
 	}
 
 	/**
