@@ -1,6 +1,7 @@
 package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.npc.ghost.EatableGhost;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
 
 /**
@@ -29,17 +30,24 @@ public class PlayerCollisions implements CollisionMap {
 	
 	private void playerColliding(Player player, Unit collidedOn) {
 		if (collidedOn instanceof Ghost) {
-			playerVersusGhost(player, (Ghost) collidedOn);
+			if (((Ghost) collidedOn).getFearedMode()){
+				playerVersusEatableGhost((Ghost) collidedOn);
+			}
+			else {
+				playerVersusGhost(player);
+			}
 		}
-		
 		if (collidedOn instanceof Pellet) {
 			playerVersusPellet(player, (Pellet) collidedOn);
-		}		
+		}
 	}
 	
 	private void ghostColliding(Ghost ghost, Unit collidedOn) {
-		if (collidedOn instanceof Player) {
-			playerVersusGhost((Player) collidedOn, ghost);
+		if (ghost.getFearedMode() && collidedOn instanceof Player) {
+			playerVersusEatableGhost(ghost);
+		}
+		else if (collidedOn instanceof Player) {
+			playerVersusGhost((Player) collidedOn);
 		}
 	}
 	
@@ -48,10 +56,13 @@ public class PlayerCollisions implements CollisionMap {
 	 * Actual case of player bumping into ghost or vice versa.
      *
      * @param player The player involved in the collision.
-     * @param ghost The ghost involved in the collision.
 	 */
-	public void playerVersusGhost(Player player, Ghost ghost) {
+	public void playerVersusGhost(Player player) {
 		player.setAlive(false);
+	}
+
+	public void playerVersusEatableGhost(Ghost ghost) {
+		ghost.leaveSquare();
 	}
 	
 	/**

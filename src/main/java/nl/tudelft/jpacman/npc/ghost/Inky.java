@@ -100,6 +100,11 @@ public class Inky extends Ghost {
 	// CHECKSTYLE:OFF To keep this more readable.
 	@Override
 	public Direction nextMove() {
+		if (this.getFearedMode())
+		{
+			Direction d = randomMove();
+			return d;
+		}
 		Unit blinky = Navigation.findNearest(Blinky.class, getSquare());
 		if (blinky == null) {
 			Direction d = randomMove();

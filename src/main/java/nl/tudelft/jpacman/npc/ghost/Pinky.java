@@ -93,6 +93,11 @@ public class Pinky extends Ghost {
 	 */
 	@Override
 	public Direction nextMove() {
+		if (this.getFearedMode())
+		{
+			Direction d = randomMove();
+			return d;
+		}
 		Unit player = Navigation.findNearest(Player.class, getSquare());
 		if (player == null) {
 			Direction d = randomMove();

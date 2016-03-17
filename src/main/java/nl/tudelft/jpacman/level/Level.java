@@ -1,9 +1,6 @@
 package nl.tudelft.jpacman.level;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,9 +11,7 @@ import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.NPC;
-import nl.tudelft.jpacman.npc.ghost.EatableGhost;
-import nl.tudelft.jpacman.npc.ghost.Ghost;
-import nl.tudelft.jpacman.npc.ghost.GhostColor;
+import nl.tudelft.jpacman.npc.ghost.*;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 /**
@@ -47,10 +42,6 @@ public class Level {
 	 * The NPCs of this level and, if they are running, their schedules.
 	 */
 	private final Map<NPC, ScheduledExecutorService> npcs;
-
-	private final Map<NPC, ScheduledExecutorService> enpcs;
-
-
 
 	/**
 	 * <code>true</code> iff this level is currently in progress, i.e. players
@@ -85,6 +76,8 @@ public class Level {
 
 	private static final PacManSprites SPRITE_STORE = new PacManSprites();
 
+	private Timer timer = new Timer();
+
 	/**
 	 * Creates a new level for the board.
 	 * 
@@ -109,7 +102,6 @@ public class Level {
 		for (NPC g : ghosts) {
 			npcs.put(g, null);
 		}
-		this.enpcs = new HashMap<>();
 		this.startSquares = startPositions;
 		this.startSquareIndex = 0;
 		this.players = new ArrayList<>();
@@ -248,19 +240,6 @@ public class Level {
 	}
 
 	/**
-	 * Starts all NPC movement scheduling.
-	 */
-	private void startENPCs() {
-		for (final NPC npc : enpcs.keySet()) {
-			ScheduledExecutorService service = Executors
-					.newSingleThreadScheduledExecutor();
-			service.schedule(new NpcMoveTask(service, npc),
-					npc.getInterval() / 2, TimeUnit.MILLISECONDS);
-			enpcs.put(npc, service);
-		}
-	}
-
-	/**
 	 * Stops all NPC movement scheduling and interrupts any movements being
 	 * executed.
 	 */
@@ -291,8 +270,7 @@ public class Level {
 		}
 		if (hunterMode()) {
 			for (LevelObserver o : observers) {
-				System.out.println("Level");
-				o.changeLevelMode();
+				o.startHunterMode();
 			}
 		}
 		if (remainingPellets() == 0) {
@@ -328,16 +306,23 @@ public class Level {
 	}
 
 
-	public void changeMode() {
+	public void startHunterMode() {
 		Board b = getBoard();
 		for (int x = 0; x < b.getWidth(); x++) {
 			for (int y = 0; y < b.getHeight(); y++) {
 				for (Unit u : b.squareAt(x, y).getOccupants()) {
 					if (u instanceof Ghost) {
-						u.leaveSquare();
-						EatableGhost eg = new EatableGhost(SPRITE_STORE.getGhostSprite(GhostColor.VUL_BLUE));
-						eg.occupy(b.squareAt(x, y));
-						enpcs.put(eg, null);
+						timer.cancel();
+						timer = new Timer();
+						if(remainingSuperPellets() >= 2) {
+
+							timer.schedule(new TimerHunterTask(this), 7000);
+						}
+						else
+						{
+							timer.schedule(new TimerHunterTask(this), 5000);
+						}
+						((Ghost) u).setFearedMode(true);
 					}
 				}
 			}
@@ -345,7 +330,19 @@ public class Level {
 		for (Player p : players) {
 			p.setHunterMode(false);
 		}
-		startENPCs();
+	}
+
+	public void stopHunterMode(){
+		Board b = getBoard();
+		for (int x = 0; x < b.getWidth(); x++) {
+			for (int y = 0; y < b.getHeight(); y++) {
+				for (Unit u : b.squareAt(x, y).getOccupants()) {
+					if (u instanceof Ghost) {
+						((Ghost) u).setFearedMode(false);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -368,6 +365,21 @@ public class Level {
 		return pellets;
 	}
 
+	public int remainingSuperPellets() {
+		Board b = getBoard();
+		int superPellets = 0;
+		for (int x = 0; x < b.getWidth(); x++) {
+			for (int y = 0; y < b.getHeight(); y++) {
+				for (Unit u : b.squareAt(x, y).getOccupants()) {
+					if (u instanceof Pellet && ((Pellet) u).getValue() == 50) {
+						superPellets++;
+					}
+				}
+			}
+		}
+		return superPellets;
+	}
+
 	/**
 	 * A task that moves an NPC and reschedules itself after it finished.
 	 * 
@@ -387,7 +399,7 @@ public class Level {
 
 		/**
 		 * Creates a new task.
-		 * 
+		 *
 		 * @param s
 		 *            The service that executes the task.
 		 * @param n
@@ -401,11 +413,39 @@ public class Level {
 		@Override
 		public void run() {
 			Direction nextMove = npc.nextMove();
+			long interval;
 			if (nextMove != null) {
 				move(npc, nextMove);
 			}
-			long interval = npc.getInterval();
+			if(((Ghost) npc).getFearedMode()) {
+				interval = npc.getInterval()*2;
+			}
+			else
+			{
+				interval = npc.getInterval();
+			}
 			service.schedule(this, interval, TimeUnit.MILLISECONDS);
+		}
+	}
+
+	/**
+	 * A task that moves an NPC and reschedules itself after it finished.
+	 *
+	 * @author Jeroen Roosen
+	 */
+	private final class TimerHunterTask extends TimerTask {
+
+		private Level lvl;
+
+		private TimerHunterTask(Level lvl)
+		{
+			this.lvl = lvl;
+		}
+
+		@Override
+		public void run() {
+			System.out.println("Bonjour");
+			lvl.stopHunterMode();
 		}
 	}
 
@@ -428,6 +468,6 @@ public class Level {
 		 */
 		void levelLost();
 
-		void changeLevelMode();
+		void startHunterMode();
 	}
 }
