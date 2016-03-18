@@ -76,19 +76,23 @@ public class Level {
 
 	private static final PacManSprites SPRITE_STORE = new PacManSprites();
 
-	private Timer timer = new Timer();
+	private Timer timerHunterMode = new Timer();
+
+	private Timer timerRespawn = new Timer();
+
+	private Timer timerWarning = new Timer();
+
+	public static int ghostLeft;
+
+	public static int ghostAte = 0;
 
 	/**
 	 * Creates a new level for the board.
-	 * 
-	 * @param b
-	 *            The board for the level.
-	 * @param ghosts
-	 *            The ghosts on the board.
-	 * @param startPositions
-	 *            The squares on which players start on this board.
-	 * @param collisionMap
-	 *            The collection of collisions that should be handled.
+	 *
+	 * @param b              The board for the level.
+	 * @param ghosts         The ghosts on the board.
+	 * @param startPositions The squares on which players start on this board.
+	 * @param collisionMap   The collection of collisions that should be handled.
 	 */
 	public Level(Board b, List<NPC> ghosts, List<Square> startPositions,
 				 CollisionMap collisionMap) {
@@ -101,6 +105,7 @@ public class Level {
 		this.npcs = new HashMap<>();
 		for (NPC g : ghosts) {
 			npcs.put(g, null);
+			ghostLeft++;
 		}
 		this.startSquares = startPositions;
 		this.startSquareIndex = 0;
@@ -112,9 +117,8 @@ public class Level {
 	/**
 	 * Adds an observer that will be notified when the level is won or lost
 	 * or change his state (Hunter mode).
-	 * 
-	 * @param observer
-	 *            The observer that will be notified.
+	 *
+	 * @param observer The observer that will be notified.
 	 */
 	public void addObserver(LevelObserver observer) {
 		if (observers.contains(observer)) {
@@ -125,9 +129,8 @@ public class Level {
 
 	/**
 	 * Removes an observer if it was listed.
-	 * 
-	 * @param observer
-	 *            The observer to be removed.
+	 *
+	 * @param observer The observer to be removed.
 	 */
 	public void removeObserver(LevelObserver observer) {
 		observers.remove(observer);
@@ -137,9 +140,8 @@ public class Level {
 	 * Registers a player on this level, assigning him to a starting position. A
 	 * player can only be registered once, registering a player again will have
 	 * no effect.
-	 * 
-	 * @param p
-	 *            The player to register.
+	 *
+	 * @param p The player to register.
 	 */
 	public void registerPlayer(Player p) {
 		assert p != null;
@@ -157,7 +159,7 @@ public class Level {
 
 	/**
 	 * Returns the board of this level.
-	 * 
+	 *
 	 * @return The board of this level.
 	 */
 	public Board getBoard() {
@@ -167,11 +169,9 @@ public class Level {
 	/**
 	 * Moves the unit into the given direction if possible and handles all
 	 * collisions.
-	 * 
-	 * @param unit
-	 *            The unit to move.
-	 * @param direction
-	 *            The direction to move the unit in.
+	 *
+	 * @param unit      The unit to move.
+	 * @param direction The direction to move the unit in.
 	 */
 	public void move(Unit unit, Direction direction) {
 		assert unit != null;
@@ -252,7 +252,7 @@ public class Level {
 	/**
 	 * Returns whether this level is in progress, i.e. whether moves can be made
 	 * on the board.
-	 * 
+	 *
 	 * @return <code>true</code> iff this level is in progress.
 	 */
 	public boolean isInProgress() {
@@ -273,6 +273,11 @@ public class Level {
 				o.startHunterMode();
 			}
 		}
+		if (ghostLeft != 4) {
+			for (LevelObserver o : observers) {
+				o.respawnGhost();
+			}
+		}
 		if (remainingPellets() == 0) {
 			for (LevelObserver o : observers) {
 				o.levelWon();
@@ -283,9 +288,9 @@ public class Level {
 	/**
 	 * Returns <code>true</code> iff at least one of the players in this level
 	 * is alive.
-	 * 
+	 *
 	 * @return <code>true</code> if at least one of the registered players is
-	 *         alive.
+	 * alive.
 	 */
 	public boolean isAnyPlayerAlive() {
 		for (Player p : players) {
@@ -312,38 +317,54 @@ public class Level {
 			for (int y = 0; y < b.getHeight(); y++) {
 				for (Unit u : b.squareAt(x, y).getOccupants()) {
 					if (u instanceof Ghost) {
-						timer.cancel();
-						timer = new Timer();
-						if(remainingSuperPellets() >= 2) {
-
-							timer.schedule(new TimerHunterTask(this), 7000);
-						}
-						else
-						{
-							timer.schedule(new TimerHunterTask(this), 5000);
+						timerHunterMode.cancel();
+						timerWarning.cancel();
+						timerHunterMode = new Timer();
+						timerWarning = new Timer();
+						if (remainingSuperPellets() >= 2) {
+							timerHunterMode.schedule(new TimerHunterTask(), 7000);
+							//System.out.println("unit u : " + u);
+							//timerWarning.schedule(new TimerWarningTask((Ghost) u), 5000, 500);
+						} else {
+							timerHunterMode.schedule(new TimerHunterTask(), 5000);
+							//timerWarning.schedule(new TimerWarningTask((Ghost) u), 3000, 500);
 						}
 						((Ghost) u).setFearedMode(true);
+						((Ghost) u).startFearedMode();
 					}
 				}
 			}
 		}
 		for (Player p : players) {
 			p.setHunterMode(false);
+			ghostAte = 0;
 		}
 	}
 
-	public void stopHunterMode(){
+	public void stopHunterMode() {
 		Board b = getBoard();
 		for (int x = 0; x < b.getWidth(); x++) {
 			for (int y = 0; y < b.getHeight(); y++) {
 				for (Unit u : b.squareAt(x, y).getOccupants()) {
 					if (u instanceof Ghost) {
 						((Ghost) u).setFearedMode(false);
+						((Ghost) u).stopFearedMode();
 					}
 				}
 			}
 		}
 	}
+
+	public void respawnGhost()
+	{
+		ghostLeft++;
+		Ghost ateGhost = PlayerCollisions.ateGhost;
+		//System.out.println("ateGhost = " + ateGhost);
+		timerRespawn = new Timer();
+		timerRespawn.schedule(new TimerRespawnTask(ateGhost), 5000);
+	}
+
+
 
 	/**
 	 * Counts the pellets remaining on the board.
@@ -428,24 +449,53 @@ public class Level {
 		}
 	}
 
-	/**
-	 * A task that moves an NPC and reschedules itself after it finished.
-	 *
-	 * @author Jeroen Roosen
-	 */
 	private final class TimerHunterTask extends TimerTask {
 
-		private Level lvl;
+		@Override
+		public void run() {
+			stopHunterMode();
+		}
+	}
 
-		private TimerHunterTask(Level lvl)
+	private final class TimerRespawnTask extends TimerTask {
+
+		private Ghost ghost;
+
+		private TimerRespawnTask(Ghost ghost)
 		{
-			this.lvl = lvl;
+			this.ghost = ghost;
 		}
 
 		@Override
 		public void run() {
-			System.out.println("Bonjour");
-			lvl.stopHunterMode();
+			Board b = getBoard();
+			ghost.occupy(b.getMiddleOfTheMap());
+			ghost.setFearedMode(false);
+			ghost.stopFearedMode();
+			stopNPCs();
+			startNPCs();
+			this.cancel();
+		}
+	}
+
+	private final class TimerWarningTask extends TimerTask {
+
+		private int count;
+
+		private TimerWarningTask()
+		{
+			this.count = 0;
+		}
+
+		@Override
+		public void run() {
+			/*if(count%2 == 0){
+				ghost.setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_WHITE));
+			}
+			else {
+				ghost.setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_BLUE));
+			}
+			count++;*/
 		}
 	}
 
@@ -469,5 +519,7 @@ public class Level {
 		void levelLost();
 
 		void startHunterMode();
+
+		void respawnGhost();
 	}
 }

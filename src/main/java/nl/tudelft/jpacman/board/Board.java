@@ -86,4 +86,26 @@ public class Board {
 	public boolean withinBorders(int x, int y) {
 		return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
 	}
+
+	public Square getMiddleOfTheMap()
+	{
+		Square result = null;
+		if(((getHeight()/2)%2 != 0) && ((getWidth()/2)%2 != 0))
+		{
+			result = board[(getWidth()/2)][(getHeight()/2)];
+		}
+		if(((getHeight()/2)%2 == 0) && ((getWidth()/2)%2 != 0))
+		{
+			result = board[(getWidth()/2)][(getHeight()/2)-1];
+		}
+		if(((getHeight()/2)%2 != 0) && ((getWidth()/2)%2 == 0))
+		{
+			result = board[(getWidth()/2)-1][(getHeight()/2)];
+		}
+		if(((getHeight()/2)%2 == 0) && ((getWidth()/2)%2 == 0))
+		{
+			result = board[(getWidth()/2)-1][(getHeight()/2)-1];
+		}
+		return result;
+	}
 }

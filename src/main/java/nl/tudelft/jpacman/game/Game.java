@@ -100,6 +100,11 @@ public abstract class Game implements LevelObserver {
 			getLevel().move(player, direction);
 		}
 	}
+
+	public void respawnGhost()
+	{
+		getLevel().respawnGhost();
+	}
 	
 	@Override
 	public void levelWon() {

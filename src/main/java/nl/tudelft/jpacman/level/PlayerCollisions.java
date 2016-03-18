@@ -1,8 +1,8 @@
 package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
-import nl.tudelft.jpacman.npc.ghost.EatableGhost;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.level.Level;
 
 /**
  * A simple implementation of a collision map for the JPacman player.
@@ -16,6 +16,8 @@ import nl.tudelft.jpacman.npc.ghost.Ghost;
  */
 
 public class PlayerCollisions implements CollisionMap {
+
+	public static Ghost ateGhost = null;
 
 	@Override
 	public void collide(Unit mover, Unit collidedOn) {
@@ -31,7 +33,7 @@ public class PlayerCollisions implements CollisionMap {
 	private void playerColliding(Player player, Unit collidedOn) {
 		if (collidedOn instanceof Ghost) {
 			if (((Ghost) collidedOn).getFearedMode()){
-				playerVersusEatableGhost((Ghost) collidedOn);
+				playerVersusEatableGhost(player, (Ghost) collidedOn);
 			}
 			else {
 				playerVersusGhost(player);
@@ -44,7 +46,7 @@ public class PlayerCollisions implements CollisionMap {
 	
 	private void ghostColliding(Ghost ghost, Unit collidedOn) {
 		if (ghost.getFearedMode() && collidedOn instanceof Player) {
-			playerVersusEatableGhost(ghost);
+			playerVersusEatableGhost((Player) collidedOn, ghost);
 		}
 		else if (collidedOn instanceof Player) {
 			playerVersusGhost((Player) collidedOn);
@@ -61,8 +63,24 @@ public class PlayerCollisions implements CollisionMap {
 		player.setAlive(false);
 	}
 
-	public void playerVersusEatableGhost(Ghost ghost) {
+	public void playerVersusEatableGhost(Player player, Ghost ghost)
+	{
+		PlayerCollisions.ateGhost = ghost;
 		ghost.leaveSquare();
+		Level.ghostLeft--;
+		Level.ghostAte++;
+		if(Level.ghostAte == 1){
+			player.addPoints(200);
+		}
+		if(Level.ghostAte == 2) {
+			player.addPoints(400);
+		}
+		if(Level.ghostAte == 3) {
+			player.addPoints(800);
+		}
+		if(Level.ghostAte == 4) {
+			player.addPoints(1600);
+		}
 	}
 	
 	/**

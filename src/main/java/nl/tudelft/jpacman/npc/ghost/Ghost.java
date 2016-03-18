@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.npc.NPC;
@@ -27,6 +28,8 @@ public abstract class Ghost extends NPC {
 
 	private boolean fearedMode = false;
 
+	private Board board;
+
 	/**
 	 * Creates a new ghost.
 	 * 
@@ -38,12 +41,23 @@ public abstract class Ghost extends NPC {
 	}
 
 	@Override
-	public Sprite getSprite() {
-		if(getFearedMode())
-		{
-			setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_BLUE));
-			return sprites.get(getDirection());
-		}
+	public Sprite getSprite() { return sprites.get(getDirection()); }
+
+	public void setSprite(Map<Direction, Sprite> sprite) {
+		this.sprites = sprite;
+	}
+
+	public boolean getFearedMode(){ return fearedMode; }
+
+	public void setFearedMode(boolean fearedMode) { this.fearedMode = fearedMode; }
+
+	public void startFearedMode()
+	{
+		setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_BLUE));
+	}
+
+	public void stopFearedMode()
+	{
 		if(this instanceof Blinky)
 		{
 			setSprite(SPRITE_STORE.getGhostSprite(GhostColor.RED));
@@ -60,16 +74,7 @@ public abstract class Ghost extends NPC {
 		{
 			setSprite(SPRITE_STORE.getGhostSprite(GhostColor.ORANGE));
 		}
-		return sprites.get(getDirection());
 	}
-
-	public void setSprite(Map<Direction, Sprite> sprite) {
-		this.sprites = sprite;
-	}
-
-	public boolean getFearedMode(){ return fearedMode; }
-
-	public void setFearedMode(boolean fearedMode) { this.fearedMode = fearedMode; }
 
 	/**
 	 * Determines a possible move in a random direction.

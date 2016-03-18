@@ -30,5 +30,10 @@ public enum GhostColor {
 	/**
 	 * The eatable Ghost
 	 */
-	VUL_BLUE;
+	VUL_BLUE,
+
+	/**
+	 * The end of eatable Ghost
+	 */
+	VUL_WHITE;
 }
