@@ -28,7 +28,7 @@ public abstract class Ghost extends NPC {
 
 	private boolean fearedMode = false;
 
-	private Board board;
+	private Square lastSquare = null;
 
 	/**
 	 * Creates a new ghost.
@@ -94,6 +94,28 @@ public abstract class Ghost extends NPC {
 			return null;
 		}
 		int i = new Random().nextInt(directions.size());
+		this.lastSquare = getSquare();
+		return directions.get(i);
+	}
+
+	protected Square getLastSquare() {
+		return this.lastSquare;
+	}
+
+	protected Direction randomMoveAtCrossroads()
+	{
+		Square square = getSquare();
+		List<Direction> directions = new ArrayList<>();
+		for (Direction d : Direction.values()) {
+			if (square.getSquareAt(d).isAccessibleTo(this) && square.getSquareAt(d) != getLastSquare()) {
+				directions.add(d);
+			}
+		}
+		if (directions.isEmpty()) {
+			return null;
+		}
+		int i = new Random().nextInt(directions.size());
+		this.lastSquare = getSquare();
 		return directions.get(i);
 	}
 }

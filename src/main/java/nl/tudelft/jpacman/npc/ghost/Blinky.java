@@ -87,7 +87,7 @@ public class Blinky extends Ghost {
 		// TODO Implement his actual behaviour instead of simply chasing.
 		if (this.getFearedMode())
 		{
-			Direction d = randomMove();
+			Direction d = randomMoveAtCrossroads();
 			return d;
 		}
 		Square target = Navigation.findNearest(Player.class, getSquare())

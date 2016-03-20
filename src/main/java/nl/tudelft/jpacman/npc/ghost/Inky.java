@@ -102,7 +102,7 @@ public class Inky extends Ghost {
 	public Direction nextMove() {
 		if (this.getFearedMode())
 		{
-			Direction d = randomMove();
+			Direction d = randomMoveAtCrossroads();
 			return d;
 		}
 		Unit blinky = Navigation.findNearest(Blinky.class, getSquare());

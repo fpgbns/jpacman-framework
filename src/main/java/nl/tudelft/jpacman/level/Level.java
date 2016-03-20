@@ -303,9 +303,7 @@ public class Level {
 
 	public boolean hunterMode() {
 		for (Player p : players) {
-			if (p.getHunterMode()) {
-				return true;
-			}
+			return p.getHunterMode();
 		}
 		return false;
 	}
@@ -359,7 +357,6 @@ public class Level {
 	{
 		ghostLeft++;
 		Ghost ateGhost = PlayerCollisions.ateGhost;
-		//System.out.println("ateGhost = " + ateGhost);
 		timerRespawn = new Timer();
 		timerRespawn.schedule(new TimerRespawnTask(ateGhost), 5000);
 	}
