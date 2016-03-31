@@ -108,6 +108,11 @@ public class MapParser {
 			grid[x][y] = playerSquare;
 			startPositions.add(playerSquare);
 			break;
+		case 'H':
+			Square holeSquare = boardCreator.createGround();
+			grid[x][y] = holeSquare;
+			levelCreator.createHole().occupy(holeSquare);
+			break;
 		default:
 			throw new PacmanConfigurationException("Invalid character at "
 					+ x + "," + y + ": " + c);

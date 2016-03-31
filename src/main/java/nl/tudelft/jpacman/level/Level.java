@@ -173,7 +173,7 @@ public class Level {
 		assert unit != null;
 		assert direction != null;
 
-		if (!isInProgress()) {
+		if (!isInProgress() || !(unit.getMobility())) {
 			return;
 		}
 

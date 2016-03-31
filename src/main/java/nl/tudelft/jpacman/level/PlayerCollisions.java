@@ -2,6 +2,8 @@ package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple implementation of a collision map for the JPacman player.
@@ -31,15 +33,20 @@ public class PlayerCollisions implements CollisionMap {
 		if (collidedOn instanceof Ghost) {
 			playerVersusGhost(player, (Ghost) collidedOn);
 		}
-		
 		if (collidedOn instanceof Pellet) {
 			playerVersusPellet(player, (Pellet) collidedOn);
-		}		
+		}
+		if (collidedOn instanceof Hole) {
+			characterVersusHole((Unit) player, (Hole) collidedOn);
+		}
 	}
 	
 	private void ghostColliding(Ghost ghost, Unit collidedOn) {
 		if (collidedOn instanceof Player) {
 			playerVersusGhost((Player) collidedOn, ghost);
+		}
+		if (collidedOn instanceof Hole) {
+			characterVersusHole((Unit) ghost, (Hole) collidedOn);
 		}
 	}
 	
@@ -65,4 +72,24 @@ public class PlayerCollisions implements CollisionMap {
 		player.addPoints(pellet.getValue());		
 	}
 
+	/**
+	 * Actual case of A player or a ghost falling into a hole.
+     *
+     * @param player The player involved in the collision.
+     * @param pellet The pellet involved in the collision.
+	 */
+	public void characterVersusHole(Unit unit, Hole hole) {
+		int timeMilisec = hole.getTrapTime() * 1000;
+		hole.leaveSquare();
+		if (unit instanceof Player || unit instanceof Ghost) {
+			unit.setMobility(false);
+			TimerTask timerTask = new TimerTask() {
+		        public void run() {
+		        	unit.setMobility(true);
+		        }
+		    };
+		    Timer timer = new Timer();
+		    timer.schedule(timerTask, timeMilisec);
+		}
+	}
 }

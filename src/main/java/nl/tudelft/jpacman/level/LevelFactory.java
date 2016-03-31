@@ -30,6 +30,11 @@ public class LevelFactory {
 	 * The default value of a pellet.
 	 */
 	private static final int PELLET_VALUE = 10;
+	
+	/**
+	 * The default time in seconds during which a player or ghost is trapped into a hole.
+	 */
+	private static final int HOLE_TIME = 1;
 
 	/**
 	 * The sprite store that provides sprites for units.
@@ -109,6 +114,15 @@ public class LevelFactory {
 	 */
 	public Pellet createPellet() {
 		return new Pellet(PELLET_VALUE, sprites.getPelletSprite());
+	}
+	
+	/**
+	 * Creates a new hole.
+	 * 
+	 * @return The new hole.
+	 */
+	public Hole createHole() {
+		return new Hole(HOLE_TIME, sprites.getHoleSprite());
 	}
 
 	/**

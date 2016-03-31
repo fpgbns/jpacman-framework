@@ -18,12 +18,26 @@ public abstract class Unit {
 	 * The direction this unit is facing.
 	 */
 	private Direction direction;
+	
+	/**
+	 * Whether this unit can be moved or not.
+	 */
+	private boolean mobile;
 
 	/**
 	 * Creates a unit that is facing east.
 	 */
 	protected Unit() {
 		this.direction = Direction.EAST;
+		this.mobile = true;
+	}
+	
+	/**
+	 * Sets if this unit can be moved or not.
+	 * @param newValue the new mobility state of this unit.
+	 */
+	public void setMobility(boolean newValue) {
+		this.mobile = newValue;
 	}
 	
 	/**
@@ -40,6 +54,14 @@ public abstract class Unit {
 	 */
 	public Direction getDirection() {
 		return this.direction;
+	}
+	
+	/**
+	 * Returns the mobility state of this unit.
+	 * @return The current mobility state of this unit.
+	 */
+	public boolean getMobility() {
+		return this.mobile;
 	}
 	
 	/**
