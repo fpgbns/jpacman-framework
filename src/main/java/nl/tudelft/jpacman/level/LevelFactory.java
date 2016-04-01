@@ -124,6 +124,11 @@ public class LevelFactory {
 	public Hole createHole() {
 		return new Hole(HOLE_TIME, sprites.getHoleSprite());
 	}
+	
+	public Teleport createTeleport()
+	{
+		return new Teleport(sprites.getTeleportSprite());
+	}
 
 	/**
 	 * Implementation of an NPC that wanders around randomly.

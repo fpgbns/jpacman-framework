@@ -135,6 +135,13 @@ public class PacManSprites extends SpriteStore {
 	public Sprite getHoleSprite() {
 		return loadSprite("/sprite/trap.png");
 	}
+	
+	/**
+	 * @return The sprite for the trap.
+	 */
+	public Sprite getTeleportSprite() {
+		return loadSprite("/sprite/teleport.png");
+	}
 
 	/**
 	 * Overloads the default sprite loading, ignoring the exception. This class

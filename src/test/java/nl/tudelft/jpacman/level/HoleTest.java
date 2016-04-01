@@ -35,7 +35,7 @@ public class HoleTest {
 	@Test
 	public void initializationTest() throws IOException {
 		SpriteStore store = new SpriteStore();
-        Sprite sprite = store.loadSprite("/64x64white.png");
+        Sprite sprite = store.loadSprite("/sprite/64x64white.png");
 		Hole testHole = new Hole(HOLE_TIME_TEST, sprite);
 		assertEquals(testHole.getTrapTime(), HOLE_TIME_TEST);
 		assertEquals(testHole.getSprite(), sprite);

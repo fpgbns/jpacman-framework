@@ -2,6 +2,9 @@ package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.board.Square;
+
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,6 +41,9 @@ public class PlayerCollisions implements CollisionMap {
 		}
 		if (collidedOn instanceof Hole) {
 			characterVersusHole((Unit) player, (Hole) collidedOn);
+		}
+		if (collidedOn instanceof Teleport) {
+			playerVersusTeleport((Unit) player, (Teleport) collidedOn);
 		}
 	}
 	
@@ -76,7 +82,7 @@ public class PlayerCollisions implements CollisionMap {
 	 * Actual case of A player or a ghost falling into a hole.
      *
      * @param player The player involved in the collision.
-     * @param pellet The pellet involved in the collision.
+     * @param hole The hole involved in the collision.
 	 */
 	public void characterVersusHole(Unit unit, Hole hole) {
 		int timeMilisec = hole.getTrapTime() * 1000;
@@ -90,6 +96,27 @@ public class PlayerCollisions implements CollisionMap {
 		    };
 		    Timer timer = new Timer();
 		    timer.schedule(timerTask, timeMilisec);
+		}
+	}
+	
+	/**
+	 * Actual case of A player entering into a teleport
+     *
+     * @param player The player involved in the collision.
+     * @param teleport The pellet involved in the collision.
+	 */
+	public void playerVersusTeleport(Unit unit, Teleport teleport) {
+		Square s = teleport.getReference();
+		if(s.isAccessibleTo(unit))
+		{
+			unit.occupy(s);
+			List<Unit> occupants = s.getOccupants();
+			for (Unit occupant : occupants) {
+				if(!(occupant instanceof Teleport))
+				{
+					collide(unit, occupant);
+				}
+			}
 		}
 	}
 }
