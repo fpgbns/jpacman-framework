@@ -11,6 +11,8 @@ import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.PacmanConfigurationException;
 import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.BoardFactory;
+import nl.tudelft.jpacman.board.BridgePosition;
+import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.NPC;
@@ -69,7 +71,7 @@ public class MapParser {
 	 *            representing the square at position x,y.
 	 * @return The level as represented by this text.
 	 */
-	public Level parseMap(char[][] map, List<int[]> teleportrefs) {
+	public Level parseMap(char[][] map, List<int[]> teleportrefs, List<char[]> bridgeRefs){
 		int width = map.length;
 		int height = map[0].length;
 
@@ -78,15 +80,16 @@ public class MapParser {
 		List<NPC> ghosts = new ArrayList<>();
 		List<Square> startPositions = new ArrayList<>();
 		List<Teleport> teleportList = new ArrayList<>();
+		List<Bridge> bridgeList = new ArrayList<>();
 		
-		makeGrid(map, width, height, grid, ghosts, startPositions, teleportList);
+		makeGrid(map, width, height, grid, ghosts, startPositions, teleportList, bridgeList);
 		Board board = boardCreator.createBoard(grid);
 		setTeleports(teleportList, teleportrefs, board);
+		setBridges(bridgeList, bridgeRefs);
 		return levelCreator.createLevel(board, ghosts, startPositions);
 	}
 	
-	private void setTeleports(List<Teleport> teleportList, List<int[]> teleportRefs, Board b)
-	{
+	private void setTeleports(List<Teleport> teleportList, List<int[]> teleportRefs, Board b){
 		if(teleportList.size() == teleportRefs.size()){
 			int[] t;
 			for(int i = 0; i < teleportList.size(); i++){
@@ -96,7 +99,7 @@ public class MapParser {
 				}
 				else{
 					throw new PacmanConfigurationException(
-							"The teleport refereces must be a place in the board and accessible by any player");
+				        "The teleport refereces must be a place in the board");
 				}
 			}
 		}
@@ -104,19 +107,43 @@ public class MapParser {
 			throw new PacmanConfigurationException("there can't be more references than teleports");
 		}
 	}
+	
+	private void setBridges(List<Bridge> bridgeList, List<char[]> bridgeRefs){
+		if(bridgeList.size() == bridgeRefs.size()){
+			char[] t;
+			for(int i = 0; i < bridgeList.size(); i++){
+				t = bridgeRefs.get(i);
+				if(t[0] == 'H'){
+					bridgeList.get(i).setDirection(Direction.EAST);
+				}
+				else if(t[0] == 'V'){
+					bridgeList.get(i).setDirection(Direction.NORTH);
+				}
+				if(t[1] == 'P'){
+					Square pelletSquare = bridgeList.get(i).getSquare();
+					Unit p = levelCreator.createPellet();
+					p.setBridgePosition(BridgePosition.UNDER_A_BRIDGE);
+					p.occupy(pelletSquare);
+				}
+			}
+		}
+		else{
+			throw new PacmanConfigurationException("there can't be more references than bridges");
+		}
+	}
 
-	private void makeGrid(char[][] map, int width, int height,
-			Square[][] grid, List<NPC> ghosts, List<Square> startPositions, List<Teleport> teleportList) {
+	private void makeGrid(char[][] map, int width, int height, Square[][] grid, List<NPC> ghosts,
+	        List<Square> startPositions, List<Teleport> teleportList, List<Bridge> bridgeList) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				char c = map[x][y];
-				addSquare(grid, ghosts, startPositions, x, y, c, teleportList);
+				addSquare(grid, ghosts, startPositions, x, y, c, teleportList, bridgeList);
 			}
 		}
 	}
 
 	private void addSquare(Square[][] grid, List<NPC> ghosts,
-			List<Square> startPositions, int x, int y, char c, List<Teleport> teleportList) {
+			List<Square> startPositions, int x, int y, char c, List<Teleport> teleportList, List<Bridge> bridgeList) {
 		switch (c) {
 		case ' ':
 			grid[x][y] = boardCreator.createGround();
@@ -127,7 +154,8 @@ public class MapParser {
 		case '.':
 			Square pelletSquare = boardCreator.createGround();
 			grid[x][y] = pelletSquare;
-			levelCreator.createPellet().occupy(pelletSquare);
+			Unit p = levelCreator.createPellet();
+			p.occupy(pelletSquare);
 			break;
 		case 'G':
 			Square ghostSquare = makeGhostSquare(ghosts);
@@ -149,6 +177,13 @@ public class MapParser {
 			teleportList.add(t);
 			t.occupy(teleportSquare);
 			grid[x][y] = teleportSquare;
+			break;
+		case 'B':
+			Square bridgeSquare = boardCreator.createGround();
+			Bridge bridge = levelCreator.createBridge();
+			bridgeList.add(bridge);
+			bridge.occupy(bridgeSquare);
+			grid[x][y] = bridgeSquare;
 			break;
 		default:
 			throw new PacmanConfigurationException("Invalid character at "
@@ -176,25 +211,31 @@ public class MapParser {
 	 * @throws PacmanConfigurationException If text lines are not properly formatted.
 	 */
 	public Level parseMap(List<String> text) {
-		
 		checkMapFormat(text);
 
 		int height = text.size();
 		int width = text.get(0).length();
-		
-		int y = 0;
-		for (y = 0; y < height && (text.get(y).charAt(0) != SEPARATOR); y++) {}
+		int firstSectionEnd = findSectionWidth(text, height, 0);
 
-		char[][] map = new char[width][y];
-		for (y = 0; y < height && (text.get(y).charAt(0) != SEPARATOR); y++) {
+		char[][] map = new char[width][firstSectionEnd];
+		for (int y = 0; y < height && (text.get(y).charAt(0) != SEPARATOR); y++) {
 			for (int x = 0; x < width; x++) {
 				map[x][y] = text.get(y).charAt(x);
 			}
 		}
-		y++;
-		List<int[]> teleportRefs = parseTeleport(text, y);
 		
-		return parseMap(map, teleportRefs);
+		firstSectionEnd++;
+		int secondSectionEnd = findSectionWidth(text, height, firstSectionEnd);
+		List<int[]> teleportRefs = parseTeleport(text, firstSectionEnd, secondSectionEnd);
+		secondSectionEnd++;
+		List<char[]> bridgeRefs = parseBridge(text, secondSectionEnd, height);
+		return parseMap(map, teleportRefs, bridgeRefs);
+	}
+	
+	private int findSectionWidth(List<String> text, int height, int start){
+		int result;
+		for (result = start; result < height && (text.get(result).charAt(0) != SEPARATOR); result++){}
+		return result;
 	}
 	
 	/**
@@ -261,12 +302,12 @@ public class MapParser {
 	 * @return The level as represented by the text.
 	 * @throws PacmanConfigurationException If text lines are not properly formatted.
 	 */
-	private List<int[]> parseTeleport(List<String> text, int y){
+	private List<int[]> parseTeleport(List<String> text, int y, int sectionEnd){
 		List<int[]> teleportRefs = new ArrayList<>();
 		String s;
 		String[] ts;
 		int[] elem;
-		for (; y < text.size(); y++) {
+		for (; y < sectionEnd; y++) {
 			s = text.get(y).trim();
 			ts = s.split(" ");
 			if(ts.length == 2){
@@ -291,5 +332,23 @@ public class MapParser {
 			teleportRefs.add(elem);
 		}
 		return teleportRefs;
+	}
+	
+	private List<char[]> parseBridge(List<String> text, int y, int width){
+		List<char[]> bridgeRefs = new ArrayList<>();
+		char c1, c2;
+		char[] elem;
+		for (; y < width; y++) {
+			c1 = text.get(y).charAt(0);
+			c2 = text.get(y).charAt(1);
+			if(c1 != 'H' && c1 != 'V' || c2 != 'P' && c2 != ' '){
+				throw new PacmanConfigurationException("Incorrect Bridge data : "+c1+c2);
+			}
+			else{
+				elem = new char[] {c1, c2};
+				bridgeRefs.add(elem);
+			}
+		}
+		return bridgeRefs;
 	}
 }

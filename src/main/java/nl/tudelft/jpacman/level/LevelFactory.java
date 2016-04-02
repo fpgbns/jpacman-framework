@@ -129,6 +129,11 @@ public class LevelFactory {
 	{
 		return new Teleport(sprites.getTeleportSprite());
 	}
+	
+	public Bridge createBridge()
+	{
+		return new Bridge(sprites.getBridgeSprites());
+	}
 
 	/**
 	 * Implementation of an NPC that wanders around randomly.

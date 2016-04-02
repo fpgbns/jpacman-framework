@@ -1,6 +1,8 @@
 package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.board.Square;
 
@@ -23,12 +25,13 @@ public class PlayerCollisions implements CollisionMap {
 
 	@Override
 	public void collide(Unit mover, Unit collidedOn) {
-		
-		if (mover instanceof Player) {
-			playerColliding((Player) mover, collidedOn);
-		}
-		else if (mover instanceof Ghost) {
-			ghostColliding((Ghost) mover, collidedOn);
+		if(mover.getBridgePosition() == collidedOn.getBridgePosition()){
+			if (mover instanceof Player) {
+				playerColliding((Player) mover, collidedOn);
+			}
+			else if (mover instanceof Ghost) {
+				ghostColliding((Ghost) mover, collidedOn);
+			}
 		}
 	}
 	
@@ -43,7 +46,10 @@ public class PlayerCollisions implements CollisionMap {
 			characterVersusHole((Unit) player, (Hole) collidedOn);
 		}
 		if (collidedOn instanceof Teleport) {
-			playerVersusTeleport((Unit) player, (Teleport) collidedOn);
+			playerVersusTeleport(player, (Teleport) collidedOn);
+		}
+		if (collidedOn instanceof Bridge) {
+			characterVersusBridge((Unit) player, (Bridge) collidedOn);
 		}
 	}
 	
@@ -53,6 +59,9 @@ public class PlayerCollisions implements CollisionMap {
 		}
 		if (collidedOn instanceof Hole) {
 			characterVersusHole((Unit) ghost, (Hole) collidedOn);
+		}
+		if (collidedOn instanceof Bridge) {
+			characterVersusBridge((Unit) ghost, (Bridge) collidedOn);
 		}
 	}
 	
@@ -105,7 +114,7 @@ public class PlayerCollisions implements CollisionMap {
      * @param player The player involved in the collision.
      * @param teleport The pellet involved in the collision.
 	 */
-	public void playerVersusTeleport(Unit unit, Teleport teleport) {
+	public void playerVersusTeleport(Player unit, Teleport teleport) {
 		Square s = teleport.getReference();
 		if(s.isAccessibleTo(unit))
 		{
@@ -114,9 +123,29 @@ public class PlayerCollisions implements CollisionMap {
 			for (Unit occupant : occupants) {
 				if(!(occupant instanceof Teleport))
 				{
+					if(occupant instanceof Bridge)
+					{
+						unit.setDirection(occupant.getDirection());
+					}
 					collide(unit, occupant);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Actual case of A player or a ghost falling into a hole.
+     *
+     * @param player The player involved in the collision.
+     * @param hole The hole involved in the collision.
+	 */
+	public void characterVersusBridge(Unit unit, Bridge bridge) {
+		Direction uDir = unit.getDirection();
+		if(bridge.parralelTo(uDir)){
+			unit.setBridgePosition(BridgePosition.ON_A_BRIDGE);
+		}
+		else{
+			unit.setBridgePosition(BridgePosition.UNDER_A_BRIDGE);
 		}
 	}
 }

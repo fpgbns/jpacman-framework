@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import nl.tudelft.jpacman.board.Board;
+import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.game.Game;
@@ -114,7 +115,9 @@ class BoardPanel extends JPanel {
 	private void render(Square square, Graphics g, int x, int y, int w, int h) {
 		square.getSprite().draw(g, x, y, w, h);
 		for (Unit unit : square.getOccupants()) {
-			unit.getSprite().draw(g, x, y, w, h);
+			if(unit.getBridgePosition() != BridgePosition.UNDER_A_BRIDGE){
+				unit.getSprite().draw(g, x, y, w, h);
+			}
 		}
 	}
 }

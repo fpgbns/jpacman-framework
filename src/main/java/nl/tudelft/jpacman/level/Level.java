@@ -10,9 +10,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import nl.tudelft.jpacman.board.Board;
+import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.level.Bridge;
 import nl.tudelft.jpacman.npc.NPC;
 
 /**
@@ -181,8 +183,9 @@ public class Level {
 			unit.setDirection(direction);
 			Square location = unit.getSquare();
 			Square destination = location.getSquareAt(direction);
-
-			if (destination.isAccessibleTo(unit)) {
+			
+			if (destination.isAccessibleTo(unit) && !(blockedUnderAbridge(unit, direction))) {
+				unit.setBridgePosition(BridgePosition.NOT_ON_A_BRIDGE);
 				List<Unit> occupants = destination.getOccupants();
 				unit.occupy(destination);
 				for (Unit occupant : occupants) {
@@ -191,6 +194,18 @@ public class Level {
 			}
 			updateObservers();
 		}
+	}
+	
+	private boolean blockedUnderAbridge(Unit unit, Direction direction){
+		Unit u = unit.getSquare().getOccupants().get(0);
+		if(u instanceof Bridge){
+			Bridge b = (Bridge) u;
+			if((!(b.parralelTo(direction)) && unit.getBridgePosition() == BridgePosition.ON_A_BRIDGE)
+			  || (b.parralelTo(direction) && unit.getBridgePosition() == BridgePosition.UNDER_A_BRIDGE)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

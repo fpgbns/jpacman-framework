@@ -20,6 +20,11 @@ public abstract class Unit {
 	private Direction direction;
 	
 	/**
+	 * blablabla
+	 */
+	private BridgePosition bridgePosition;
+	
+	/**
 	 * Whether this unit can be moved or not.
 	 */
 	private boolean mobile;
@@ -29,6 +34,7 @@ public abstract class Unit {
 	 */
 	protected Unit() {
 		this.direction = Direction.EAST;
+		this.bridgePosition = BridgePosition.NOT_ON_A_BRIDGE;
 		this.mobile = true;
 	}
 	
@@ -54,6 +60,20 @@ public abstract class Unit {
 	 */
 	public Direction getDirection() {
 		return this.direction;
+	}
+	
+	/**
+	 * blabla
+	 */
+	public void setBridgePosition(BridgePosition position) {
+		this.bridgePosition = position;
+	}
+	
+	/**
+	 * blabla
+	 */
+	public BridgePosition getBridgePosition() {
+		return this.bridgePosition;
 	}
 	
 	/**

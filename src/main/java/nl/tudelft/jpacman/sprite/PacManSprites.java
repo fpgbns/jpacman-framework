@@ -41,6 +41,11 @@ public class PacManSprites extends SpriteStore {
 	 * The amount of frames in the ghost animation.
 	 */
 	private static final int GHOST_ANIMATION_FRAMES = 2;
+	
+	/**
+	 * The amount of frames in a multi-direction object that has no animation.
+	 */
+	private static final int NO_ANIMATION_FRAMES = 1;
 
 	/**
 	 * The delay between frames.
@@ -137,10 +142,17 @@ public class PacManSprites extends SpriteStore {
 	}
 	
 	/**
-	 * @return The sprite for the trap.
+	 * @return The sprite for the teleport.
 	 */
 	public Sprite getTeleportSprite() {
 		return loadSprite("/sprite/teleport.png");
+	}
+	
+	/**
+	 * @return The sprite for the bridge.
+	 */
+	public Map<Direction, Sprite> getBridgeSprites() {
+		return directionSprite("/sprite/bridge.png", NO_ANIMATION_FRAMES);
 	}
 
 	/**
