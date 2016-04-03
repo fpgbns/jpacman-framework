@@ -37,6 +37,8 @@ public class PacManSprites extends SpriteStore {
 	 */
 	private static final int PACMAN_DEATH_FRAMES = 11;
 	
+	private static final int GHOST_EXPLODE_FRAMES = 6;
+	
 	/**
 	 * The amount of frames in the ghost animation.
 	 */
@@ -58,6 +60,19 @@ public class PacManSprites extends SpriteStore {
 	public Map<Direction, Sprite> getPacmanSprites() {
 		return directionSprite("/sprite/pacman.png", PACMAN_ANIMATION_FRAMES);
 	}
+	
+	public Map<Direction, Sprite> getPacmanParalizedSprites() {
+		return directionSprite("/sprite/pacman-paralized.png", NO_ANIMATION_FRAMES);
+	}
+	
+	public Map<Direction, Sprite> getParalizedGhostSprite() {
+		return directionSprite("/sprite/ghost_vul_blue.png", GHOST_ANIMATION_FRAMES);
+	}
+
+	public Map<Direction, Sprite> getAngryGhostSprite() {
+		return directionSprite("/sprite/ghost_vul_blue.png", GHOST_ANIMATION_FRAMES);
+	}
+
 
 	/**
 	 * @return The animation of a dying Pac-Man.
@@ -67,6 +82,17 @@ public class PacManSprites extends SpriteStore {
 
 		Sprite baseImage = loadSprite(resource);
 		AnimatedSprite animation = createAnimatedSprite(baseImage, PACMAN_DEATH_FRAMES,
+				ANIMATION_DELAY, false);
+		animation.setAnimating(false);
+
+		return animation;
+	}
+	
+	public AnimatedSprite getGhostExplodeAnimation() {
+		String resource = "/sprite/ghost-explode.png";
+		
+		Sprite baseImage = loadSprite(resource);
+		AnimatedSprite animation = createAnimatedSprite(baseImage, GHOST_EXPLODE_FRAMES,
 				ANIMATION_DELAY, false);
 		animation.setAnimating(false);
 
@@ -139,6 +165,36 @@ public class PacManSprites extends SpriteStore {
 	 */
 	public Sprite getHoleSprite() {
 		return loadSprite("/sprite/trap.png");
+	}
+	
+	public Sprite getPomegranateSprite() {
+		//return loadSprite("/sprite/pomegranate.png");
+		return loadSprite("/sprite/apple.png");
+	}
+	
+	public Sprite getBellPepperSprite() {
+		//return loadSprite("/sprite/bell-pepper.png");
+		return loadSprite("/sprite/bell.png");
+	}
+	
+	public Sprite getTomatoSprite() {
+		//return loadSprite("/sprite/tomato.png");
+		return loadSprite("/sprite/cherry.png");
+	}
+	
+	public Sprite getKidneyBeanSprite() {
+		//return loadSprite("/sprite/kidney-bean.png");
+		return loadSprite("/sprite/galboss.png");
+	}
+	
+	public Sprite getPotatoSprite() {
+		//return loadSprite("/sprite/potato.png");
+		return loadSprite("/sprite/key.png");
+	}
+	
+	public Sprite getFishSprite() {
+		//return loadSprite("/sprite/fish.png");
+		return loadSprite("/sprite/melon.png");
 	}
 	
 	/**

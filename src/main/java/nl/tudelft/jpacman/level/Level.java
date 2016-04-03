@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,8 +16,12 @@ import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.fruit.FruitFactory;
 import nl.tudelft.jpacman.level.Bridge;
 import nl.tudelft.jpacman.npc.NPC;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.npc.ghost.Navigation;
+import nl.tudelft.jpacman.sprite.PacManSprites;
 
 /**
  * A level of Pac-Man. A level consists of the board with the players and the
@@ -61,6 +67,8 @@ public class Level {
 	 * The start current selected starting square.
 	 */
 	private int startSquareIndex;
+	
+	private FruitFactory fruitFactory;
 
 	/**
 	 * The players on this level.
@@ -107,6 +115,11 @@ public class Level {
 		this.collisions = collisionMap;
 		this.observers = new ArrayList<>();
 	}
+	
+	public void setupFruits(List<Square> fruitpositions, List<NPC> npcs) {
+		fruitFactory = new FruitFactory(new PacManSprites(), fruitpositions, npcs);
+	}
+	
 
 	/**
 	 * Adds an observer that will be notified when the level is won or lost.
@@ -284,6 +297,11 @@ public class Level {
 				o.levelWon();
 			}
 		}
+		if (anyPlayerDesserveFruits()) {
+			for (LevelObserver o : observers) {
+					o.fruitEvent();
+			}
+		}
 	}
 
 	/**
@@ -296,6 +314,15 @@ public class Level {
 	public boolean isAnyPlayerAlive() {
 		for (Player p : players) {
 			if (p.isAlive()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean anyPlayerDesserveFruits() {
+		for (Player p : players) {
+			if (p.getScore() == 500 || p.getScore() == 1500) {
 				return true;
 			}
 		}
@@ -320,6 +347,10 @@ public class Level {
 			}
 		}
 		return pellets;
+	}
+	
+	public FruitFactory getFruitFactory(){
+		return fruitFactory;
 	}
 
 	/**
@@ -381,5 +412,7 @@ public class Level {
 		 * this event is received.
 		 */
 		void levelLost();
+		
+		void fruitEvent();
 	}
 }

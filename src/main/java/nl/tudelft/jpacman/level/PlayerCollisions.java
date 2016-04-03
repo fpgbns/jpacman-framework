@@ -1,6 +1,7 @@
 package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.fruit.Fruit;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
@@ -36,7 +37,7 @@ public class PlayerCollisions implements CollisionMap {
 	}
 	
 	private void playerColliding(Player player, Unit collidedOn) {
-		if (collidedOn instanceof Ghost) {
+		if (collidedOn instanceof Ghost && !(player.isInvincible())) {
 			playerVersusGhost(player, (Ghost) collidedOn);
 		}
 		if (collidedOn instanceof Pellet) {
@@ -50,6 +51,9 @@ public class PlayerCollisions implements CollisionMap {
 		}
 		if (collidedOn instanceof Bridge) {
 			characterVersusBridge((Unit) player, (Bridge) collidedOn);
+		}
+		if (collidedOn instanceof Fruit) {
+			playerVersusFruit(player, (Fruit) collidedOn);
 		}
 	}
 	
@@ -73,7 +77,9 @@ public class PlayerCollisions implements CollisionMap {
      * @param ghost The ghost involved in the collision.
 	 */
 	public void playerVersusGhost(Player player, Ghost ghost) {
-		player.setAlive(false);
+		if(!ghost.hasExploded()){
+			player.setAlive(false);
+		}
 	}
 	
 	/**
@@ -94,17 +100,14 @@ public class PlayerCollisions implements CollisionMap {
      * @param hole The hole involved in the collision.
 	 */
 	public void characterVersusHole(Unit unit, Hole hole) {
-		int timeMilisec = hole.getTrapTime() * 1000;
 		hole.leaveSquare();
-		if (unit instanceof Player || unit instanceof Ghost) {
-			unit.setMobility(false);
-			TimerTask timerTask = new TimerTask() {
-		        public void run() {
-		        	unit.setMobility(true);
-		        }
-		    };
-		    Timer timer = new Timer();
-		    timer.schedule(timerTask, timeMilisec);
+		if(unit instanceof Ghost){
+			Ghost g = (Ghost) unit;
+			g.temporaryImmobility(hole.getTrapTime());
+		}
+		else if(unit instanceof Player) {
+			Player  p = (Player) unit;
+			p.temporaryImmobility(hole.getTrapTime());
 		}
 	}
 	
@@ -147,5 +150,10 @@ public class PlayerCollisions implements CollisionMap {
 		else{
 			unit.setBridgePosition(BridgePosition.UNDER_A_BRIDGE);
 		}
+	}
+	
+	public void playerVersusFruit(Player player, Fruit fruit) {
+		fruit.leaveSquare();
+		fruit.fruitEffect(player);
 	}
 }

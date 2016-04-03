@@ -10,6 +10,7 @@ import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.npc.ghost.GhostColor;
 import nl.tudelft.jpacman.npc.ghost.GhostFactory;
+import nl.tudelft.jpacman.sprite.AnimatedSprite;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 import nl.tudelft.jpacman.sprite.Sprite;
 
@@ -77,7 +78,7 @@ public class LevelFactory {
 	 * @return A new level for the board.
 	 */
 	public Level createLevel(Board board, List<NPC> ghosts,
-			List<Square> startPositions) {
+			List<Square> startPositions, List<Square> fruitPositions) {
 
 		// We'll adopt the simple collision map for now.
 		CollisionMap collisionMap = new PlayerCollisions();
@@ -103,7 +104,7 @@ public class LevelFactory {
 		case CLYDE:
 			return ghostFact.createClyde();
 		default:
-			return new RandomGhost(sprites.getGhostSprite(GhostColor.RED));
+			return new RandomGhost(sprites.getGhostSprite(GhostColor.RED), sprites.getGhostExplodeAnimation());
 		}
 	}
 
@@ -153,8 +154,8 @@ public class LevelFactory {
 		 * @param ghostSprite
 		 *            The sprite for the ghost.
 		 */
-		private RandomGhost(Map<Direction, Sprite> ghostSprite) {
-			super(ghostSprite);
+		private RandomGhost(Map<Direction, Sprite> ghostSprite, AnimatedSprite explodeAnimation) {
+			super(ghostSprite, explodeAnimation);
 		}
 
 		@Override

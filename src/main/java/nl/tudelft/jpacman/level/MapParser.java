@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.PacmanConfigurationException;
 import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.BoardFactory;
@@ -81,12 +80,17 @@ public class MapParser {
 		List<Square> startPositions = new ArrayList<>();
 		List<Teleport> teleportList = new ArrayList<>();
 		List<Bridge> bridgeList = new ArrayList<>();
+		List<Square> fruitPositions = new ArrayList<>();
 		
-		makeGrid(map, width, height, grid, ghosts, startPositions, teleportList, bridgeList);
+		makeGrid(map, width, height, grid, ghosts, startPositions, teleportList, bridgeList, fruitPositions);
 		Board board = boardCreator.createBoard(grid);
 		setTeleports(teleportList, teleportrefs, board);
 		setBridges(bridgeList, bridgeRefs);
-		return levelCreator.createLevel(board, ghosts, startPositions);
+		Level l = levelCreator.createLevel(board, ghosts, startPositions, fruitPositions);
+		if(fruitPositions.size() > 0){
+			l.setupFruits(fruitPositions, ghosts);
+		}
+		return l;
 	}
 	
 	private void setTeleports(List<Teleport> teleportList, List<int[]> teleportRefs, Board b){
@@ -133,17 +137,17 @@ public class MapParser {
 	}
 
 	private void makeGrid(char[][] map, int width, int height, Square[][] grid, List<NPC> ghosts,
-	        List<Square> startPositions, List<Teleport> teleportList, List<Bridge> bridgeList) {
+	        List<Square> startPositions, List<Teleport> teleportList, List<Bridge> bridgeList, List<Square> fruitPositions) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				char c = map[x][y];
-				addSquare(grid, ghosts, startPositions, x, y, c, teleportList, bridgeList);
+				addSquare(grid, ghosts, startPositions, x, y, c, teleportList, bridgeList, fruitPositions);
 			}
 		}
 	}
 
 	private void addSquare(Square[][] grid, List<NPC> ghosts,
-			List<Square> startPositions, int x, int y, char c, List<Teleport> teleportList, List<Bridge> bridgeList) {
+			List<Square> startPositions, int x, int y, char c, List<Teleport> teleportList, List<Bridge> bridgeList, List<Square> fruitPositions) {
 		switch (c) {
 		case ' ':
 			grid[x][y] = boardCreator.createGround();
@@ -184,6 +188,11 @@ public class MapParser {
 			bridgeList.add(bridge);
 			bridge.occupy(bridgeSquare);
 			grid[x][y] = bridgeSquare;
+			break;
+		case 'F':
+			Square fruitSquare = boardCreator.createGround();
+			grid[x][y] = fruitSquare;
+			fruitPositions.add(fruitSquare);
 			break;
 		default:
 			throw new PacmanConfigurationException("Invalid character at "

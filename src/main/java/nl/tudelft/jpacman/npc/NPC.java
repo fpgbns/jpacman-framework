@@ -1,5 +1,8 @@
 package nl.tudelft.jpacman.npc;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Unit;
 
@@ -9,6 +12,8 @@ import nl.tudelft.jpacman.board.Unit;
  * @author Jeroen Roosen 
  */
 public abstract class NPC extends Unit {
+	
+	private boolean AcceleratedInterval = false;
 
 	/**
 	 * The time that should be taken between moves.
@@ -25,5 +30,18 @@ public abstract class NPC extends Unit {
 	 *         be devised.
 	 */
 	public abstract Direction nextMove();
-
+	
+	public boolean isAccelerated() {
+		return AcceleratedInterval;
+	}
+	
+	public void setAcceleration(boolean value) {
+		AcceleratedInterval = value;
+	}
+	
+	/*
+	public abstract void temporaryImmobility(int time);
+	
+	public abstract void temporaryAcceleration(int time);
+	*/
 }

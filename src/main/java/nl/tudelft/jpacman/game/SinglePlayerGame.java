@@ -1,9 +1,15 @@
 package nl.tudelft.jpacman.game;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.level.Level;
+import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.fruit.Fruit;
+import nl.tudelft.jpacman.fruit.FruitFactory;
 import nl.tudelft.jpacman.level.Player;
 
 import com.google.common.collect.ImmutableList;
@@ -24,6 +30,8 @@ public class SinglePlayerGame extends Game {
 	 * The level of this game.
 	 */
 	private final Level level;
+	
+	private boolean fruitLock = true;
 
 	/**
 	 * Create a new single player game for the provided level and player.
@@ -78,6 +86,29 @@ public class SinglePlayerGame extends Game {
 	 */
 	public void moveRight() {
 		move(player, Direction.EAST);
+	}
+
+	@Override
+	public void fruitEvent() {
+		if(fruitLock){
+			fruitLock = false;
+			FruitFactory fruitFactory = level.getFruitFactory();
+			Fruit fruit = fruitFactory.getRandomFruit();
+			Square postion = fruitFactory.getRandomFruitPosition();
+			fruit.occupy(postion);
+			TimerTask timerTask = new TimerTask() {
+		        public void run() {
+		        	for(Unit occupant : postion.getOccupants()){
+		        		if(occupant instanceof Fruit){
+		        			fruit.leaveSquare();
+		        		}
+		        	}
+		        	fruitLock = true;
+		        }
+		    };
+		    Timer timer = new Timer();
+		    timer.schedule(timerTask, fruit.getLifetime() * 1000);
+		}
 	}
 
 }

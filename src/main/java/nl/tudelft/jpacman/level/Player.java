@@ -1,10 +1,14 @@
 package nl.tudelft.jpacman.level;
 
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.sprite.AnimatedSprite;
+import nl.tudelft.jpacman.sprite.PacManSprites;
 import nl.tudelft.jpacman.sprite.Sprite;
 
 /**
@@ -22,7 +26,7 @@ public class Player extends Unit {
 	/**
 	 * The animations for every direction.
 	 */
-	private final Map<Direction, Sprite> sprites;
+	private Map<Direction, Sprite> sprites;
 
 	/**
 	 * The animation that is to be played when Pac-Man dies.
@@ -33,6 +37,11 @@ public class Player extends Unit {
 	 * <code>true</code> iff this player is alive.
 	 */
 	private boolean alive;
+	
+	/**
+	 * <code>true</code> iff this player is alive.
+	 */
+	private boolean invincible;
 
 	/**
 	 * Creates a new player with a score of 0 points.
@@ -101,5 +110,44 @@ public class Player extends Unit {
 	 */
 	public void addPoints(int points) {
 		score += points;
+	}
+	
+	public void temporaryImmobility(int duration)
+	{
+		setMobility(false);
+		setSprite(new PacManSprites().getPacmanParalizedSprites());
+		TimerTask timerTask = new TimerTask() {
+		    public void run() {
+		        setMobility(true);
+		        setSprite(new PacManSprites().getPacmanSprites());
+		    }
+		};
+		Timer timer = new Timer();
+		timer.schedule(timerTask, duration * 1000);
+	}
+	
+	public void temporaryImunity(int duration){
+		setInvincible(true);
+		//setSprite(new PacManSprites().getPacmanInvisibleSprites());
+		TimerTask timerTask = new TimerTask() {
+		    public void run() {
+		        setInvincible(false);
+		        //setSprite(new PacManSprites().getPacmanInvisibleSprites());
+		    }
+		};
+		Timer timer = new Timer();
+		timer.schedule(timerTask, duration * 1000);
+	}
+	
+	public void setSprite(Map<Direction, Sprite> sprites) {
+		this.sprites = sprites;
+	}
+
+	public boolean isInvincible() {
+		return invincible;
+	}
+
+	public void setInvincible(boolean value) {
+		this.invincible = value;
 	}
 }

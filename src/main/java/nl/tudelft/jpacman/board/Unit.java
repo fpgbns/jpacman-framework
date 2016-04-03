@@ -1,5 +1,10 @@
 package nl.tudelft.jpacman.board;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import nl.tudelft.jpacman.level.Player;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.sprite.Sprite;
 
 /**
@@ -19,9 +24,6 @@ public abstract class Unit {
 	 */
 	private Direction direction;
 	
-	/**
-	 * blablabla
-	 */
 	private BridgePosition bridgePosition;
 	
 	/**
@@ -144,5 +146,4 @@ public abstract class Unit {
 	 * @return The sprite of this unit.
 	 */
 	public abstract Sprite getSprite();
-
 }
