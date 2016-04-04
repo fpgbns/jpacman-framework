@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,9 +16,8 @@ import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.fruit.FruitFactory;
 import nl.tudelft.jpacman.level.Bridge;
+import nl.tudelft.jpacman.npc.Bullet;
 import nl.tudelft.jpacman.npc.NPC;
-import nl.tudelft.jpacman.npc.ghost.Ghost;
-import nl.tudelft.jpacman.npc.ghost.Navigation;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 /**
@@ -160,6 +157,7 @@ public class Level {
 			return;
 		}
 		players.add(p);
+		npcs.put(p, null);
 		Square square = startSquares.get(startSquareIndex);
 		p.occupy(square);
 		startSquareIndex++;
@@ -188,7 +186,7 @@ public class Level {
 		assert unit != null;
 		assert direction != null;
 
-		if (!isInProgress() || !(unit.getMobility())) {
+		if (!isInProgress() || (unit instanceof NPC && !((NPC) unit).getMobility())) {
 			return;
 		}
 
@@ -302,6 +300,17 @@ public class Level {
 					o.fruitEvent();
 			}
 		}
+		if (isAnyPlayerShooting()) {
+			for (LevelObserver o : observers) {
+					o.ShootingEvent();
+			}
+		}
+		List<Bullet> deadBullets = bulletToClean() ;
+		if(deadBullets.size() > 0) {
+			for (LevelObserver o : observers) {
+				o.bulletCleanEvent(deadBullets, npcs);
+			}
+		}
 	}
 
 	/**
@@ -327,6 +336,27 @@ public class Level {
 			}
 		}
 		return false;
+	}
+	
+	public boolean isAnyPlayerShooting() {
+		for (Player p : players) {
+			if (p.isShooting()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private List<Bullet> bulletToClean() {
+		List<Bullet> deadBullets = new ArrayList<>();
+		
+		for (NPC npc : npcs.keySet()) {
+			if ((npc instanceof Bullet) && !((Bullet) npc).isAlive()) {
+				deadBullets.add((Bullet) npc);
+			}
+		}
+		
+		return deadBullets;
 	}
 
 	/**
@@ -414,5 +444,17 @@ public class Level {
 		void levelLost();
 		
 		void fruitEvent();
+		
+		void ShootingEvent();
+		
+		void bulletCleanEvent(List<Bullet> bullets, Map<NPC, ScheduledExecutorService> npcs);
+	}
+
+	public void animateBullet(Bullet b) {
+			ScheduledExecutorService service = Executors
+					.newSingleThreadScheduledExecutor();
+			service.schedule(new NpcMoveTask(service, b),
+					b.getInterval() / 2, TimeUnit.MILLISECONDS);
+			npcs.put(b, service);
 	}
 }

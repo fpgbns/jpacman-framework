@@ -5,8 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import nl.tudelft.jpacman.board.Direction;
-import nl.tudelft.jpacman.board.Unit;
-import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.sprite.AnimatedSprite;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 import nl.tudelft.jpacman.sprite.Sprite;
@@ -16,7 +15,17 @@ import nl.tudelft.jpacman.sprite.Sprite;
  * 
  * @author Jeroen Roosen 
  */
-public class Player extends Unit {
+public class Player extends NPC {
+	
+	/**
+	 * The base movement interval.
+	 */
+	private static final int MOVE_INTERVAL = 250;
+	
+	/**
+	 * The base movement when the ghost is accelerated.
+	 */
+	private static final int ACCELERATED_MOVE_INTERVAL = 125;
 
 	/**
 	 * The amount of points accumulated by this player.
@@ -38,10 +47,9 @@ public class Player extends Unit {
 	 */
 	private boolean alive;
 	
-	/**
-	 * <code>true</code> iff this player is alive.
-	 */
 	private boolean invincible;
+	
+	private boolean shooting;
 
 	/**
 	 * Creates a new player with a score of 0 points.
@@ -54,6 +62,7 @@ public class Player extends Unit {
 	Player(Map<Direction, Sprite> spriteMap, AnimatedSprite deathAnimation) {
 		this.score = 0;
 		this.alive = true;
+		this.setShooting(false);
 		this.sprites = spriteMap;
 		this.deathSprite = deathAnimation;
 		deathSprite.setAnimating(false);
@@ -112,6 +121,21 @@ public class Player extends Unit {
 		score += points;
 	}
 	
+	public void temporaryAcceleration(int time)
+	{
+		Map<Direction, Sprite> oldSprites = sprites;
+		setAcceleration(true);
+		setSprite(new PacManSprites().getPacmanAngrySprite());
+		TimerTask timerTask = new TimerTask() {
+		    public void run() {
+		    	setAcceleration(false);
+		        setSprite(oldSprites);
+		    }
+		};
+		Timer timer = new Timer();
+		timer.schedule(timerTask, time * 1000);
+	}
+	
 	public void temporaryImmobility(int duration)
 	{
 		setMobility(false);
@@ -139,6 +163,19 @@ public class Player extends Unit {
 		timer.schedule(timerTask, duration * 1000);
 	}
 	
+	public void temporaryShooting(int duration){
+		setShooting(true);
+		//setSprite(new PacManSprites().getPacmanShootingSprites());
+		TimerTask timerTask = new TimerTask() {
+		    public void run() {
+		    	setShooting(false);
+		        //setSprite(new PacManSprites().getPacmanShootingSprites());
+		    }
+		};
+		Timer timer = new Timer();
+		timer.schedule(timerTask, duration * 1000);
+	}
+	
 	public void setSprite(Map<Direction, Sprite> sprites) {
 		this.sprites = sprites;
 	}
@@ -149,5 +186,28 @@ public class Player extends Unit {
 
 	public void setInvincible(boolean value) {
 		this.invincible = value;
+	}
+
+	@Override
+	public long getInterval() {
+		if(!getAcceleration()){
+			return MOVE_INTERVAL;
+		}
+		else{
+			return ACCELERATED_MOVE_INTERVAL;
+		}
+	}
+
+	@Override
+	public Direction nextMove() {
+		return getDirection();
+	}
+
+	public boolean isShooting() {
+		return shooting;
+	}
+
+	public void setShooting(boolean shooting) {
+		this.shooting = shooting;
 	}
 }

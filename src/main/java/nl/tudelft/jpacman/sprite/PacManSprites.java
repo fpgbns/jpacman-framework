@@ -61,6 +61,10 @@ public class PacManSprites extends SpriteStore {
 		return directionSprite("/sprite/pacman.png", PACMAN_ANIMATION_FRAMES);
 	}
 	
+	public Map<Direction, Sprite>getPacmanAngrySprite(){
+		return directionSprite("/sprite/pacman-angry.png", PACMAN_ANIMATION_FRAMES);
+	}
+	
 	public Map<Direction, Sprite> getPacmanParalizedSprites() {
 		return directionSprite("/sprite/pacman-paralized.png", NO_ANIMATION_FRAMES);
 	}

@@ -4,6 +4,7 @@ import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.fruit.Fruit;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.BridgePosition;
+import nl.tudelft.jpacman.npc.Bullet;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.board.Square;
 
@@ -33,9 +34,18 @@ public class PlayerCollisions implements CollisionMap {
 			else if (mover instanceof Ghost) {
 				ghostColliding((Ghost) mover, collidedOn);
 			}
+			else if (mover instanceof Bullet) {
+				BulletColliding((Bullet) mover, collidedOn);
+			}
 		}
 	}
 	
+	private void BulletColliding(Bullet mover, Unit collidedOn) {
+		if (collidedOn instanceof Ghost) {
+			ghostVersusBullet((Ghost) collidedOn, mover);
+		}
+	}
+
 	private void playerColliding(Player player, Unit collidedOn) {
 		if (collidedOn instanceof Ghost && !(player.isInvincible())) {
 			playerVersusGhost(player, (Ghost) collidedOn);
@@ -67,9 +77,19 @@ public class PlayerCollisions implements CollisionMap {
 		if (collidedOn instanceof Bridge) {
 			characterVersusBridge((Unit) ghost, (Bridge) collidedOn);
 		}
+		if (collidedOn instanceof Bullet && ((Bullet)collidedOn).isAlive()) {
+			ghostVersusBullet(ghost, (Bullet) collidedOn);
+		}
 	}
 	
 	
+	private void ghostVersusBullet(Ghost ghost, Bullet collidedOn) {
+		if(!(ghost.hasExploded())) {
+			collidedOn.setAlive(false);
+			ghost.setExplode(true);
+		}
+	}
+
 	/**
 	 * Actual case of player bumping into ghost or vice versa.
      *

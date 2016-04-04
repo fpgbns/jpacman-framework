@@ -25,11 +25,6 @@ public abstract class Unit {
 	private Direction direction;
 	
 	private BridgePosition bridgePosition;
-	
-	/**
-	 * Whether this unit can be moved or not.
-	 */
-	private boolean mobile;
 
 	/**
 	 * Creates a unit that is facing east.
@@ -37,15 +32,6 @@ public abstract class Unit {
 	protected Unit() {
 		this.direction = Direction.EAST;
 		this.bridgePosition = BridgePosition.NOT_ON_A_BRIDGE;
-		this.mobile = true;
-	}
-	
-	/**
-	 * Sets if this unit can be moved or not.
-	 * @param newValue the new mobility state of this unit.
-	 */
-	public void setMobility(boolean newValue) {
-		this.mobile = newValue;
 	}
 	
 	/**
@@ -76,14 +62,6 @@ public abstract class Unit {
 	 */
 	public BridgePosition getBridgePosition() {
 		return this.bridgePosition;
-	}
-	
-	/**
-	 * Returns the mobility state of this unit.
-	 * @return The current mobility state of this unit.
-	 */
-	public boolean getMobility() {
-		return this.mobile;
 	}
 	
 	/**

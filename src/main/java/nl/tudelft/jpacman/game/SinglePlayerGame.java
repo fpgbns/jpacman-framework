@@ -1,8 +1,10 @@
 package nl.tudelft.jpacman.game;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
 
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
@@ -11,6 +13,9 @@ import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.fruit.Fruit;
 import nl.tudelft.jpacman.fruit.FruitFactory;
 import nl.tudelft.jpacman.level.Player;
+import nl.tudelft.jpacman.npc.Bullet;
+import nl.tudelft.jpacman.npc.NPC;
+import nl.tudelft.jpacman.sprite.PacManSprites;
 
 import com.google.common.collect.ImmutableList;
 
@@ -33,6 +38,7 @@ public class SinglePlayerGame extends Game {
 	
 	private boolean fruitLock = true;
 
+	private boolean shootLock = true;
 	/**
 	 * Create a new single player game for the provided level and player.
 	 * 
@@ -108,6 +114,31 @@ public class SinglePlayerGame extends Game {
 		    };
 		    Timer timer = new Timer();
 		    timer.schedule(timerTask, fruit.getLifetime() * 1000);
+		}
+	}
+
+	@Override
+	public void ShootingEvent() {
+		if(shootLock){
+			shootLock = false;
+			Bullet b = new Bullet(new PacManSprites().getPelletSprite(), player);
+			b.occupy(player.getSquare());
+			level.animateBullet(b);
+			TimerTask timerTask = new TimerTask() {
+		        public void run() {
+		        	shootLock = true;
+		        }
+		    };
+		    Timer timer = new Timer();
+		    timer.schedule(timerTask, b.getBulletDelay() * 1000);
+		}
+	}
+
+	@Override
+	public void bulletCleanEvent(List<Bullet> bullets, Map<NPC, ScheduledExecutorService> npcs) {
+		for(Bullet bullet : bullets) {
+			bullet.leaveSquare();
+			npcs.remove(bullet);
 		}
 	}
 

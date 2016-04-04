@@ -14,6 +14,7 @@ public class UnitMobiliyTest {
 	 * 
 	 * @throws IOException
 	 */
+	/*
 	@Test
 	public void initializeTest(){
 		Unit unit = new BasicUnit();
@@ -21,5 +22,5 @@ public class UnitMobiliyTest {
 		assertTrue(unit.getMobility());
 		unit.setMobility(false);
 		assertFalse(unit.getMobility());
-	}
+	}*/
 }

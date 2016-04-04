@@ -28,8 +28,6 @@ public abstract class Ghost extends NPC {
 	
 	private final AnimatedSprite explodeSprite;
 	
-	private boolean acceleration;
-	
 	private boolean exploded;
 
 	/**
@@ -41,7 +39,6 @@ public abstract class Ghost extends NPC {
 	protected Ghost(Map<Direction, Sprite> spriteMap, AnimatedSprite explodeAnimation) {
 		this.explodeSprite = explodeAnimation;
 		this.exploded = false;
-		this.acceleration = false;
 		this.sprites = spriteMap;
 	}
 
@@ -78,12 +75,19 @@ public abstract class Ghost extends NPC {
 		return directions.get(i);
 	}
 	
-	public void setAcceleration(boolean value) {
-		acceleration = value;
-	}
-	
-	public boolean getAcceleration() {
-		return acceleration;
+	public void temporaryAcceleration(int time)
+	{
+		Map<Direction, Sprite> oldSprites = sprites;
+		setAcceleration(true);
+		setSprite(new PacManSprites().getAngryGhostSprite());
+		TimerTask timerTask = new TimerTask() {
+		    public void run() {
+		    	setAcceleration(false);
+		        setSprite(oldSprites);
+		    }
+		};
+		Timer timer = new Timer();
+		timer.schedule(timerTask, time * 1000);
 	}
 	
 	public void temporaryImmobility(int time)
@@ -94,21 +98,6 @@ public abstract class Ghost extends NPC {
 		TimerTask timerTask = new TimerTask() {
 		    public void run() {
 		        setMobility(true);
-		        setSprite(oldSprites);
-		    }
-		};
-		Timer timer = new Timer();
-		timer.schedule(timerTask, time * 1000);
-	}
-	
-	public void temporaryAcceleration(int time)
-	{
-		Map<Direction, Sprite> oldSprites = sprites;
-		setAcceleration(true);
-		setSprite(new PacManSprites().getAngryGhostSprite());
-		TimerTask timerTask = new TimerTask() {
-		    public void run() {
-		    	setAcceleration(false);
 		        setSprite(oldSprites);
 		    }
 		};

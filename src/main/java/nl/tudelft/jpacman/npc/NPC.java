@@ -1,10 +1,13 @@
 package nl.tudelft.jpacman.npc;
 
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.sprite.PacManSprites;
+import nl.tudelft.jpacman.sprite.Sprite;
 
 /**
  * A non-player unit.
@@ -13,7 +16,12 @@ import nl.tudelft.jpacman.board.Unit;
  */
 public abstract class NPC extends Unit {
 	
-	private boolean AcceleratedInterval = false;
+	private boolean acceleration = false;
+	
+	/**
+	 * Whether this unit can be moved or not.
+	 */
+	private boolean mobile = true;
 
 	/**
 	 * The time that should be taken between moves.
@@ -31,17 +39,27 @@ public abstract class NPC extends Unit {
 	 */
 	public abstract Direction nextMove();
 	
-	public boolean isAccelerated() {
-		return AcceleratedInterval;
-	}
-	
 	public void setAcceleration(boolean value) {
-		AcceleratedInterval = value;
+		acceleration = value;
 	}
 	
-	/*
-	public abstract void temporaryImmobility(int time);
+	public boolean getAcceleration() {
+		return acceleration;
+	}
 	
-	public abstract void temporaryAcceleration(int time);
-	*/
+	/**
+	 * Sets if this unit can be moved or not.
+	 * @param newValue the new mobility state of this unit.
+	 */
+	public void setMobility(boolean newValue) {
+		this.mobile = newValue;
+	}
+	
+	/**
+	 * Returns the mobility state of this unit.
+	 * @return The current mobility state of this unit.
+	 */
+	public boolean getMobility() {
+		return this.mobile;
+	}
 }
