@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.sprite.AnimatedSprite;
 import nl.tudelft.jpacman.sprite.PacManSprites;
@@ -15,7 +16,7 @@ import nl.tudelft.jpacman.sprite.Sprite;
  * 
  * @author Jeroen Roosen 
  */
-public class Player extends NPC {
+public class Player extends NPC implements DirectionCharacter {
 	
 	/**
 	 * The base movement interval.
@@ -50,6 +51,11 @@ public class Player extends NPC {
 	private boolean invincible;
 	
 	private boolean shooting;
+	
+	/**
+	 * Whether this unit can be moved or not.
+	 */
+	private boolean mobile = true;
 
 	/**
 	 * Creates a new player with a score of 0 points.
@@ -109,6 +115,10 @@ public class Player extends NPC {
 		}
 		return deathSprite;
 	}
+	
+	public Map<Direction, Sprite> getSprites() {
+		return sprites;
+	}
 
 	/**
 	 * Adds points to the score of this player.
@@ -125,11 +135,11 @@ public class Player extends NPC {
 	{
 		Map<Direction, Sprite> oldSprites = sprites;
 		setAcceleration(true);
-		setSprite(new PacManSprites().getPacmanAngrySprite());
+		setSprites(new PacManSprites().getPacmanAngrySprite());
 		TimerTask timerTask = new TimerTask() {
 		    public void run() {
 		    	setAcceleration(false);
-		        setSprite(oldSprites);
+		        setSprites(oldSprites);
 		    }
 		};
 		Timer timer = new Timer();
@@ -139,11 +149,11 @@ public class Player extends NPC {
 	public void temporaryImmobility(int duration)
 	{
 		setMobility(false);
-		setSprite(new PacManSprites().getPacmanParalizedSprites());
+		setSprites(new PacManSprites().getPacmanParalizedSprites());
 		TimerTask timerTask = new TimerTask() {
 		    public void run() {
 		        setMobility(true);
-		        setSprite(new PacManSprites().getPacmanSprites());
+		        setSprites(new PacManSprites().getPacmanSprites());
 		    }
 		};
 		Timer timer = new Timer();
@@ -176,7 +186,7 @@ public class Player extends NPC {
 		timer.schedule(timerTask, duration * 1000);
 	}
 	
-	public void setSprite(Map<Direction, Sprite> sprites) {
+	public void setSprites(Map<Direction, Sprite> sprites) {
 		this.sprites = sprites;
 	}
 
@@ -209,5 +219,15 @@ public class Player extends NPC {
 
 	public void setShooting(boolean shooting) {
 		this.shooting = shooting;
+	}
+
+	@Override
+	public void setMobility(boolean newValue) {
+		mobile = newValue;
+	}
+
+	@Override
+	public boolean getMobility() {
+		return mobile;
 	}
 }

@@ -17,11 +17,6 @@ import nl.tudelft.jpacman.sprite.Sprite;
 public abstract class NPC extends Unit {
 	
 	private boolean acceleration = false;
-	
-	/**
-	 * Whether this unit can be moved or not.
-	 */
-	private boolean mobile = true;
 
 	/**
 	 * The time that should be taken between moves.
@@ -45,21 +40,5 @@ public abstract class NPC extends Unit {
 	
 	public boolean getAcceleration() {
 		return acceleration;
-	}
-	
-	/**
-	 * Sets if this unit can be moved or not.
-	 * @param newValue the new mobility state of this unit.
-	 */
-	public void setMobility(boolean newValue) {
-		this.mobile = newValue;
-	}
-	
-	/**
-	 * Returns the mobility state of this unit.
-	 * @return The current mobility state of this unit.
-	 */
-	public boolean getMobility() {
-		return this.mobile;
 	}
 }

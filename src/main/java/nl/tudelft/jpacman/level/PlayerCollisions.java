@@ -5,10 +5,15 @@ import nl.tudelft.jpacman.fruit.Fruit;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.npc.Bullet;
+import nl.tudelft.jpacman.npc.DirectionCharacter;
+import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.sprite.PacManSprites;
+import nl.tudelft.jpacman.sprite.Sprite;
 import nl.tudelft.jpacman.board.Square;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -120,16 +125,13 @@ public class PlayerCollisions implements CollisionMap {
      * @param hole The hole involved in the collision.
 	 */
 	public void characterVersusHole(Unit unit, Hole hole) {
-		hole.leaveSquare();
-		if(unit instanceof Ghost){
-			Ghost g = (Ghost) unit;
-			g.temporaryImmobility(hole.getTrapTime());
-		}
-		else if(unit instanceof Player) {
-			Player  p = (Player) unit;
-			p.temporaryImmobility(hole.getTrapTime());
+		if(unit instanceof DirectionCharacter) {
+			hole.leaveSquare();
+			hole.effect((DirectionCharacter) unit);
 		}
 	}
+	
+	
 	
 	/**
 	 * Actual case of A player entering into a teleport

@@ -9,6 +9,7 @@ import java.util.TimerTask;
 
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
+import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.sprite.AnimatedSprite;
 import nl.tudelft.jpacman.sprite.PacManSprites;
@@ -19,7 +20,7 @@ import nl.tudelft.jpacman.sprite.Sprite;
  * 
  * @author Jeroen Roosen 
  */
-public abstract class Ghost extends NPC {
+public abstract class Ghost extends NPC implements DirectionCharacter {
 	
 	/**
 	 * The sprite map, one sprite for each direction.
@@ -29,6 +30,11 @@ public abstract class Ghost extends NPC {
 	private final AnimatedSprite explodeSprite;
 	
 	private boolean exploded;
+	
+	/**
+	 * Whether this unit can be moved or not.
+	 */
+	private boolean mobile = true;
 
 	/**
 	 * Creates a new ghost.
@@ -50,7 +56,11 @@ public abstract class Ghost extends NPC {
 		return explodeSprite;
 	}
 	
-	public void setSprite(Map<Direction, Sprite> sprites) {
+	public Map<Direction, Sprite> getSprites() {
+		return sprites;
+	}
+	
+	public void setSprites(Map<Direction, Sprite> sprites) {
 		this.sprites = sprites;
 	}
 
@@ -79,26 +89,11 @@ public abstract class Ghost extends NPC {
 	{
 		Map<Direction, Sprite> oldSprites = sprites;
 		setAcceleration(true);
-		setSprite(new PacManSprites().getAngryGhostSprite());
+		setSprites(new PacManSprites().getAngryGhostSprite());
 		TimerTask timerTask = new TimerTask() {
 		    public void run() {
 		    	setAcceleration(false);
-		        setSprite(oldSprites);
-		    }
-		};
-		Timer timer = new Timer();
-		timer.schedule(timerTask, time * 1000);
-	}
-	
-	public void temporaryImmobility(int time)
-	{
-		Map<Direction, Sprite> oldSprites = sprites;
-		setMobility(false);
-		setSprite(new PacManSprites().getParalizedGhostSprite());
-		TimerTask timerTask = new TimerTask() {
-		    public void run() {
-		        setMobility(true);
-		        setSprite(oldSprites);
+		        setSprites(oldSprites);
 		    }
 		};
 		Timer timer = new Timer();
@@ -118,5 +113,21 @@ public abstract class Ghost extends NPC {
 			explodeSprite.restart();
 		}
 		this.exploded = value;
+	}
+	
+	/**
+	 * Sets if this unit can be moved or not.
+	 * @param newValue the new mobility state of this unit.
+	 */
+	public void setMobility(boolean newValue) {
+		this.mobile = newValue;
+	}
+	
+	/**
+	 * Returns the mobility state of this unit.
+	 * @return The current mobility state of this unit.
+	 */
+	public boolean getMobility() {
+		return this.mobile;
 	}
 }

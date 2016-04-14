@@ -70,7 +70,7 @@ public class PacManSprites extends SpriteStore {
 	}
 	
 	public Map<Direction, Sprite> getParalizedGhostSprite() {
-		return directionSprite("/sprite/ghost_vul_blue.png", GHOST_ANIMATION_FRAMES);
+		return directionSprite("/sprite/ghost_paralized.png", NO_ANIMATION_FRAMES);
 	}
 
 	public Map<Direction, Sprite> getAngryGhostSprite() {

@@ -17,6 +17,7 @@ import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.fruit.FruitFactory;
 import nl.tudelft.jpacman.level.Bridge;
 import nl.tudelft.jpacman.npc.Bullet;
+import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
@@ -186,7 +187,7 @@ public class Level {
 		assert unit != null;
 		assert direction != null;
 
-		if (!isInProgress() || (unit instanceof NPC && !((NPC) unit).getMobility())) {
+		if (!isInProgress() || (unit instanceof DirectionCharacter && !((DirectionCharacter) unit).getMobility())) {
 			return;
 		}
 
