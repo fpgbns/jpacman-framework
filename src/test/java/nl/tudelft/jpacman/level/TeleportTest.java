@@ -326,7 +326,7 @@ public class TeleportTest {
 		MapParser parser = new MapParser(new LevelFactory(pms,
 				new GhostFactory(pms)), new BoardFactory(pms));
 		Board b = parser.parseMap(Lists.newArrayList("######","# T B#",
-				"######", "------", "4 1   ", "------", "V     ")).getBoard();
+				"######", "------", "4 1   ", "------", "V N   ")).getBoard();
 		Square teleportSquare = b.squareAt(2, 1);
 		Player p = new Player(pms.getPacmanSprites(),pms.getPacManDeathAnimation());
 		CollisionMap cm = new PlayerCollisions();
