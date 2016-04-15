@@ -114,7 +114,8 @@ public class Level {
 	}
 	
 	public void setupFruits(List<Square> fruitpositions, List<NPC> npcs) {
-		fruitFactory = new FruitFactory(new PacManSprites(), fruitpositions, npcs);
+		if(fruitpositions.size() > 0)
+			fruitFactory = new FruitFactory(new PacManSprites(), fruitpositions, npcs);
 	}
 	
 
@@ -331,7 +332,7 @@ public class Level {
 	
 	public boolean anyPlayerDesserveFruits() {
 		for (Player p : players) {
-			if (p.getScore() == 500 || p.getScore() == 1500) {
+			if (fruitFactory != null && (p.getScore() == 500 || p.getScore() == 1500)) {
 				return true;
 			}
 		}
