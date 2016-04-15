@@ -24,14 +24,14 @@ public abstract class Unit {
 	 */
 	private Direction direction;
 	
-	private BridgePosition bridgePosition;
+	private boolean onBridge;
 
 	/**
 	 * Creates a unit that is facing east.
 	 */
 	protected Unit() {
 		this.direction = Direction.EAST;
-		this.bridgePosition = BridgePosition.NOT_ON_A_BRIDGE;
+		this.onBridge = false;
 	}
 	
 	/**
@@ -53,15 +53,12 @@ public abstract class Unit {
 	/**
 	 * blabla
 	 */
-	public void setBridgePosition(BridgePosition position) {
-		this.bridgePosition = position;
+	public void setOnBridge(boolean newValue) {
+		onBridge = newValue;
 	}
 	
-	/**
-	 * blabla
-	 */
-	public BridgePosition getBridgePosition() {
-		return this.bridgePosition;
+	public boolean isOnBridge() {
+		return onBridge;
 	}
 	
 	/**

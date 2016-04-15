@@ -2,20 +2,9 @@ package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.fruit.Fruit;
-import nl.tudelft.jpacman.board.Direction;
-import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.npc.Bullet;
 import nl.tudelft.jpacman.npc.DirectionCharacter;
-import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
-import nl.tudelft.jpacman.sprite.PacManSprites;
-import nl.tudelft.jpacman.sprite.Sprite;
-import nl.tudelft.jpacman.board.Square;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A simple implementation of a collision map for the JPacman player.
@@ -32,7 +21,7 @@ public class PlayerCollisions implements CollisionMap {
 
 	@Override
 	public void collide(Unit mover, Unit collidedOn) {
-		if(mover.getBridgePosition() == collidedOn.getBridgePosition()){
+		if(mover.isOnBridge() == collidedOn.isOnBridge()){
 			if (mover instanceof Player) {
 				playerColliding((Player) mover, collidedOn);
 			}
@@ -140,22 +129,7 @@ public class PlayerCollisions implements CollisionMap {
      * @param teleport The pellet involved in the collision.
 	 */
 	public void playerVersusTeleport(Player unit, Teleport teleport) {
-		Square s = teleport.getReference();
-		if(s.isAccessibleTo(unit))
-		{
-			unit.occupy(s);
-			List<Unit> occupants = s.getOccupants();
-			for (Unit occupant : occupants) {
-				if(!(occupant instanceof Teleport))
-				{
-					if(occupant instanceof Bridge)
-					{
-						unit.setDirection(occupant.getDirection());
-					}
-					collide(unit, occupant);
-				}
-			}
-		}
+		teleport.effect(unit, this);
 	}
 	
 	/**
@@ -165,13 +139,7 @@ public class PlayerCollisions implements CollisionMap {
      * @param hole The hole involved in the collision.
 	 */
 	public void characterVersusBridge(Unit unit, Bridge bridge) {
-		Direction uDir = unit.getDirection();
-		if(bridge.parralelTo(uDir)){
-			unit.setBridgePosition(BridgePosition.ON_A_BRIDGE);
-		}
-		else{
-			unit.setBridgePosition(BridgePosition.UNDER_A_BRIDGE);
-		}
+		bridge.effect(unit);
 	}
 	
 	public void playerVersusFruit(Player player, Fruit fruit) {

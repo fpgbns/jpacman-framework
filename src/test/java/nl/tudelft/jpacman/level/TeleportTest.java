@@ -199,7 +199,7 @@ public class TeleportTest {
 	}
 	
 	/**
-	 * Verifies that a player is really warp to the square pointed by a
+	 * Verifies that a player really warp to the square pointed by a
 	 * teleport
 	 * 
 	 * @throws IOException
@@ -296,8 +296,10 @@ public class TeleportTest {
 	@Test
 	public void playerNoconsecutiveWarpTest() {
 		PacManSprites pms = new PacManSprites();
-		MapParser parser = new MapParser(new LevelFactory(pms, new GhostFactory(pms)), new BoardFactory(pms));
-		Board b = parser.parseMap(Lists.newArrayList("######","# T T#", "######", "------", "4 1   ", "1 1   ")).getBoard();
+		MapParser parser = new MapParser(new LevelFactory(pms,
+				new GhostFactory(pms)), new BoardFactory(pms));
+		Board b = parser.parseMap(Lists.newArrayList("######","# T T#",
+				"######", "------", "4 1   ", "1 1   ")).getBoard();
 		Square teleportSquare = b.squareAt(2, 1);
 		Square SecondTeleportSquare = b.squareAt(4, 1);
 		Square SecondDestinationSquare = b.squareAt(1, 1);
@@ -310,5 +312,28 @@ public class TeleportTest {
 	    assertTrue(SecondTeleportSquare.getOccupants().get(0) instanceof Teleport);
 	    assertTrue(SecondTeleportSquare.getOccupants().get(1) instanceof Player);
 		assertEquals(SecondDestinationSquare.getOccupants().size(), 0);
+	}
+	
+	/**
+	 * Verifies that when a player warp to a square occupied by a bridge he's
+	 * always on this bridge
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void playerWarpBridgeTest() {
+		PacManSprites pms = new PacManSprites();
+		MapParser parser = new MapParser(new LevelFactory(pms,
+				new GhostFactory(pms)), new BoardFactory(pms));
+		Board b = parser.parseMap(Lists.newArrayList("######","# T B#",
+				"######", "------", "4 1   ", "------", "V     ")).getBoard();
+		Square teleportSquare = b.squareAt(2, 1);
+		Player p = new Player(pms.getPacmanSprites(),pms.getPacManDeathAnimation());
+		CollisionMap cm = new PlayerCollisions();
+		Unit teleport = teleportSquare.getOccupants().get(0);
+		p.occupy(teleportSquare);
+		assertFalse(p.isOnBridge());
+		cm.collide(p, teleport);
+        assertTrue(p.isOnBridge());
 	}
 }

@@ -3,14 +3,15 @@ package nl.tudelft.jpacman.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.List;
 
 import javax.swing.JPanel;
 
 import nl.tudelft.jpacman.board.Board;
-import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.game.Game;
+import nl.tudelft.jpacman.level.Bridge;
 
 /**
  * Panel displaying a game.
@@ -114,8 +115,9 @@ class BoardPanel extends JPanel {
 	 */
 	private void render(Square square, Graphics g, int x, int y, int w, int h) {
 		square.getSprite().draw(g, x, y, w, h);
-		for (Unit unit : square.getOccupants()) {
-			if(unit.getBridgePosition() != BridgePosition.UNDER_A_BRIDGE){
+		List<Unit> occupants = square.getOccupants();
+		for (Unit unit : occupants) {
+			if((unit instanceof Bridge) || !(occupants.get(0) instanceof Bridge) || unit.isOnBridge()){
 				unit.getSprite().draw(g, x, y, w, h);
 			}
 		}

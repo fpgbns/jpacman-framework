@@ -2,6 +2,9 @@ package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.sprite.Sprite;
+
+import java.util.List;
+
 import nl.tudelft.jpacman.board.Square;
 
 public class Teleport extends Unit {
@@ -33,4 +36,21 @@ public class Teleport extends Unit {
 		reference = ref;
 	}
 	
+	public void effect(Player p, PlayerCollisions pc) {
+		if(reference.isAccessibleTo(p))
+		{
+			p.occupy(reference);
+			List<Unit> occupants = reference.getOccupants();
+			for (Unit occupant : occupants) {
+				if(!(occupant instanceof Teleport))
+				{
+					if(occupant instanceof Bridge)
+					{
+						p.setDirection(occupant.getDirection());
+					}
+					pc.collide(p, occupant);
+				}
+			}
+		}
+	}
 }

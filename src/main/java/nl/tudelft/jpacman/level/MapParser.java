@@ -10,7 +10,6 @@ import java.util.List;
 import nl.tudelft.jpacman.PacmanConfigurationException;
 import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.BoardFactory;
-import nl.tudelft.jpacman.board.BridgePosition;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
@@ -126,7 +125,7 @@ public class MapParser {
 				if(t[1] == 'P'){
 					Square pelletSquare = bridgeList.get(i).getSquare();
 					Unit p = levelCreator.createPellet();
-					p.setBridgePosition(BridgePosition.UNDER_A_BRIDGE);
+					p.setOnBridge(false);
 					p.occupy(pelletSquare);
 				}
 			}
@@ -347,15 +346,24 @@ public class MapParser {
 		List<char[]> bridgeRefs = new ArrayList<>();
 		char c1, c2;
 		char[] elem;
+		String s;
+		String[] ts;
 		for (; y < width; y++) {
-			c1 = text.get(y).charAt(0);
-			c2 = text.get(y).charAt(1);
-			if(c1 != 'H' && c1 != 'V' || c2 != 'P' && c2 != ' '){
-				throw new PacmanConfigurationException("Incorrect Bridge data : "+c1+c2);
+			s = text.get(y).trim();
+			ts = s.split(" ");
+			if(ts.length == 2 && ts[0].length() == 1 && ts[1].length() == 1){
+				c1 = ts[0].charAt(0);
+				c2 = ts[1].charAt(0);
+				if(c1 != 'H' && c1 != 'V' || c2 != 'P' && c2 != 'N'){
+					throw new PacmanConfigurationException("Incorrect Bridge data : "+c1+c2);
+				}
+				else{
+					elem = new char[] {c1, c2};
+					bridgeRefs.add(elem);
+				}
 			}
-			else{
-				elem = new char[] {c1, c2};
-				bridgeRefs.add(elem);
+			else {
+				throw new PacmanConfigurationException("Bridge data must contain two character separated by only one space");
 			}
 		}
 		return bridgeRefs;
