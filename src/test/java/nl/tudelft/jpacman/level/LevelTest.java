@@ -153,15 +153,4 @@ public class LevelTest {
 		level.registerPlayer(p3);
 		verify(p3).occupy(square1);
 	}
-
-	/**
-	 * Verifies that the game is able to change the rules when
-	 * the player eat a super pellet.
-	 */
-	@Test
-	public void testHunterMode() {
-		Player p = mock(Player.class);
-		level.registerPlayer(p);
-		verify(p).occupy(square1);
-	}
 }

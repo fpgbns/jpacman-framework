@@ -17,7 +17,7 @@ import nl.tudelft.jpacman.sprite.PacManSprites;
 /**
  * A level of Pac-Man. A level consists of the board with the players and the
  * AIs on it.
- * 
+ *
  * @author Jeroen Roosen 
  */
 public class Level {
@@ -48,6 +48,8 @@ public class Level {
 	 * and NPCs can move.
 	 */
 	private boolean inProgress;
+
+	private boolean hunterMode;
 
 	/**
 	 * The squares from which players can start this game.
@@ -268,7 +270,7 @@ public class Level {
 				o.levelLost();
 			}
 		}
-		if (hunterMode()) {
+		if (isAnyPlayerInHunterMode()) {
 			for (LevelObserver o : observers) {
 				o.startHunterMode();
 			}
@@ -301,14 +303,20 @@ public class Level {
 		return false;
 	}
 
-	public boolean hunterMode() {
+	public boolean isAnyPlayerInHunterMode() {
 		for (Player p : players) {
-			return p.getHunterMode();
+			if (p.getHunterMode()) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 
+	/**
+	 * Start the Hunter Mode for Pacman.
+	 * Start the Feared Mode for Ghosts.
+	 */
 	public void startHunterMode() {
 		Board b = getBoard();
 		for (int x = 0; x < b.getWidth(); x++) {
@@ -316,17 +324,17 @@ public class Level {
 				for (Unit u : b.squareAt(x, y).getOccupants()) {
 					if (u instanceof Ghost) {
 						timerHunterMode.cancel();
-						timerWarning.cancel();
+						//timerWarning.cancel();
 						timerHunterMode = new Timer();
-						timerWarning = new Timer();
+						//timerWarning = new Timer();
 						if (remainingSuperPellets() >= 2) {
 							timerHunterMode.schedule(new TimerHunterTask(), 7000);
-							//System.out.println("unit u : " + u);
-							//timerWarning.schedule(new TimerWarningTask((Ghost) u), 5000, 500);
+							//timerWarning.schedule(new TimerWarningTask(), 5000, 500);
 						} else {
 							timerHunterMode.schedule(new TimerHunterTask(), 5000);
-							//timerWarning.schedule(new TimerWarningTask((Ghost) u), 3000, 500);
+							//timerWarning.schedule(new TimerWarningTask(), 3000, 500);
 						}
+						//System.out.println("Ghost u = " + u);
 						((Ghost) u).setFearedMode(true);
 						((Ghost) u).startFearedMode();
 					}
@@ -339,6 +347,10 @@ public class Level {
 		}
 	}
 
+	/**
+	 * Stop the Hunter Mode for Pacman.
+	 * Stop the Feared Mode for Ghosts.
+	 */
 	public void stopHunterMode() {
 		Board b = getBoard();
 		for (int x = 0; x < b.getWidth(); x++) {
@@ -353,10 +365,14 @@ public class Level {
 		}
 	}
 
+	/**
+	 * Start the Timer to respawn a ghost after being ate by Pacman.
+	 */
 	public void respawnGhost()
 	{
 		ghostLeft++;
 		Ghost ateGhost = PlayerCollisions.ateGhost;
+		System.out.println("Fantome : " + ateGhost);
 		timerRespawn = new Timer();
 		timerRespawn.schedule(new TimerRespawnTask(ateGhost), 5000);
 	}
@@ -365,7 +381,7 @@ public class Level {
 
 	/**
 	 * Counts the pellets remaining on the board.
-	 * 
+	 *
 	 * @return The amount of pellets remaining on the board.
 	 */
 	public int remainingPellets() {
@@ -383,6 +399,11 @@ public class Level {
 		return pellets;
 	}
 
+	/**
+	 * Counts the super pellets remaining on the board.
+	 *
+	 * @return The amount of super pellets remaining on the board.
+	 */
 	public int remainingSuperPellets() {
 		Board b = getBoard();
 		int superPellets = 0;
@@ -400,8 +421,8 @@ public class Level {
 
 	/**
 	 * A task that moves an NPC and reschedules itself after it finished.
-	 * 
-	 * @author Jeroen Roosen 
+	 *
+	 * @author Jeroen Roosen
 	 */
 	private final class NpcMoveTask implements Runnable {
 
@@ -436,16 +457,20 @@ public class Level {
 				move(npc, nextMove);
 			}
 			if(((Ghost) npc).getFearedMode()) {
-				interval = npc.getInterval()*2;
+				interval = ((Ghost) npc).getFearedInterval();
 			}
-			else
-			{
+			else {
 				interval = npc.getInterval();
 			}
 			service.schedule(this, interval, TimeUnit.MILLISECONDS);
 		}
 	}
 
+	/**
+	 * A task that stop the Hunter Mode after an amount of time.
+	 *
+	 * @author Yarol Timur
+	 */
 	private final class TimerHunterTask extends TimerTask {
 
 		@Override
@@ -454,6 +479,11 @@ public class Level {
 		}
 	}
 
+	/**
+	 * A task that respawn an NPC after being eat by Pacman.
+	 *
+	 * @author Yarol Timur
+	 */
 	private final class TimerRespawnTask extends TimerTask {
 
 		private Ghost ghost;
@@ -477,29 +507,17 @@ public class Level {
 
 	private final class TimerWarningTask extends TimerTask {
 
-		private int count;
-
-		private TimerWarningTask()
-		{
-			this.count = 0;
-		}
 
 		@Override
 		public void run() {
-			/*if(count%2 == 0){
-				ghost.setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_WHITE));
-			}
-			else {
-				ghost.setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_BLUE));
-			}
-			count++;*/
+			//Ghost.setWarningSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_WHITE));
 		}
 	}
 
 	/**
 	 * An observer that will be notified when the level is won or lost.
-	 * 
-	 * @author Jeroen Roosen 
+	 *
+	 * @author Jeroen Roosen
 	 */
 	public interface LevelObserver {
 
@@ -515,8 +533,14 @@ public class Level {
 		 */
 		void levelLost();
 
+		/**
+		 * The level mode change for a while. Pacman become a Hunter and the Ghost are feared.
+		 */
 		void startHunterMode();
 
+		/**
+		 * A ghost need to be respawned.
+		 */
 		void respawnGhost();
 	}
 }

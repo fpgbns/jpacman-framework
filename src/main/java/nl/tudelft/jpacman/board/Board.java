@@ -87,6 +87,12 @@ public class Board {
 		return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
 	}
 
+
+	/**
+	 * Determine the square on the middle of the Board.
+	 *
+	 * @return The square on the middle of the Board (never null).
+     */
 	public Square getMiddleOfTheMap()
 	{
 		Square result = null;
@@ -106,6 +112,7 @@ public class Board {
 		{
 			result = board[(getWidth()/2)-1][(getHeight()/2)-1];
 		}
+		assert result != null : "Follows from invariant.";
 		return result;
 	}
 }

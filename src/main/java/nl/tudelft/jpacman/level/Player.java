@@ -34,6 +34,9 @@ public class Player extends Unit {
 	 */
 	private boolean alive;
 
+	/**
+	 * <code>true</code> iff this player is under the Hunter Mode.
+	 */
 	private boolean hunterMode = false;
 
 	/**
@@ -61,10 +64,18 @@ public class Player extends Unit {
 		return alive;
 	}
 
+	/**
+	 * Return the actual game mode
+	 *
+	 * @return true iff the game is under the Hunter Mode
+     */
 	public boolean getHunterMode() {
 		return hunterMode;
 	}
 
+	/**
+	 * Change the Game Mode.
+	 */
 	public void setHunterMode(boolean mode) {
 		hunterMode = mode;
 	}

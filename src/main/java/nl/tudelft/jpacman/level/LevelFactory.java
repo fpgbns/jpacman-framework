@@ -26,12 +26,14 @@ public class LevelFactory {
 	private static final int PINKY = 2;
 	private static final int CLYDE = 3;
 
-	private static boolean HUNTERMODE = false;
-
 	/**
 	 * The default value of a pellet.
 	 */
 	private static final int PELLET_VALUE = 10;
+
+	/**
+	 * The default value of a super pellet.
+	 */
 	private static final int SUPERPELLET_VALUE = 50;
 
 	/**
@@ -103,15 +105,6 @@ public class LevelFactory {
 		default:
 			return new RandomGhost(sprites.getGhostSprite(GhostColor.RED));
 		}
-	}
-
-	/**
-	 * Creates the eatable ghosts if the game is in hunter mode.
-	 *
-	 * @return The news eatable ghosts.
-	 */
-	NPC createEatableGhost() {
-		return ghostFact.createEatableGhost();
 	}
 
 	/**

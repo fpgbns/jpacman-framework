@@ -17,6 +17,9 @@ import nl.tudelft.jpacman.level.Level;
 
 public class PlayerCollisions implements CollisionMap {
 
+	/**
+	 * The number of Ghost eat by Pacman during a Hunter Mode.
+	 */
 	public static Ghost ateGhost = null;
 
 	@Override
@@ -55,7 +58,7 @@ public class PlayerCollisions implements CollisionMap {
 	
 	
 	/**
-	 * Actual case of player bumping into ghost or vice versa.
+	 * Normal case of player bumping into ghost or vice versa.
      *
      * @param player The player involved in the collision.
 	 */
@@ -63,6 +66,15 @@ public class PlayerCollisions implements CollisionMap {
 		player.setAlive(false);
 	}
 
+
+	/**
+	 * Special case of player bumping into ghost or vice versa.
+	 * In this case, the player is under the Hunter Mode.
+	 * He is able to eat Ghost.
+	 *
+	 * @param player The player involved in the collision.
+	 * @param ghost The ghost involved in the collision.
+	 */
 	public void playerVersusEatableGhost(Player player, Ghost ghost)
 	{
 		PlayerCollisions.ateGhost = ghost;

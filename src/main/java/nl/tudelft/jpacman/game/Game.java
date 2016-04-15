@@ -61,11 +61,10 @@ public abstract class Game implements LevelObserver {
 		}
 	}
 
+	@Override
 	public void startHunterMode() {
 		synchronized (progressLock) {
-			if (getLevel().hunterMode()) {
-				getLevel().startHunterMode();
-			}
+			getLevel().startHunterMode();
 		}
 	}
 
@@ -101,6 +100,7 @@ public abstract class Game implements LevelObserver {
 		}
 	}
 
+	@Override
 	public void respawnGhost()
 	{
 		getLevel().respawnGhost();

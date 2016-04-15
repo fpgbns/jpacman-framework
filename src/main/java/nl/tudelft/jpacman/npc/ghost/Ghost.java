@@ -26,9 +26,26 @@ public abstract class Ghost extends NPC {
 
 	private static final PacManSprites SPRITE_STORE = new PacManSprites();
 
+	/**
+	 * A boolean to know if ghosts are feared by Pacman.
+	 */
 	private boolean fearedMode = false;
 
+	/**
+	 * The last position (Square) of the Ghost.
+	 */
 	private Square lastSquare = null;
+
+	/**
+	 * The variation in intervals, this makes the ghosts look more dynamic and
+	 * less predictable.
+	 */
+	private static final int INTERVAL_VARIATION = 50;
+
+	/**
+	 * The base movement interval for feared ghost.
+	 */
+	private static final int MOVE_INTERVAL = 500;
 
 	/**
 	 * Creates a new ghost.
@@ -47,6 +64,10 @@ public abstract class Ghost extends NPC {
 		this.sprites = sprite;
 	}
 
+	/**
+	 *
+	 * @return true iff the game is under the Hunter Mode
+     */
 	public boolean getFearedMode(){ return fearedMode; }
 
 	public void setFearedMode(boolean fearedMode) { this.fearedMode = fearedMode; }
@@ -74,6 +95,10 @@ public abstract class Ghost extends NPC {
 		{
 			setSprite(SPRITE_STORE.getGhostSprite(GhostColor.ORANGE));
 		}
+	}
+
+	public long getFearedInterval() {
+		return MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
 	}
 
 	/**
