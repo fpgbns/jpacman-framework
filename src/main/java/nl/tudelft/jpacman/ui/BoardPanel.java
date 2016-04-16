@@ -41,6 +41,8 @@ class BoardPanel extends JPanel {
 	 * The game to display.
 	 */
 	private final Game game;
+	private int scalex, scaley;
+	private int cellH, cellW;
 
 	/**
 	 * Creates a new board panel that will display the provided game.
@@ -57,6 +59,8 @@ class BoardPanel extends JPanel {
 
 		int w = board.getWidth() * SQUARE_SIZE;
 		int h = board.getHeight() * SQUARE_SIZE;
+		this.cellW = 0;
+		this.cellH = 0;
 
 		Dimension size = new Dimension(w, h);
 		setMinimumSize(size);
@@ -80,22 +84,27 @@ class BoardPanel extends JPanel {
 	 *            The dimensions to scale the rendered board to.
 	 */
 	private void render(Board board, Graphics g, Dimension window) {
-		int cellW = window.width / board.getWidth();
-		int cellH = window.height / board.getHeight();
+		if(this.cellH == 0 && this.cellW == 0)
+		{
+			this.scalex = board.getWidth();
+			this.scaley = board.getHeight();
+		}
+		this.cellW = window.width / this.scalex;
+		this.cellH = window.height / this.scaley;
 		Player pl = this.game.getPlayers().get(0);
 		Square posPlayer = pl.getSquare();
-		int dx = board.getWidth()/2 - posPlayer.getCoordX();
-		int dy = board.getHeight()/2 - posPlayer.getCoordY();
+		int dx = this.scalex/2 - posPlayer.getCoordX();
+		int dy = this.scaley/2 - posPlayer.getCoordY();
 
 		g.setColor(BACKGROUND_COLOR);
 		g.fillRect(0, 0, window.width, window.height);
 
 		for (int y = 0; y < board.getHeight(); y++) {
 			for (int x = 0; x < board.getWidth(); x++) {
-				int cellX = (dx+x) * cellW;
-				int cellY = (dy+y) * cellH;
+				int cellX = (dx + x) * this.cellW;
+				int cellY = (dy + y) * this.cellH;
 				Square square = board.squareAt(x, y);
-				render(square, g, cellX, cellY, cellW, cellH);
+				render(square, g, cellX, cellY, this.cellW, this.cellH);
 			}
 		}
 
