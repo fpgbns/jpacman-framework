@@ -32,6 +32,7 @@ public class Launcher {
 
 	private PacManUI pacManUI;
 	private Game game;
+	private String boardToUse = "/boardExtendedBase.txt";
 
 	public Launcher()
 	{
@@ -69,7 +70,7 @@ public class Launcher {
 	public Level makeLevel() {
 		MapParser parser = getMapParser();
 		try (InputStream boardStream = Launcher.class
-				.getResourceAsStream("/board.txt")) {
+				.getResourceAsStream(this.boardToUse)) {
 			return parser.parseMap(boardStream);
 		} catch (IOException e) {
 			throw new PacmanConfigurationException("Unable to create level.", e);
@@ -210,5 +211,9 @@ public class Launcher {
 	public static Launcher getLauncher()
 	{
 		return launcher;
+	}
+
+	public void setBoardToUse(String boardToUse) {
+		this.boardToUse = boardToUse;
 	}
 }
