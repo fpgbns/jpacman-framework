@@ -139,7 +139,7 @@ public class Board {
 		}
 	}
 
-	private void setPositions(Square[][] grid)
+	public void setPositions(Square[][] grid)
 	{
 		for(int i = 0; i < grid.length; i++)
 		{
@@ -159,6 +159,8 @@ public class Board {
 				Launcher launcher = Launcher.getLauncher();
 				launcher.setBoardToUse("/boardExtendedAdd.txt");
 				Level lev = launcher.makeLevel();
+				Level game = Level.getLevel();
+				game.addNPC(lev);
 				Square[][] newGrid = lev.getBoard().board;
 				for(int k = 0; k < newGrid.length; k++)
 				{
@@ -187,5 +189,9 @@ public class Board {
 				}
 			}
 		}
+	}
+
+	public Square[][] getBoard() {
+		return board;
 	}
 }
