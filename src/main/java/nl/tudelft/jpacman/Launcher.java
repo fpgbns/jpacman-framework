@@ -217,4 +217,8 @@ public class Launcher {
 	public void setBoardToUse(String boardToUse) {
 		this.boardToUse = boardToUse;
 	}
+
+	public String getBoardToUse() {
+		return boardToUse;
+	}
 }
