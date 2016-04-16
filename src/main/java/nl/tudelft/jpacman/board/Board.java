@@ -93,39 +93,37 @@ public class Board {
 
 	public void extend(Direction direction)
 	{
-		Square[][] grid;
-		if (direction == Direction.EAST)
-		{
-			grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.widthOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.widthOfOneMap)];
-			this.boardCopy(board, grid, 0, 0);
-			this.createSquare(grid, board.length, 0, board.length + this.widthOfOneMap, board[0].length);
-			this.setLink(grid, board.length - 1, 0, this.widthOfOneMap, this.getHeight());
-		}
-		else if (direction == Direction.NORTH)
-		{
-			grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.heightOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.heightOfOneMap)];
-			this.boardCopy(board, grid, 0, this.heightOfOneMap);
-			this.createSquare(grid, 0, 0, board.length, this.heightOfOneMap);
-			this.setLink(grid, 0, 0, this.getWidth(), this.heightOfOneMap + 1);
-		}
-		else if (direction == Direction.SOUTH)
-		{
-			grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.heightOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.heightOfOneMap)];
-			this.boardCopy(board, grid, 0, 0);
-			this.createSquare(grid, 0, board[0].length, board.length, board[0].length + this.heightOfOneMap);
-			this.setLink(grid, 0, board[0].length - 1, this.getWidth(), this.heightOfOneMap);
-
-		}
-		else
-		{
-			grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.widthOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.widthOfOneMap)];
-			this.boardCopy(board, grid, this.widthOfOneMap, 0);
-			this.createSquare(grid, 0, 0, this.widthOfOneMap, board[0].length);
-			this.setLink(grid, 0, 0, this.widthOfOneMap + 1, this.getHeight());
+		Square[][] grid = null;
+		switch(direction) {
+			case EAST:
+				grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.widthOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.widthOfOneMap)];
+				this.boardCopy(board, grid, 0, 0);
+				this.createSquare(grid, this.getWidth(), 0, this.getWidth() + this.widthOfOneMap, this.getHeight());
+				this.setLink(grid, this.getWidth() - 1, 0, this.widthOfOneMap, this.getHeight());
+				break;
+			case NORTH:
+				grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.heightOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.heightOfOneMap)];
+				this.boardCopy(board, grid, 0, this.heightOfOneMap);
+				this.createSquare(grid, 0, 0, this.getWidth(), this.heightOfOneMap);
+				this.setLink(grid, 0, 0, this.getWidth(), this.heightOfOneMap + 1);
+				break;
+			case SOUTH:
+				grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.heightOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.heightOfOneMap)];
+				this.boardCopy(board, grid, 0, 0);
+				this.createSquare(grid, 0, this.getHeight(), this.getWidth(), this.getHeight() + this.heightOfOneMap);
+				this.setLink(grid, 0, this.getHeight() - 1, this.getWidth(), this.heightOfOneMap);
+				break;
+			case WEST:
+				grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.widthOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.widthOfOneMap)];
+				this.boardCopy(board, grid, this.widthOfOneMap, 0);
+				this.createSquare(grid, 0, 0, this.widthOfOneMap, this.getHeight());
+				this.setLink(grid, 0, 0, this.widthOfOneMap + 1, this.getHeight());
+				break;
+			default:
+				break;
 		}
 		this.setPositions(grid);
 		this.board = grid;
-
 	}
 
 	private void boardCopy(Square[][] originalBoard, Square[][] newBoard, int width, int height)
@@ -160,7 +158,7 @@ public class Board {
 				launcher.setBoardToUse("/boardExtendedAdd.txt");
 				Level lev = launcher.makeLevel();
 				Level game = Level.getLevel();
-				game.addNPC(lev);
+				game.addGhost(lev);
 				Square[][] newGrid = lev.getBoard().board;
 				for(int k = 0; k < newGrid.length; k++)
 				{
@@ -175,16 +173,18 @@ public class Board {
 
 	private void setLink(Square[][] grid, int startX, int startY, int endX, int endY)
 	{
+		Square sq1, sq2;
+		int x, y;
 		for (int i = startX; i < startX + endX; i++)
 		{
 			for (int j = startY; j < startY + endY; j++)
 			{
-				Square sq1 = grid[i][j];
+				sq1 = grid[i][j];
 				for (Direction direction : Direction.values())
 				{
-					int x = (grid.length + i + direction.getDeltaX()) % grid.length;
-					int y = (grid[0].length + j + direction.getDeltaY()) % grid[0].length;
-					Square sq2 = grid[x][y];
+					x = (grid.length + i + direction.getDeltaX()) % grid.length;
+					y = (grid[0].length + j + direction.getDeltaY()) % grid[0].length;
+					sq2 = grid[x][y];
 					sq1.link(sq2, direction);
 				}
 			}
