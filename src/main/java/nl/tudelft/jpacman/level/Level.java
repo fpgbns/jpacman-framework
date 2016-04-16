@@ -14,6 +14,7 @@ import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.NPC;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 
 /**
  * A level of Pac-Man. A level consists of the board with the players and the
@@ -75,6 +76,8 @@ public class Level {
 	 */
 	private final List<LevelObserver> observers;
 
+	private static Level level = null;
+
 	/**
 	 * Creates a new level for the board.
 	 * 
@@ -104,6 +107,10 @@ public class Level {
 		this.players = new ArrayList<>();
 		this.collisions = collisionMap;
 		this.observers = new ArrayList<>();
+		if(level == null)
+		{
+			level = this;
+		}
 	}
 
 	/**
@@ -245,6 +252,22 @@ public class Level {
 		}
 	}
 
+	public void addNPC(Level l)
+	{
+		if(this.isInProgress())
+		{
+			l.start();
+		}
+		this.npcs.putAll(l.getNpcs());
+		this.start();
+		for (NPC npc : npcs.keySet())
+		{
+			Ghost g = (Ghost) (npc);
+			g.setSpeed(g.getSpeed() + 0.1);
+		}
+
+	}
+
 	/**
 	 * Returns whether this level is in progress, i.e. whether moves can be made
 	 * on the board.
@@ -305,6 +328,14 @@ public class Level {
 			}
 		}
 		return pellets;
+	}
+
+	public Map<NPC, ScheduledExecutorService> getNpcs() {
+		return npcs;
+	}
+
+	public static Level getLevel() {
+		return level;
 	}
 
 	/**
