@@ -1,8 +1,10 @@
 package nl.tudelft.jpacman.level;
 
+import java.util.List;
 import java.util.Map;
 
 import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.sprite.Sprite;
 
@@ -36,5 +38,17 @@ public class Bridge extends Unit{
 		else{
 			unit.setOnBridge(false);
 		}
+	}
+	
+	public static boolean blockedBybridge(Unit unit, Direction direction){
+		Unit u = unit.getSquare().getOccupants().get(0);
+		if(u instanceof Bridge){
+			Bridge b = (Bridge) u;
+			if((!(b.parralelTo(direction)) && unit.isOnBridge())
+			  || (b.parralelTo(direction) && !(unit.isOnBridge()))){
+				return true;
+			}
+		}
+		return false;
 	}
 }

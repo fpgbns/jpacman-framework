@@ -84,7 +84,7 @@ public class MapParser {
 		makeGrid(map, width, height, grid, ghosts, startPositions, teleportList, bridgeList, fruitPositions);
 		Board board = boardCreator.createBoard(grid);
 		setTeleports(teleportList, teleportrefs, board);
-		setBridges(bridgeList, bridgeRefs);
+		setBridges(bridgeList, bridgeRefs, fruitPositions);
 		Level l = levelCreator.createLevel(board, ghosts, startPositions, fruitPositions);
 		if(fruitPositions.size() > 0){
 			l.setupFruits(fruitPositions, ghosts);
@@ -111,7 +111,7 @@ public class MapParser {
 		}
 	}
 	
-	private void setBridges(List<Bridge> bridgeList, List<char[]> bridgeRefs){
+	private void setBridges(List<Bridge> bridgeList, List<char[]> bridgeRefs, List<Square> fruitPositions){
 		if(bridgeList.size() == bridgeRefs.size()){
 			char[] t;
 			for(int i = 0; i < bridgeList.size(); i++){
@@ -127,6 +127,10 @@ public class MapParser {
 					Unit p = levelCreator.createPellet();
 					p.setOnBridge(false);
 					p.occupy(pelletSquare);
+				}
+				else if(t[1] == 'F'){
+					fruitPositions.add(bridgeList.get(i).getSquare());
+					break;
 				}
 			}
 		}
@@ -354,7 +358,7 @@ public class MapParser {
 			if(ts.length == 2 && ts[0].length() == 1 && ts[1].length() == 1){
 				c1 = ts[0].charAt(0);
 				c2 = ts[1].charAt(0);
-				if(c1 != 'H' && c1 != 'V' || c2 != 'P' && c2 != 'N'){
+				if(c1 != 'H' && c1 != 'V' || c2 != 'P' && c2 != 'N' && c2 != 'F'){
 					throw new PacmanConfigurationException("Incorrect Bridge data : "+c1+c2);
 				}
 				else{

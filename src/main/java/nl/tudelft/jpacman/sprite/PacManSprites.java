@@ -37,7 +37,7 @@ public class PacManSprites extends SpriteStore {
 	 */
 	private static final int PACMAN_DEATH_FRAMES = 11;
 	
-	private static final int GHOST_EXPLODE_FRAMES = 6;
+	private static final int GHOST_EXPLODE_FRAMES = 5;
 	
 	/**
 	 * The amount of frames in the ghost animation.
@@ -62,19 +62,23 @@ public class PacManSprites extends SpriteStore {
 	}
 	
 	public Map<Direction, Sprite> getPacmanAngrySprite(){
-		return directionSprite("/sprite/pacman-angry.png", PACMAN_ANIMATION_FRAMES);
+		return directionSprite("/sprite/pacman_angry.png", PACMAN_ANIMATION_FRAMES);
+	}
+	
+	public Map<Direction, Sprite> getPacmanInvisibleSprite(){
+		return directionSprite("/sprite/pacman_invisible.png", PACMAN_ANIMATION_FRAMES);
 	}
 	
 	public Map<Direction, Sprite> getPacmanParalizedSprites() {
-		return directionSprite("/sprite/pacman-paralized.png", NO_ANIMATION_FRAMES);
+		return directionSprite("/sprite/pacman_paralized.png", PACMAN_ANIMATION_FRAMES);
 	}
 	
 	public Map<Direction, Sprite> getParalizedGhostSprite() {
-		return directionSprite("/sprite/ghost_paralized.png", NO_ANIMATION_FRAMES);
+		return directionSprite("/sprite/ghost_paralized.png", GHOST_ANIMATION_FRAMES);
 	}
 
 	public Map<Direction, Sprite> getAngryGhostSprite() {
-		return directionSprite("/sprite/ghost_vul_blue.png", GHOST_ANIMATION_FRAMES);
+		return directionSprite("/sprite/ghost_angry.png", GHOST_ANIMATION_FRAMES);
 	}
 
 
@@ -93,7 +97,7 @@ public class PacManSprites extends SpriteStore {
 	}
 	
 	public AnimatedSprite getGhostExplodeAnimation() {
-		String resource = "/sprite/ghost-explode.png";
+		String resource = "/sprite/ghost_explode.png";
 		
 		Sprite baseImage = loadSprite(resource);
 		AnimatedSprite animation = createAnimatedSprite(baseImage, GHOST_EXPLODE_FRAMES,
@@ -171,34 +175,32 @@ public class PacManSprites extends SpriteStore {
 		return loadSprite("/sprite/trap.png");
 	}
 	
-	public Sprite getPomegranateSprite() {
-		//return loadSprite("/sprite/pomegranate.png");
-		return loadSprite("/sprite/apple.png");
+	public Sprite getPomgranateSprite() {
+		return loadSprite("/sprite/pomgranate.png");
 	}
 	
 	public Sprite getBellPepperSprite() {
-		//return loadSprite("/sprite/bell-pepper.png");
-		return loadSprite("/sprite/bell.png");
+		return loadSprite("/sprite/bell_pepper.png");
 	}
 	
 	public Sprite getTomatoSprite() {
-		//return loadSprite("/sprite/tomato.png");
-		return loadSprite("/sprite/cherry.png");
+		return loadSprite("/sprite/tomato.png");
 	}
 	
 	public Sprite getKidneyBeanSprite() {
-		//return loadSprite("/sprite/kidney-bean.png");
-		return loadSprite("/sprite/galboss.png");
+		return loadSprite("/sprite/kidney_bean.png");
 	}
 	
 	public Sprite getPotatoSprite() {
-		//return loadSprite("/sprite/potato.png");
-		return loadSprite("/sprite/key.png");
+		return loadSprite("/sprite/potato.png");
 	}
 	
 	public Sprite getFishSprite() {
-		//return loadSprite("/sprite/fish.png");
-		return loadSprite("/sprite/melon.png");
+		return loadSprite("/sprite/fish.png");
+	}
+	
+	public Sprite getBulletSprite() {
+		return loadSprite("/sprite/bullet.png");
 	}
 	
 	/**

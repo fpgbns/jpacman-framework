@@ -15,6 +15,7 @@ import nl.tudelft.jpacman.fruit.FruitFactory;
 import nl.tudelft.jpacman.level.Player;
 import nl.tudelft.jpacman.npc.Bullet;
 import nl.tudelft.jpacman.npc.NPC;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 import com.google.common.collect.ImmutableList;
@@ -121,7 +122,7 @@ public class SinglePlayerGame extends Game {
 	public void ShootingEvent() {
 		if(shootLock){
 			shootLock = false;
-			Bullet b = new Bullet(new PacManSprites().getPelletSprite(), player);
+			Bullet b = new Bullet(new PacManSprites().getBulletSprite(), player);
 			b.occupy(player.getSquare());
 			level.animateBullet(b);
 			TimerTask timerTask = new TimerTask() {
@@ -135,10 +136,23 @@ public class SinglePlayerGame extends Game {
 	}
 
 	@Override
-	public void bulletCleanEvent(List<Bullet> bullets, Map<NPC, ScheduledExecutorService> npcs) {
-		for(Bullet bullet : bullets) {
-			bullet.leaveSquare();
-			npcs.remove(bullet);
+	public void NPCCleanEvent(List<NPC> deadNPCs, Map<NPC, ScheduledExecutorService> npcs) {
+		for(NPC npc : deadNPCs) {
+			if(npc instanceof Ghost) {
+				TimerTask timerTask = new TimerTask() {
+				    public void run() {
+				    	npc.leaveSquare();
+				    	npcs.remove(npc);
+				    }
+				};
+				int deadGhostAnimationTime = 5 * 200;
+				Timer timer = new Timer();
+				timer.schedule(timerTask, deadGhostAnimationTime);
+			}
+			else {
+				npc.leaveSquare();
+				npcs.remove(npc);
+			}
 		}
 	}
 

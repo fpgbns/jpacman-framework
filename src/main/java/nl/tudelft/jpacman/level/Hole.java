@@ -59,20 +59,20 @@ public class Hole extends Unit {
 	 * @param dc the character which will be trapped in this hole
 	 */
 	public void effect(DirectionCharacter dc) {
-		    Map<Direction, Sprite> oldSprites = dc.getSprites();
-			dc.setMobility(false);
-			if(dc instanceof Player)
-				((Player) dc).setSprites(new PacManSprites().getPacmanParalizedSprites());
-			else if(dc instanceof Ghost)
-				((Ghost) dc).setSprites(new PacManSprites().getParalizedGhostSprite());
-			TimerTask timerTask = new TimerTask() {
-			    public void run() {
-			        dc.setMobility(true);
-			        dc.setSprites(oldSprites);
-			    }
-			};
-			Timer timer = new Timer();
-			timer.schedule(timerTask, trapTime * 1000);
+		Map<Direction, Sprite> oldSprites = dc.getSprites();
+	    dc.setMobility(false);
+		if(dc instanceof Player)
+			((Player) dc).setSprites(new PacManSprites().getPacmanParalizedSprites());
+		else if(dc instanceof Ghost)
+			((Ghost) dc).setSprites(new PacManSprites().getParalizedGhostSprite());
+		TimerTask timerTask = new TimerTask() {
+			public void run() {
+			    dc.setMobility(true);
+			    dc.setSprites(oldSprites);
+			}
+	    };
+		Timer timer = new Timer();
+		timer.schedule(timerTask, trapTime * 1000);
 	}
 	
 }

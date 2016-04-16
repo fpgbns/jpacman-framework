@@ -1,6 +1,7 @@
 package nl.tudelft.jpacman.npc;
 
 import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.level.Bridge;
 import nl.tudelft.jpacman.level.Player;
 import nl.tudelft.jpacman.sprite.Sprite;
 
@@ -14,7 +15,7 @@ public class Bullet extends NPC{
 	/**
 	 * The base movement interval.
 	 */
-	private static final int MOVE_INTERVAL = 120;
+	private static final int MOVE_INTERVAL = 100;
 	
 	private static final int BULLET_DELAY = 1;
 	
@@ -35,7 +36,7 @@ public class Bullet extends NPC{
 
 	@Override
 	public Direction nextMove() {
-		if(getSquare().getSquareAt(shootingDirection).isAccessibleTo(this)) {
+		if(getSquare().getSquareAt(shootingDirection).isAccessibleTo(this) && !(Bridge.blockedBybridge(this, shootingDirection))) {
 			return shootingDirection;
 		}
 		else {

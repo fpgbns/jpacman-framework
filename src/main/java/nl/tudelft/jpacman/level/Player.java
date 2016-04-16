@@ -55,7 +55,7 @@ public class Player extends NPC implements DirectionCharacter {
 	/**
 	 * Whether this unit can be moved or not.
 	 */
-	private boolean mobile = true;
+	private boolean mobile;
 
 	/**
 	 * Creates a new player with a score of 0 points.
@@ -66,9 +66,10 @@ public class Player extends NPC implements DirectionCharacter {
 	 *            The sprite to be shown when this player dies.
 	 */
 	Player(Map<Direction, Sprite> spriteMap, AnimatedSprite deathAnimation) {
+		this.mobile = true;
 		this.score = 0;
 		this.alive = true;
-		this.setShooting(false);
+		this.shooting = false;
 		this.sprites = spriteMap;
 		this.deathSprite = deathAnimation;
 		deathSprite.setAnimating(false);
@@ -162,11 +163,11 @@ public class Player extends NPC implements DirectionCharacter {
 	
 	public void temporaryImunity(int duration){
 		setInvincible(true);
-		//setSprite(new PacManSprites().getPacmanInvisibleSprites());
+		setSprites(new PacManSprites().getPacmanInvisibleSprite());
 		TimerTask timerTask = new TimerTask() {
 		    public void run() {
 		        setInvincible(false);
-		        //setSprite(new PacManSprites().getPacmanInvisibleSprites());
+		        setSprites(new PacManSprites().getPacmanSprites());
 		    }
 		};
 		Timer timer = new Timer();

@@ -18,6 +18,7 @@ import nl.tudelft.jpacman.level.Bridge;
 import nl.tudelft.jpacman.npc.Bullet;
 import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.NPC;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 /**
@@ -196,7 +197,7 @@ public class Level {
 			Square location = unit.getSquare();
 			Square destination = location.getSquareAt(direction);
 			
-			if (destination.isAccessibleTo(unit) && !(blockedBybridge(unit, direction))) {
+			if (destination.isAccessibleTo(unit) && !(Bridge.blockedBybridge(unit, direction))) {
 				unit.setOnBridge(false);
 				List<Unit> occupants = destination.getOccupants();
 				unit.occupy(destination);
@@ -206,18 +207,6 @@ public class Level {
 			}
 			updateObservers();
 		}
-	}
-	
-	private boolean blockedBybridge(Unit unit, Direction direction){
-		Unit u = unit.getSquare().getOccupants().get(0);
-		if(u instanceof Bridge){
-			Bridge b = (Bridge) u;
-			if((!(b.parralelTo(direction)) && unit.isOnBridge())
-			  || (b.parralelTo(direction) && !(unit.isOnBridge()))){
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -306,10 +295,10 @@ public class Level {
 					o.ShootingEvent();
 			}
 		}
-		List<Bullet> deadBullets = bulletToClean() ;
-		if(deadBullets.size() > 0) {
+		List<NPC> deadNPCs = NPCToClean() ;
+		if(deadNPCs.size() > 0) {
 			for (LevelObserver o : observers) {
-				o.bulletCleanEvent(deadBullets, npcs);
+				o.NPCCleanEvent(deadNPCs, npcs);
 			}
 		}
 	}
@@ -348,16 +337,15 @@ public class Level {
 		return false;
 	}
 	
-	private List<Bullet> bulletToClean() {
-		List<Bullet> deadBullets = new ArrayList<>();
-		
+	private List<NPC> NPCToClean() {
+		List<NPC> deadNPCs = new ArrayList<>();
 		for (NPC npc : npcs.keySet()) {
-			if ((npc instanceof Bullet) && !((Bullet) npc).isAlive()) {
-				deadBullets.add((Bullet) npc);
+			if (((npc instanceof Bullet) && !((Bullet) npc).isAlive())
+					|| ((npc instanceof Ghost) && ((Ghost) npc).hasExploded())) {
+				deadNPCs.add(npc);
 			}
 		}
-		
-		return deadBullets;
+		return deadNPCs;
 	}
 
 	/**
@@ -448,7 +436,7 @@ public class Level {
 		
 		void ShootingEvent();
 		
-		void bulletCleanEvent(List<Bullet> bullets, Map<NPC, ScheduledExecutorService> npcs);
+		void NPCCleanEvent(List<NPC> deadNPCs, Map<NPC, ScheduledExecutorService> npcs);
 	}
 
 	public void animateBullet(Bullet b) {

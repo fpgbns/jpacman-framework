@@ -38,6 +38,9 @@ public class PlayerCollisions implements CollisionMap {
 		if (collidedOn instanceof Ghost) {
 			ghostVersusBullet((Ghost) collidedOn, mover);
 		}
+		if (collidedOn instanceof Bridge) {
+			characterVersusBridge((Unit) mover, (Bridge) collidedOn);
+		}
 	}
 
 	private void playerColliding(Player player, Unit collidedOn) {
@@ -91,6 +94,7 @@ public class PlayerCollisions implements CollisionMap {
      * @param ghost The ghost involved in the collision.
 	 */
 	public void playerVersusGhost(Player player, Ghost ghost) {
+		System.out.println("ouch !");
 		if(!ghost.hasExploded()){
 			player.setAlive(false);
 		}
