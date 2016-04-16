@@ -1,8 +1,5 @@
 package nl.tudelft.jpacman.board;
 
-import java.util.List;
-import java.util.Random;
-
 import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.level.Level;
 
@@ -18,8 +15,8 @@ public class Board {
 	 */
 	private Square[][] board;
 
-	private int sectionSizeX;
-	private int sectionSizeY;
+	private int widthOfOneMap;
+	private int heightOfOneMap;
 
 	/**
 	 * Creates a new board.
@@ -30,8 +27,8 @@ public class Board {
 	Board(Square[][] grid) {
 		assert grid != null;
 		this.board = grid;
-		this.sectionSizeX = grid.length;
-		this.sectionSizeY = grid[0].length;
+		this.widthOfOneMap = grid.length;
+		this.heightOfOneMap = grid[0].length;
 		assert invariant() : "Initial grid cannot contain null squares";
 	}
 
@@ -94,31 +91,37 @@ public class Board {
 		return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
 	}
 
-	public void extend(Direction direction) {
-		Square[][] grid = null;
-		int expandSize = 5;
-		if (direction == Direction.EAST || direction == Direction.WEST)
-			expandSize = sectionSizeX;
-		else
-			expandSize = sectionSizeY;
-		grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * expandSize)][this.getHeight() + Math.abs(direction.getDeltaY() * expandSize)];
-		if (direction == Direction.EAST) {
+	public void extend(Direction direction)
+	{
+		Square[][] grid;
+		if (direction == Direction.EAST)
+		{
+			grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.widthOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.widthOfOneMap)];
 			this.boardCopy(board, grid, 0, 0);
-			this.createSquare(grid, board.length, 0, board.length + expandSize, board[0].length);
-			this.setLink(grid, board.length - 1, 0, expandSize, getHeight());
-		}else if (direction == Direction.NORTH) {
-			this.boardCopy(board, grid, 0, expandSize);
-			this.createSquare(grid, 0, 0, board.length, expandSize);
-			this.setLink(grid, 0, 0, getWidth(), expandSize + 1);
-		}else if (direction == Direction.SOUTH) {
+			this.createSquare(grid, board.length, 0, board.length + this.widthOfOneMap, board[0].length);
+			this.setLink(grid, board.length - 1, 0, this.widthOfOneMap, this.getHeight());
+		}
+		else if (direction == Direction.NORTH)
+		{
+			grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.heightOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.heightOfOneMap)];
+			this.boardCopy(board, grid, 0, this.heightOfOneMap);
+			this.createSquare(grid, 0, 0, board.length, this.heightOfOneMap);
+			this.setLink(grid, 0, 0, this.getWidth(), this.heightOfOneMap + 1);
+		}
+		else if (direction == Direction.SOUTH)
+		{
+			grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.heightOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.heightOfOneMap)];
 			this.boardCopy(board, grid, 0, 0);
-			this.createSquare(grid, 0, board[0].length, board.length, board[0].length + expandSize);
-			this.setLink(grid, 0, board[0].length - 1, getWidth(), expandSize);
+			this.createSquare(grid, 0, board[0].length, board.length, board[0].length + this.heightOfOneMap);
+			this.setLink(grid, 0, board[0].length - 1, this.getWidth(), this.heightOfOneMap);
 
-		} else{
-			this.boardCopy(board, grid, expandSize, 0);
-			this.createSquare(grid, 0, 0, expandSize, board[0].length);
-			this.setLink(grid, 0, 0, expandSize + 1, getHeight());
+		}
+		else
+		{
+			grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.widthOfOneMap)][this.getHeight() + Math.abs(direction.getDeltaY() * this.widthOfOneMap)];
+			this.boardCopy(board, grid, this.widthOfOneMap, 0);
+			this.createSquare(grid, 0, 0, this.widthOfOneMap, board[0].length);
+			this.setLink(grid, 0, 0, this.widthOfOneMap + 1, this.getHeight());
 		}
 		this.setPositions(grid);
 		this.board = grid;
@@ -147,18 +150,20 @@ public class Board {
 		}
 	}
 
-	private void createSquare(Square[][] grid, int _x, int _y, int dx, int dy) {
-		int nbx = (dx-_x)/sectionSizeX;
-		int nby = (dy-_y)/sectionSizeY;
-		for(int nx=0; nx<nbx; nx++) {
-			for(int ny=0; ny<nby; ny++) {
-				Level l = Launcher.getLauncher().makeLevel();
-				//Level.getInstance().addNPCs(l);
-				//System.out.println("Nb Ghosts : " + Level.getInstance().getNpcs().size());
-				Square[][] newMap = l.getBoard().board;
-				for(int x=0; x<newMap.length; x++) {
-					for(int y=0; y<newMap[0].length; y++) {
-						grid[_x+(nx*sectionSizeX)+x][_y+(ny*sectionSizeY)+y] = newMap[x][y];
+	private void createSquare(Square[][] grid, int startX, int startY, int endX, int endY)
+	{
+		for(int i = 0; i < (endX - startX) / this.widthOfOneMap; i++)
+		{
+			for(int j = 0; j < (endY - startY) / this.heightOfOneMap; j++)
+			{
+				Launcher launcher = Launcher.getLauncher();
+				Level lev = launcher.makeLevel();
+				Square[][] newGrid = lev.getBoard().board;
+				for(int k = 0; k < newGrid.length; k++)
+				{
+					for(int l = 0; l < newGrid[0].length; l++)
+					{
+						grid[startX + (i*this.widthOfOneMap) + k][startY + (j*this.heightOfOneMap) + l] = newGrid[k][l];
 					}
 				}
 			}
