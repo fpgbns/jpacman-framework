@@ -93,16 +93,16 @@ class BoardPanel extends JPanel {
 		this.cellH = window.height / this.scaley;
 		Player pl = this.game.getPlayers().get(0);
 		Square posPlayer = pl.getSquare();
-		int dx = this.scalex/2 - posPlayer.getCoordX();
-		int dy = this.scaley/2 - posPlayer.getCoordY();
+		int diffX = this.scalex/2 - posPlayer.getCoordX();
+		int diffY = ((int) (this.scaley/1.4)) - posPlayer.getCoordY();
 
 		g.setColor(BACKGROUND_COLOR);
 		g.fillRect(0, 0, window.width, window.height);
 
 		for (int y = 0; y < board.getHeight(); y++) {
 			for (int x = 0; x < board.getWidth(); x++) {
-				int cellX = (dx + x) * this.cellW;
-				int cellY = (dy + y) * this.cellH;
+				int cellX = (diffX + x) * this.cellW;
+				int cellY = (diffY + y) * this.cellH;
 				Square square = board.squareAt(x, y);
 				render(square, g, cellX, cellY, this.cellW, this.cellH);
 			}
