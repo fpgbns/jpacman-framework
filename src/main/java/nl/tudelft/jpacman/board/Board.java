@@ -157,6 +157,7 @@ public class Board {
 			for(int j = 0; j < (endY - startY) / this.heightOfOneMap; j++)
 			{
 				Launcher launcher = Launcher.getLauncher();
+				launcher.setBoardToUse("/boardExtendedAdd.txt");
 				Level lev = launcher.makeLevel();
 				Square[][] newGrid = lev.getBoard().board;
 				for(int k = 0; k < newGrid.length; k++)
