@@ -159,14 +159,18 @@ public class Board {
 				Level lev = launcher.makeLevel();
 				Level game = Level.getLevel();
 				game.addGhost(lev);
-				Square[][] newGrid = lev.getBoard().board;
-				for(int k = 0; k < newGrid.length; k++)
-				{
-					for(int l = 0; l < newGrid[0].length; l++)
-					{
-						grid[startX + (i*this.widthOfOneMap) + k][startY + (j*this.heightOfOneMap) + l] = newGrid[k][l];
-					}
-				}
+				this.setSquare(grid, lev.getBoard().board, startX, startY, i, j);
+			}
+		}
+	}
+
+	private void setSquare(Square[][] grid, Square[][] newGrid, int startX, int startY, int x, int y)
+	{
+		for(int i = 0; i < newGrid.length; i++)
+		{
+			for(int j = 0; j < newGrid[0].length; j++)
+			{
+				grid[startX + (x*this.widthOfOneMap) + i][startY + (y*this.heightOfOneMap) + j] = newGrid[i][j];
 			}
 		}
 	}
