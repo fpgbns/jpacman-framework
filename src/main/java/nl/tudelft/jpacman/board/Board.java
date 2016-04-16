@@ -97,42 +97,40 @@ public class Board {
 		switch(direction) {
 			case EAST:
 				grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getWidth())][this.getHeight() + Math.abs(direction.getDeltaY() * this.getWidth())];
-				this.boardCopy(board, grid, 0, 0);
+				this.boardCopy(grid, 0, 0);
 				this.createSquare(grid, this.getWidth(), 0, this.getWidth() * 2, this.getHeight());
 				this.setLink(grid, this.getWidth() - 1, 0, this.getWidth(), this.getHeight());
 				break;
 			case NORTH:
 				grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getHeight())][this.getHeight() + Math.abs(direction.getDeltaY() * this.getHeight())];
-				this.boardCopy(board, grid, 0, this.getHeight());
+				this.boardCopy(grid, 0, this.getHeight());
 				this.createSquare(grid, 0, 0, this.getWidth(), this.getHeight());
 				this.setLink(grid, 0, 0, this.getWidth(), this.getHeight() + 1);
 				break;
 			case SOUTH:
 				grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getHeight())][this.getHeight() + Math.abs(direction.getDeltaY() * this.getHeight())];
-				this.boardCopy(board, grid, 0, 0);
+				this.boardCopy(grid, 0, 0);
 				this.createSquare(grid, 0, this.getHeight(), this.getWidth(), this.getHeight() * 2);
 				this.setLink(grid, 0, this.getHeight() - 1, this.getWidth(), this.getHeight());
 				break;
 			case WEST:
 				grid = new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getWidth())][this.getHeight() + Math.abs(direction.getDeltaY() * this.getWidth())];
-				this.boardCopy(board, grid, this.getWidth(), 0);
+				this.boardCopy(grid, this.getWidth(), 0);
 				this.createSquare(grid, 0, 0, this.getWidth(), this.getHeight());
 				this.setLink(grid, 0, 0, this.getWidth() + 1, this.getHeight());
 				break;
 			default:
 				break;
 		}
-		this.setPositions(grid);
-		this.board = grid;
 	}
 
-	private void boardCopy(Square[][] originalBoard, Square[][] newBoard, int width, int height)
+	private void boardCopy(Square[][] newBoard, int startX, int startY)
 	{
-		for (int i = 0; i < originalBoard.length; i++)
+		for (int i = 0; i < this.getWidth(); i++)
 		{
-			for (int j = 0; j < originalBoard[0].length; j++)
+			for (int j = 0; j < this.getHeight(); j++)
 			{
-				newBoard[i + width][j + height] = originalBoard[i][j];
+				newBoard[i + startX][j + startY] = this.board[i][j];
 			}
 		}
 	}
@@ -159,7 +157,7 @@ public class Board {
 				Level lev = launcher.makeLevel();
 				Level game = Level.getLevel();
 				game.addGhost(lev);
-				this.setSquare(grid, lev.getBoard().board, startX, startY, i, j);
+				this.setSquare(grid, lev.getBoard().getBoard(), startX, startY, i, j);
 			}
 		}
 	}
@@ -193,6 +191,8 @@ public class Board {
 				}
 			}
 		}
+		this.setPositions(grid);
+		this.board = grid;
 	}
 
 	public Square[][] getBoard() {
