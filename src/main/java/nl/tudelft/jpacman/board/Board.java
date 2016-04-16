@@ -91,6 +91,16 @@ public class Board {
 		return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
 	}
 
+	private Level setOptions()
+	{
+		Launcher launcher = Launcher.getLauncher();
+		launcher.setBoardToUse("/boardExtendedAdd.txt");
+		Level lev = launcher.makeLevel();
+		Level game = Level.getLevel();
+		game.addGhost(lev);
+		return lev;
+	}
+
 	public void extend(Direction direction)
 	{
 		Square[][] grid = null;
@@ -124,15 +134,13 @@ public class Board {
 		}
 	}
 
-	private void boardCopy(Square[][] newBoard, int startX, int startY)
+	private Square[][] boardCopy(Square[][] newBoard, int startX, int startY)
 	{
 		for (int i = 0; i < this.getWidth(); i++)
 		{
-			for (int j = 0; j < this.getHeight(); j++)
-			{
-				newBoard[i + startX][j + startY] = this.board[i][j];
-			}
+			System.arraycopy(this.board[i], 0, newBoard[i + startX], startY, this.getHeight());
 		}
+		return newBoard;
 	}
 
 	public void setPositions(Square[][] grid)
@@ -146,18 +154,13 @@ public class Board {
 		}
 	}
 
-	private void createSquare(Square[][] grid, int startX, int startY, int endX, int endY)
+	private void createSquare(Square[][] grid,  int startX, int startY, int endX, int endY)
 	{
 		for(int i = 0; i < (endX - startX) / this.widthOfOneMap; i++)
 		{
 			for(int j = 0; j < (endY - startY) / this.heightOfOneMap; j++)
 			{
-				Launcher launcher = Launcher.getLauncher();
-				launcher.setBoardToUse("/boardExtendedAdd.txt");
-				Level lev = launcher.makeLevel();
-				Level game = Level.getLevel();
-				game.addGhost(lev);
-				this.setSquare(grid, lev.getBoard().getBoard(), startX, startY, i, j);
+				this.setSquare(grid, this.setOptions().getBoard().getBoard(), startX, startY, i, j);
 			}
 		}
 	}
@@ -166,10 +169,7 @@ public class Board {
 	{
 		for(int i = 0; i < newGrid.length; i++)
 		{
-			for(int j = 0; j < newGrid[0].length; j++)
-			{
-				grid[startX + (x * this.widthOfOneMap) + i][startY + (y * this.heightOfOneMap) + j] = newGrid[i][j];
-			}
+			System.arraycopy(newGrid[i], 0, grid[startX + (x * this.widthOfOneMap) + i], startY + (y * this.heightOfOneMap), newGrid[i].length);
 		}
 	}
 
