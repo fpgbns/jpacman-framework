@@ -65,7 +65,7 @@ public class Blinky extends Ghost {
 	public long getInterval() {
 		// TODO Blinky should speed up when there are a few pellets left, but he
 		// has no way to find out how many there are.
-		return MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
+		return ((int) (MOVE_INTERVAL/this.speed)) + new Random().nextInt(INTERVAL_VARIATION);
 	}
 
 	/**

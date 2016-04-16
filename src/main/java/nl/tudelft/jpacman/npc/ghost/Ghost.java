@@ -22,6 +22,8 @@ public abstract class Ghost extends NPC {
 	 */
 	private Map<Direction, Sprite> sprites;
 
+	protected double speed = 1.0;
+
 	/**
 	 * Creates a new ghost.
 	 * 
@@ -56,5 +58,13 @@ public abstract class Ghost extends NPC {
 		}
 		int i = new Random().nextInt(directions.size());
 		return directions.get(i);
+	}
+
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
 	}
 }
