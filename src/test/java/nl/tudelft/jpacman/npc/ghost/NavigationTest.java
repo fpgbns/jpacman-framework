@@ -159,4 +159,15 @@ public class NavigationTest {
 		Unit unit = Navigation.findNearest(Ghost.class, s1);
 		assertNotNull(unit);
 	}
+
+	@Test
+	public void testSpeedGhost() throws IOException {
+		Board b = parser.parseMap(getClass().getResourceAsStream("/board.txt")).getBoard();
+		Square s1 = b.squareAt(1, 1);
+		Ghost unit = (Ghost) (Navigation.findNearest(Ghost.class, s1));
+		assertEquals(unit.getSpeed(), 1.0, 0.0);
+		unit.setSpeed(unit.getSpeed() + 0.1);
+		assertEquals(unit.getSpeed(), 1.1, 0.0);
+	}
+
 }
