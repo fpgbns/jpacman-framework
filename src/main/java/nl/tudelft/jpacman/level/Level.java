@@ -324,18 +324,16 @@ public class Level {
 				for (Unit u : b.squareAt(x, y).getOccupants()) {
 					if (u instanceof Ghost) {
 						timerHunterMode.cancel();
-						//timerWarning.cancel();
+						timerWarning.cancel();
 						timerHunterMode = new Timer();
-						//timerWarning = new Timer();
+						timerWarning = new Timer();
 						if (remainingSuperPellets() >= 2) {
 							timerHunterMode.schedule(new TimerHunterTask(), 7000);
-							//timerWarning.schedule(new TimerWarningTask(), 5000, 500);
+							timerWarning.schedule(new TimerWarningTask(), 5000, 250);
 						} else {
 							timerHunterMode.schedule(new TimerHunterTask(), 5000);
-							//timerWarning.schedule(new TimerWarningTask(), 3000, 500);
+							timerWarning.schedule(new TimerWarningTask(), 3000, 250);
 						}
-						//System.out.println("Ghost u = " + u);
-						((Ghost) u).setFearedMode(true);
 						((Ghost) u).startFearedMode();
 					}
 				}
@@ -353,12 +351,31 @@ public class Level {
 	 */
 	public void stopHunterMode() {
 		Board b = getBoard();
+		timerWarning.cancel();
 		for (int x = 0; x < b.getWidth(); x++) {
 			for (int y = 0; y < b.getHeight(); y++) {
 				for (Unit u : b.squareAt(x, y).getOccupants()) {
 					if (u instanceof Ghost) {
-						((Ghost) u).setFearedMode(false);
 						((Ghost) u).stopFearedMode();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Handle the end of the Hunter Mode for Pacman and
+	 * warning him about that.
+	 */
+	public void warningMode()
+	{
+		Board b = getBoard();
+		Ghost.count++;
+		for (int x = 0; x < b.getWidth(); x++) {
+			for (int y = 0; y < b.getHeight(); y++) {
+				for (Unit u : b.squareAt(x, y).getOccupants()) {
+					if (u instanceof Ghost) {
+						((Ghost) u).warningMode();
 					}
 				}
 			}
@@ -372,12 +389,9 @@ public class Level {
 	{
 		ghostLeft++;
 		Ghost ateGhost = PlayerCollisions.ateGhost;
-		System.out.println("Fantome : " + ateGhost);
 		timerRespawn = new Timer();
 		timerRespawn.schedule(new TimerRespawnTask(ateGhost), 5000);
 	}
-
-
 
 	/**
 	 * Counts the pellets remaining on the board.
@@ -472,7 +486,6 @@ public class Level {
 	 * @author Yarol Timur
 	 */
 	private final class TimerHunterTask extends TimerTask {
-
 		@Override
 		public void run() {
 			stopHunterMode();
@@ -497,7 +510,6 @@ public class Level {
 		public void run() {
 			Board b = getBoard();
 			ghost.occupy(b.getMiddleOfTheMap());
-			ghost.setFearedMode(false);
 			ghost.stopFearedMode();
 			stopNPCs();
 			startNPCs();
@@ -505,13 +517,15 @@ public class Level {
 		}
 	}
 
+	/**
+	 * A task that handle the end of Hunter Mode.
+	 *
+	 * @author Yarol Timur
+	 */
 	private final class TimerWarningTask extends TimerTask {
 
-
 		@Override
-		public void run() {
-			//Ghost.setWarningSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_WHITE));
-		}
+		public void run() { warningMode(); }
 	}
 
 	/**

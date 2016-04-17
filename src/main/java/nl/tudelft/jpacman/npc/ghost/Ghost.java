@@ -26,6 +26,8 @@ public abstract class Ghost extends NPC {
 
 	private static final PacManSprites SPRITE_STORE = new PacManSprites();
 
+	public static int count = 0;
+
 	/**
 	 * A boolean to know if ghosts are feared by Pacman.
 	 */
@@ -70,15 +72,47 @@ public abstract class Ghost extends NPC {
      */
 	public boolean getFearedMode(){ return fearedMode; }
 
+	/**
+	 *
+	 * set the game mode under Hunter Mode
+	 */
 	public void setFearedMode(boolean fearedMode) { this.fearedMode = fearedMode; }
 
+	/**
+	 *
+	 * Change the aim of Ghosts. For some seconds, they are feared.
+	 */
 	public void startFearedMode()
 	{
+		setFearedMode(true);
 		setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_BLUE));
 	}
 
+	/**
+	 *
+	 * Signal the end of the Hunter Mode
+	 */
+	public void warningMode()
+	{
+		if(getFearedMode())
+		{
+			if(count%2==0) {
+				setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_BLUE));
+			}
+			else{
+				setSprite(SPRITE_STORE.getGhostSprite(GhostColor.VUL_WHITE));
+			}
+		}
+	}
+
+	/**
+	 *
+	 * Stop the Hunter Mode
+	 */
 	public void stopFearedMode()
 	{
+		setFearedMode(false);
+		count = 0;
 		if(this instanceof Blinky)
 		{
 			setSprite(SPRITE_STORE.getGhostSprite(GhostColor.RED));
@@ -123,10 +157,19 @@ public abstract class Ghost extends NPC {
 		return directions.get(i);
 	}
 
+	/**
+	 *
+	 * @return the last position of the ghost
+     */
 	protected Square getLastSquare() {
 		return this.lastSquare;
 	}
 
+	/**
+	 * Determines a possible move at crossroads in a random direction.
+	 *
+	 * @return A direction in which the ghost can move.
+	 */
 	protected Direction randomMoveAtCrossroads()
 	{
 		Square square = getSquare();
@@ -137,7 +180,11 @@ public abstract class Ghost extends NPC {
 			}
 		}
 		if (directions.isEmpty()) {
-			return null;
+			for (Direction d : Direction.values()) {
+				if (square.getSquareAt(d) == getLastSquare()) {
+					directions.add(d);
+				}
+			}
 		}
 		int i = new Random().nextInt(directions.size());
 		this.lastSquare = getSquare();

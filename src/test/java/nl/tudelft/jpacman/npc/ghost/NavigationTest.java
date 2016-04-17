@@ -184,6 +184,4 @@ public class NavigationTest {
 		//and his score is 50 for the player.
 		assertEquals(pellet.getValue(), 50);
 	}
-
-
 }
