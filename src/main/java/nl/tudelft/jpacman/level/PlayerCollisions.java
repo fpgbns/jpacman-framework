@@ -94,8 +94,7 @@ public class PlayerCollisions implements CollisionMap {
      * @param ghost The ghost involved in the collision.
 	 */
 	public void playerVersusGhost(Player player, Ghost ghost) {
-		System.out.println("ouch !");
-		if(!ghost.hasExploded()){
+		if(!(ghost.hasExploded()) && !(player.isInvincible())){
 			player.setAlive(false);
 		}
 	}
@@ -124,8 +123,6 @@ public class PlayerCollisions implements CollisionMap {
 		}
 	}
 	
-	
-	
 	/**
 	 * Actual case of A player entering into a teleport
      *
@@ -146,6 +143,12 @@ public class PlayerCollisions implements CollisionMap {
 		bridge.effect(unit);
 	}
 	
+	/**
+	 * Actual case of player consuming a fruit.
+     *
+     * @param player The player involved in the collision.
+     * @param fruit The fruit involved in the collision.
+	 */
 	public void playerVersusFruit(Player player, Fruit fruit) {
 		fruit.leaveSquare();
 		fruit.fruitEffect(player);

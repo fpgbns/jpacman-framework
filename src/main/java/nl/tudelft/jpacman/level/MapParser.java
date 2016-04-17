@@ -53,6 +53,10 @@ public class MapParser {
 	/**
 	 * Parses the text representation of the board into an actual level.
 	 * 
+	 * The text representation is divided into three part :
+	 * 
+	 * the first part describe the level and is obligatory
+	 * 
 	 * <ul>
 	 * <li>Supported characters:
 	 * <li>' ' (space) an empty square.
@@ -60,8 +64,39 @@ public class MapParser {
 	 * <li>'.' (period) a square with a pellet.
 	 * <li>'P' (capital P) a starting square for players.
 	 * <li>'G' (capital G) a square with a ghost.
-	 * <li>'T' (capital G) a teleport.
-	 * <li>'H' (capital G) a hole.
+	 * <li>'T' (capital T) a teleport.
+	 * <li>'H' (capital H) a hole.
+	 * <li>'B' (capital B) a bridge.
+	 * <li>'F' (capital F) a square where a fruit can appear.
+	 * </ul>
+	 * 
+	 * The second section must be specified when the the map contains teleports
+	 * and begin by a line full of '-' (minus) characters, each line of this
+	 * section contain the x coordinate and y coordinate separated by only
+	 * one space of the places pointed by teleports following the
+	 * order left to right and up to down.
+	 * 
+	 * The third section must be specified when the map contains bridges,
+	 * even if there are no teleports, this section must follow the second section, so if
+	 * there are no teleports the third section have to follow an empty second
+	 * section that just consists of the line full of (minus) characters.
+	 * like the second sections, this one also begin by a line full of
+	 * '-' (minus) characters. Each lines of this sections consists of two
+	 * characters separated by only one spaces representing the orientation of
+	 * the bridge followed by what's under that bridge following the
+	 * order left to right and up to down.
+	 * 
+	 * <ul>
+	 * <li>Supported characters:
+	 * <li>'H' (capital H) The orientation of this bridge is horizontal
+	 * <li>'V' (capital V) The orientation of this bridge is vertical
+	 * </ul>
+	 * 
+	 * <ul>
+	 * <li>Supported characters:
+	 * <li>'P' (capital P) There is a pellet under that bridge.
+	 * <li>'F' (capital F) A fruit can appear under that bridge.
+	 * <li>'N' (capital N) There is nothing under that bridge.
 	 * </ul>
 	 * 
 	 * @param map

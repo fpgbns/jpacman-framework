@@ -24,6 +24,9 @@ public abstract class Unit {
 	 */
 	private Direction direction;
 	
+	/**
+	 * Whether this unit is on a bridge.
+	 */
 	private boolean onBridge;
 
 	/**
@@ -51,12 +54,17 @@ public abstract class Unit {
 	}
 	
 	/**
-	 * blabla
+	 * set the new postion of this unit with respect to a bridge
+	 * @param boolean newValue the new position of this unit with respect to a bridge.
 	 */
 	public void setOnBridge(boolean newValue) {
 		onBridge = newValue;
 	}
 	
+	/**
+	 * Returns whether this unit is on a bridge or not.
+	 * @return true if this unit is on a bridge, false otherwise.
+	 */
 	public boolean isOnBridge() {
 		return onBridge;
 	}

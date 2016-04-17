@@ -87,9 +87,7 @@ public abstract class Game implements LevelObserver {
 	 *            The direction to move in.
 	 */
 	public void move(Player player, Direction direction) {
-		if (isInProgress() && player.getMobility()) {
-			// execute player move.
-			//getLevel().move(player, direction);
+		if (isInProgress()) {
 			player.setDirection(direction);
 		}
 	}

@@ -1,13 +1,7 @@
 package nl.tudelft.jpacman.npc;
 
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Unit;
-import nl.tudelft.jpacman.sprite.PacManSprites;
-import nl.tudelft.jpacman.sprite.Sprite;
 
 /**
  * A non-player unit.
@@ -16,6 +10,9 @@ import nl.tudelft.jpacman.sprite.Sprite;
  */
 public abstract class NPC extends Unit {
 	
+	/**
+	 * Whether the NPC is speed-up
+	 */
 	private boolean acceleration = false;
 
 	/**
@@ -34,10 +31,18 @@ public abstract class NPC extends Unit {
 	 */
 	public abstract Direction nextMove();
 	
+	/**
+	 * Set the acceleration state of this NPC.
+	 * @param value true to make the NPC move faster, false otherwise.
+	 */
 	public void setAcceleration(boolean value) {
 		acceleration = value;
 	}
 	
+	/**
+	 * Returns whether the NPC is speed-up
+	 * @return true if the speed of this NPC is accelerated.
+	 */
 	public boolean getAcceleration() {
 		return acceleration;
 	}

@@ -27,8 +27,14 @@ public abstract class Ghost extends NPC implements DirectionCharacter {
 	 */
 	private Map<Direction, Sprite> sprites;
 	
+	/**
+	 * The animation to play when this ghost explodes.
+	 */
 	private final AnimatedSprite explodeSprite;
 	
+	/**
+	 * Whether this ghost has exploded or not.
+	 */
 	private boolean exploded;
 	
 	/**
@@ -39,8 +45,8 @@ public abstract class Ghost extends NPC implements DirectionCharacter {
 	/**
 	 * Creates a new ghost.
 	 * 
-	 * @param spriteMap
-	 *            The sprites for every direction.
+	 * @param spriteMap The sprites for every direction.
+	 * @param explodeAnimation the animation to play when this ghost explodes.
 	 */
 	protected Ghost(Map<Direction, Sprite> spriteMap, AnimatedSprite explodeAnimation) {
 		this.explodeSprite = explodeAnimation;
@@ -56,10 +62,18 @@ public abstract class Ghost extends NPC implements DirectionCharacter {
 		return explodeSprite;
 	}
 	
+	/**
+	 * Returns the sprites with respect to the Direction of this Ghost.
+	 * @returns the sprites with respect to the Direction of this Ghost.
+	 */
 	public Map<Direction, Sprite> getSprites() {
 		return sprites;
 	}
 	
+	/**
+	 * Change the sprites for all directions of this unit
+	 * @param sprites the sprites for all directions
+	 */
 	public void setSprites(Map<Direction, Sprite> sprites) {
 		this.sprites = sprites;
 	}
@@ -100,10 +114,18 @@ public abstract class Ghost extends NPC implements DirectionCharacter {
 		timer.schedule(timerTask, time * 1000);
 	}
 
+	/**
+	 * Returns true if this ghost exploded.
+	 * @return true if this ghost exploded
+	 */
 	public boolean hasExploded() {
 		return exploded;
 	}
 	
+	/**
+	 * Changer the explosion state of a ghost.
+	 * @param value the new state
+	 */
 	public void setExplode(boolean value) {
 		if (!value) {
 			explodeSprite.setAnimating(false);

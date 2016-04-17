@@ -1,14 +1,11 @@
 package nl.tudelft.jpacman.level;
 
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.sprite.AnimatedSprite;
-import nl.tudelft.jpacman.sprite.PacManSprites;
 import nl.tudelft.jpacman.sprite.Sprite;
 
 /**
@@ -48,8 +45,14 @@ public class Player extends NPC implements DirectionCharacter {
 	 */
 	private boolean alive;
 	
+	/**
+	 * <code>true</code> iff this player is invisible.
+	 */
 	private boolean invincible;
 	
+	/**
+	 * <code>true</code> iff this player is firing bullets.
+	 */
 	private boolean shooting;
 	
 	/**
@@ -58,7 +61,7 @@ public class Player extends NPC implements DirectionCharacter {
 	private boolean mobile;
 
 	/**
-	 * Creates a new player with a score of 0 points.
+	 * Creates a new player with a score of 0 points.true
 	 * 
 	 * @param spriteMap
 	 *            A map containing a sprite for this player for every direction.
@@ -132,61 +135,6 @@ public class Player extends NPC implements DirectionCharacter {
 		score += points;
 	}
 	
-	public void temporaryAcceleration(int time)
-	{
-		Map<Direction, Sprite> oldSprites = sprites;
-		setAcceleration(true);
-		setSprites(new PacManSprites().getPacmanAngrySprite());
-		TimerTask timerTask = new TimerTask() {
-		    public void run() {
-		    	setAcceleration(false);
-		        setSprites(oldSprites);
-		    }
-		};
-		Timer timer = new Timer();
-		timer.schedule(timerTask, time * 1000);
-	}
-	
-	public void temporaryImmobility(int duration)
-	{
-		setMobility(false);
-		setSprites(new PacManSprites().getPacmanParalizedSprites());
-		TimerTask timerTask = new TimerTask() {
-		    public void run() {
-		        setMobility(true);
-		        setSprites(new PacManSprites().getPacmanSprites());
-		    }
-		};
-		Timer timer = new Timer();
-		timer.schedule(timerTask, duration * 1000);
-	}
-	
-	public void temporaryImunity(int duration){
-		setInvincible(true);
-		setSprites(new PacManSprites().getPacmanInvisibleSprite());
-		TimerTask timerTask = new TimerTask() {
-		    public void run() {
-		        setInvincible(false);
-		        setSprites(new PacManSprites().getPacmanSprites());
-		    }
-		};
-		Timer timer = new Timer();
-		timer.schedule(timerTask, duration * 1000);
-	}
-	
-	public void temporaryShooting(int duration){
-		setShooting(true);
-		//setSprite(new PacManSprites().getPacmanShootingSprites());
-		TimerTask timerTask = new TimerTask() {
-		    public void run() {
-		    	setShooting(false);
-		        //setSprite(new PacManSprites().getPacmanShootingSprites());
-		    }
-		};
-		Timer timer = new Timer();
-		timer.schedule(timerTask, duration * 1000);
-	}
-	
 	public void setSprites(Map<Direction, Sprite> sprites) {
 		this.sprites = sprites;
 	}
@@ -230,5 +178,11 @@ public class Player extends NPC implements DirectionCharacter {
 	@Override
 	public boolean getMobility() {
 		return mobile;
+	}
+	
+	public void setDirection(Direction direction) {
+		if(getMobility()) {
+			super.setDirection(direction);
+		}
 	}
 }

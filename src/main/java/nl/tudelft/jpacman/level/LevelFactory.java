@@ -126,11 +126,21 @@ public class LevelFactory {
 		return new Hole(HOLE_TIME, sprites.getHoleSprite());
 	}
 	
+	/**
+	 * Creates a new teleport.
+	 * 
+	 * @return The new teleport.
+	 */
 	public Teleport createTeleport()
 	{
 		return new Teleport(sprites.getTeleportSprite());
 	}
 	
+	/**
+	 * Creates a new bridge.
+	 * 
+	 * @return The new bridge.
+	 */
 	public Bridge createBridge()
 	{
 		return new Bridge(sprites.getBridgeSprites());

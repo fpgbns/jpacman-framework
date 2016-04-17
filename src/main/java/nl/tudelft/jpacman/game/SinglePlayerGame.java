@@ -37,8 +37,14 @@ public class SinglePlayerGame extends Game {
 	 */
 	private final Level level;
 	
+	/**
+	 * A lock that prevent Fruit from being created on the board, when the lock value is true, a Fruit can appear on the board and false when a fruit can't appear.
+	 */
 	private boolean fruitLock = true;
 
+	/**
+	 * A lock that prevent a bullet from being created on the board, when the lock value is true, a bullet can appear on the board and false when a bullet can't appear.
+	 */
 	private boolean shootLock = true;
 	/**
 	 * Create a new single player game for the provided level and player.
@@ -155,5 +161,4 @@ public class SinglePlayerGame extends Game {
 			}
 		}
 	}
-
 }
