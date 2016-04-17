@@ -46,7 +46,7 @@ class BoardPanel extends JPanel {
 	 * Taille d'un board de base pour recentrer le dessin
 	 */
 	private int scalex, scaley;
-	
+
 	/**
 	 * Savoir si c'est le premier traçage ou non
 	 */
@@ -117,16 +117,20 @@ class BoardPanel extends JPanel {
 			}
 		}
 
-		if(posPlayer.getCoordX() > board.getWidth() - 5){
+		if(posPlayer.getCoordX() > board.getWidth() - 5)
+		{
 			board.extend(Direction.EAST);
 		}
-		if(posPlayer.getCoordX() < 5){
+		if(posPlayer.getCoordX() < 5)
+		{
 			board.extend(Direction.WEST);
 		}
-		if(posPlayer.getCoordY() > board.getHeight() - 5){
+		if(posPlayer.getCoordY() > board.getHeight() - 5)
+		{
 			board.extend(Direction.SOUTH);
 		}
-		if(posPlayer.getCoordY() < 5){
+		if(posPlayer.getCoordY() < 5)
+		{
 			board.extend(Direction.NORTH);
 		}
 	}
