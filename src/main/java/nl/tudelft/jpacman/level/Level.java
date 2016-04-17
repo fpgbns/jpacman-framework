@@ -107,10 +107,7 @@ public class Level {
 		this.players = new ArrayList<>();
 		this.collisions = collisionMap;
 		this.observers = new ArrayList<>();
-		if(level == null)
-		{
-			level = this;
-		}
+		level = this;
 	}
 
 	/**
@@ -252,7 +249,11 @@ public class Level {
 		}
 	}
 
-	public void addNPC(Level l)
+	/**
+	 * Permet d'ajouter des ghosts dans le jeu
+	 * @param l Le Level qui contient les ghost a ajouter
+     */
+	public void addGhost(Level l)
 	{
 		if(this.isInProgress())
 		{
