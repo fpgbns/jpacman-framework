@@ -32,14 +32,15 @@ public class Launcher {
 
 	private PacManUI pacManUI;
 	private Game game;
+	
+	/**
+	 * Le .txt qui doit etre choisi comme map
+	 */
 	private String boardToUse = "/boardExtendedBase.txt";
 
 	public Launcher()
 	{
-		if(launcher==null)
-		{
-			Launcher.launcher = this;
-		}
+		Launcher.launcher = this;
 	}
 
 	/**
