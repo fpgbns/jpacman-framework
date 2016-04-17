@@ -22,6 +22,9 @@ public abstract class Ghost extends NPC {
 	 */
 	private Map<Direction, Sprite> sprites;
 
+	/**
+	 * Modificateur de vitesse du ghost
+	 */
 	protected double speed = 1.0;
 
 	/**
@@ -60,10 +63,18 @@ public abstract class Ghost extends NPC {
 		return directions.get(i);
 	}
 
+	/**
+	 * Permet d'obtenir la vitesse du ghost
+	 * @return La vitesse du ghost
+     */
 	public double getSpeed() {
 		return speed;
 	}
 
+	/**
+	 * Permet de mettre a jour la vitesse du ghost
+	 * @param speed La nouvelle vitesse
+     */
 	public void setSpeed(double speed) {
 		this.speed = speed;
 	}
