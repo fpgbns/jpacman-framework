@@ -1,6 +1,8 @@
 package nl.tudelft.jpacman.board;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
@@ -78,5 +80,20 @@ public class BoardTest {
 	@Test
 	public void verifyX0Y1() {
 		assertEquals(x0y1, board.squareAt(0, 1));
+	}
+
+	@Test
+	public void verifyBoardChange()
+	{
+		Square[][] grid2 = new Square[maxWidth][maxHeight];
+		grid2[0][0] = x0y0;
+		grid2[0][1] = x0y1;
+		grid2[0][2] = x0y2;
+		grid2[1][0] = x1y0;
+		grid2[1][1] = x1y1;
+		grid2[1][2] = x1y2;
+		assertFalse(grid2.equals(board.getBoard()));
+		board.setBoard(grid2);
+		assertTrue(grid2.equals(board.getBoard()));
 	}
 }
