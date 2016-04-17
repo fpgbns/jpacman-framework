@@ -91,6 +91,10 @@ public class Board {
 		return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
 	}
 
+	/**
+	 * Option de création du nouveau Level
+	 * @return Le nouveau level
+     */
 	private Level setOptions()
 	{
 		Launcher launcher = Launcher.getLauncher();
@@ -103,7 +107,7 @@ public class Board {
 
 	public void extend(Direction direction)
 	{
-		Square[][] grid = null;
+		Square[][] grid;
 		switch(direction) {
 			case EAST:
 				grid = this.boardCopy(new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getWidth())][this.getHeight() + Math.abs(direction.getDeltaY() * this.getWidth())], 0, 0);
@@ -130,6 +134,13 @@ public class Board {
 		}
 	}
 
+	/**
+	 * Permet de copier l'ancien board dans le nouveau plus grand.
+	 * @param newBoard
+	 * @param startX
+	 * @param startY
+     * @return Le nouveau board
+     */
 	private Square[][] boardCopy(Square[][] newBoard, int startX, int startY)
 	{
 		for (int i = 0; i < this.getWidth(); i++)
@@ -139,6 +150,10 @@ public class Board {
 		return newBoard;
 	}
 
+	/**
+	 * Mets a jours les positions des éléments du board affiche
+	 * @param grid
+     */
 	public void setPositions(Square[][] grid)
 	{
 		for(int i = 0; i < grid.length; i++)
@@ -150,7 +165,16 @@ public class Board {
 		}
 	}
 
-	private void createSquare(Square[][] grid,  int startX, int startY, int endX, int endY)
+	/**
+	 * Permet de définir quels square et ou ils doivent être placer dans le board
+	 * @param grid
+	 * @param startX
+	 * @param startY
+	 * @param endX
+	 * @param endY
+     * @return
+     */
+	private Square[][] createSquare(Square[][] grid,  int startX, int startY, int endX, int endY)
 	{
 		for(int i = 0; i < (endX - startX) / this.widthOfOneMap; i++)
 		{
@@ -159,8 +183,18 @@ public class Board {
 				this.setSquare(grid, this.setOptions().getBoard().getBoard(), startX, startY, i, j);
 			}
 		}
+		return grid;
 	}
 
+	/**
+	 * Permet de placer les squares du nouveau level dans le board à afficher.
+	 * @param grid
+	 * @param newGrid
+	 * @param startX
+	 * @param startY
+     * @param x
+     * @param y
+     */
 	private void setSquare(Square[][] grid, Square[][] newGrid, int startX, int startY, int x, int y)
 	{
 		for(int i = 0; i < newGrid.length; i++)
@@ -169,6 +203,14 @@ public class Board {
 		}
 	}
 
+	/**
+	 * Mets les liens entre les nouveaux square du board
+	 * @param grid
+	 * @param startX
+	 * @param startY
+	 * @param endX
+     * @param endY
+     */
 	private void setLink(Square[][] grid, int startX, int startY, int endX, int endY)
 	{
 		Square sq1, sq2;
@@ -191,6 +233,10 @@ public class Board {
 		this.board = grid;
 	}
 
+	/**
+	 * Retourne le board actuel
+	 * @return Le board du jeu
+     */
 	public Square[][] getBoard() {
 		return board;
 	}
