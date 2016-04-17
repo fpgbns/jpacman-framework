@@ -30,6 +30,7 @@ public class Board {
 		this.widthOfOneMap = grid.length;
 		this.heightOfOneMap = grid[0].length;
 		assert invariant() : "Initial grid cannot contain null squares";
+		this.setPositions(grid);
 	}
 
 	/**
@@ -105,32 +106,36 @@ public class Board {
 		return lev;
 	}
 
+	/**
+	 * Agrandi le board du jeu
+	 * @param direction La direction dans laquelle le board doit s'agrandir.
+     */
 	public void extend(Direction direction)
 	{
 		switch(direction) {
 			case EAST:
-				this.setLink(this.createSquare(this.boardCopy(
+				this.setLink(this.setSquare(this.boardCopy(
 						new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getWidth())]
 								[this.getHeight() + Math.abs(direction.getDeltaY() * this.getWidth())], 0, 0),
-						this.getWidth(), 0, this.getWidth() * 2, this.getHeight()), this.getWidth() - 1,
+						this.getWidth(), 0, this.getWidth(), this.getHeight()), this.getWidth() - 1,
 						0, this.getWidth(), this.getHeight());
 				break;
 			case NORTH:
-				this.setLink(this.createSquare(this.boardCopy(
+				this.setLink(this.setSquare(this.boardCopy(
 						new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getHeight())]
 								[this.getHeight() + Math.abs(direction.getDeltaY() * this.getHeight())], 0,
 						this.getHeight()), 0, 0, this.getWidth(), this.getHeight()), 0, 0, this.getWidth(),
 						this.getHeight() + 1);
 				break;
 			case SOUTH:
-				this.setLink(this.createSquare(this.boardCopy(
+				this.setLink(this.setSquare(this.boardCopy(
 						new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getHeight())]
 								[this.getHeight() + Math.abs(direction.getDeltaY() * this.getHeight())], 0, 0),
-						0, this.getHeight(), this.getWidth(), this.getHeight() * 2), 0, this.getHeight() - 1,
+						0, this.getHeight(), this.getWidth(), this.getHeight()), 0, this.getHeight() - 1,
 						this.getWidth(), this.getHeight());
 				break;
 			case WEST:
-				this.setLink(this.createSquare(this.boardCopy(
+				this.setLink(this.setSquare(this.boardCopy(
 						new Square[this.getWidth() + Math.abs(direction.getDeltaX() * this.getWidth())]
 								[this.getHeight() + Math.abs(direction.getDeltaY() * this.getWidth())], this.getWidth(),
 						0), 0, 0, this.getWidth(), this.getHeight()), 0, 0, this.getWidth() + 1, this.getHeight());
@@ -142,9 +147,9 @@ public class Board {
 
 	/**
 	 * Permet de copier l'ancien board dans le nouveau plus grand.
-	 * @param newBoard
-	 * @param startX
-	 * @param startY
+	 * @param newBoard Le nouveau board
+	 * @param startX L'abscisse de depart
+	 * @param startY L'ordonnee de depart
      * @return Le nouveau board
      */
 	private Square[][] boardCopy(Square[][] newBoard, int startX, int startY)
@@ -157,8 +162,8 @@ public class Board {
 	}
 
 	/**
-	 * Mets a jours les positions des éléments du board affiche
-	 * @param grid
+	 * Mets a jours les positions des éléments du board afficher
+	 * @param grid La grille de square
      */
 	public void setPositions(Square[][] grid)
 	{
@@ -173,20 +178,20 @@ public class Board {
 
 	/**
 	 * Permet de définir quels square et ou ils doivent être placer dans le board
-	 * @param grid
-	 * @param startX
-	 * @param startY
-	 * @param endX
-	 * @param endY
-     * @return
+	 * @param grid La grille de square
+	 * @param startX Abscisse de début
+	 * @param startY Ordonnee de debut
+	 * @param lengthX Longueur sur x
+	 * @param lengthY Longueur sur y
+     * @return La nouvelle grille de square
      */
-	private Square[][] createSquare(Square[][] grid,  int startX, int startY, int endX, int endY)
+	private Square[][] setSquare(Square[][] grid, int startX, int startY, int lengthX, int lengthY)
 	{
-		for(int i = 0; i < (endX - startX) / this.widthOfOneMap; i++)
+		for(int i = 0; i < lengthX / this.widthOfOneMap; i++)
 		{
-			for(int j = 0; j < (endY - startY) / this.heightOfOneMap; j++)
+			for(int j = 0; j < lengthY / this.heightOfOneMap; j++)
 			{
-				this.setSquare(grid, this.setOptions().getBoard().getBoard(), startX, startY, i, j);
+				this.putSquare(grid, startX, startY, i, j);
 			}
 		}
 		return grid;
@@ -194,36 +199,38 @@ public class Board {
 
 	/**
 	 * Permet de placer les squares du nouveau level dans le board à afficher.
-	 * @param grid
-	 * @param newGrid
-	 * @param startX
-	 * @param startY
-     * @param x
-     * @param y
+	 * @param grid La grille de square
+	 * @param startX Abscisse de debut
+	 * @param startY Ordonnee de debut
+     * @param posX Abscisse du square dans grid a remplacer
+     * @param posY Ordonnee du square dans grid a remplacer
      */
-	private void setSquare(Square[][] grid, Square[][] newGrid, int startX, int startY, int x, int y)
+	private void putSquare(Square[][] grid, int startX, int startY, int posX, int posY)
 	{
+		Level l = this.setOptions();
+		Square[][] newGrid = l.getBoard().getBoard();
 		for(int i = 0; i < newGrid.length; i++)
 		{
-			System.arraycopy(newGrid[i], 0, grid[startX + (x * this.widthOfOneMap) + i], startY + (y * this.heightOfOneMap), newGrid[i].length);
+			System.arraycopy(newGrid[i], 0, grid[startX + (posX * this.widthOfOneMap) + i],
+					startY + (posY * this.heightOfOneMap), newGrid[i].length);
 		}
 	}
 
 	/**
 	 * Mets les liens entre les nouveaux square du board
-	 * @param grid
-	 * @param startX
-	 * @param startY
-	 * @param endX
-     * @param endY
+	 * @param grid La grille de square
+	 * @param startX L'abscisse de debut
+	 * @param startY L'ordonnee de début
+	 * @param lenghtX La longueur sur x
+     * @param lenghtY La longueur sur y
      */
-	private void setLink(Square[][] grid, int startX, int startY, int endX, int endY)
+	private void setLink(Square[][] grid, int startX, int startY, int lenghtX, int lenghtY)
 	{
 		Square sq1, sq2;
 		int x, y;
-		for (int i = startX; i < startX + endX; i++)
+		for (int i = startX; i < startX + lenghtX; i++)
 		{
-			for (int j = startY; j < startY + endY; j++)
+			for (int j = startY; j < startY + lenghtY; j++)
 			{
 				sq1 = grid[i][j];
 				for (Direction direction : Direction.values())
@@ -236,7 +243,7 @@ public class Board {
 			}
 		}
 		this.setPositions(grid);
-		this.board = grid;
+		this.setBoard(grid);
 	}
 
 	/**
@@ -245,5 +252,13 @@ public class Board {
      */
 	public Square[][] getBoard() {
 		return board;
+	}
+
+	/**
+	 * Permet de remplacer le board actuel
+	 * @param board le nouveau board.
+     */
+	public void setBoard(Square[][] board) {
+		this.board = board;
 	}
 }
