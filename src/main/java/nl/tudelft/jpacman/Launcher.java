@@ -28,11 +28,14 @@ import nl.tudelft.jpacman.ui.PacManUiBuilder;
 public class Launcher {
 
 	private static final PacManSprites SPRITE_STORE = new PacManSprites();
+	/**
+	 * L'instance du launcher
+	 */
 	private static Launcher launcher;
 
 	private PacManUI pacManUI;
 	private Game game;
-	
+
 	/**
 	 * Le .txt qui doit etre choisi comme map
 	 */
@@ -210,15 +213,27 @@ public class Launcher {
 		new Launcher().launch();
 	}
 
+	/**
+	 * Permet d'obtenir l'instance du launcher
+	 * @return L'instance de launcher
+     */
 	public static Launcher getLauncher()
 	{
 		return launcher;
 	}
 
+	/**
+	 * Permet de mettre a jour la map a dessiner
+	 * @param boardToUse Le nouveau fichier de la map
+     */
 	public void setBoardToUse(String boardToUse) {
 		this.boardToUse = boardToUse;
 	}
 
+	/**
+	 * Permet d'obtenir le fichier correspondant a la map
+	 * @return Le fichier de la map
+     */
 	public String getBoardToUse() {
 		return boardToUse;
 	}
