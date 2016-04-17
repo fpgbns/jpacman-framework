@@ -41,8 +41,16 @@ class BoardPanel extends JPanel {
 	 * The game to display.
 	 */
 	private final Game game;
+
+	/**
+	 * Taille d'un board de base pour recentrer le dessin
+	 */
 	private int scalex, scaley;
-	private int cellH, cellW;
+	
+	/**
+	 * Savoir si c'est le premier traçage ou non
+	 */
+	private boolean first = true;
 
 	/**
 	 * Creates a new board panel that will display the provided game.
@@ -59,8 +67,6 @@ class BoardPanel extends JPanel {
 
 		int w = board.getWidth() * SQUARE_SIZE;
 		int h = board.getHeight() * SQUARE_SIZE;
-		this.cellW = 0;
-		this.cellH = 0;
 
 		Dimension size = new Dimension(w, h);
 		setMinimumSize(size);
@@ -84,40 +90,43 @@ class BoardPanel extends JPanel {
 	 *            The dimensions to scale the rendered board to.
 	 */
 	private void render(Board board, Graphics g, Dimension window) {
-		if(this.cellH == 0 && this.cellW == 0)
+		int cellW;
+		int cellH;
+		if(this.first)
 		{
 			this.scalex = board.getWidth();
 			this.scaley = board.getHeight();
+			this.first = false;
 		}
-		this.cellW = window.width / this.scalex;
-		this.cellH = window.height / this.scaley;
+		cellW = window.width / this.scalex;
+		cellH = window.height / this.scaley;
 		Player pl = this.game.getPlayers().get(0);
 		Square posPlayer = pl.getSquare();
-		int diffX = this.scalex/2 - posPlayer.getCoordX();
-		int diffY = ((int) (this.scaley/1.4)) - posPlayer.getCoordY();
 
 		g.setColor(BACKGROUND_COLOR);
 		g.fillRect(0, 0, window.width, window.height);
 
-		for (int y = 0; y < board.getHeight(); y++) {
-			for (int x = 0; x < board.getWidth(); x++) {
-				int cellX = (diffX + x) * this.cellW;
-				int cellY = (diffY + y) * this.cellH;
+		for (int y = 0; y < board.getHeight(); y++)
+		{
+			for (int x = 0; x < board.getWidth(); x++)
+			{
+				int cellX = ((this.scalex/2 - posPlayer.getCoordX()) + x) * cellW;
+				int cellY = ((((int) (this.scaley/1.4)) - posPlayer.getCoordY()) + y) * cellH;
 				Square square = board.squareAt(x, y);
-				render(square, g, cellX, cellY, this.cellW, this.cellH);
+				render(square, g, cellX, cellY, cellW, cellH);
 			}
 		}
 
-		if(posPlayer.getCoordX() > board.getWidth() - 10){
+		if(posPlayer.getCoordX() > board.getWidth() - 5){
 			board.extend(Direction.EAST);
 		}
-		if(posPlayer.getCoordX() < 10){
+		if(posPlayer.getCoordX() < 5){
 			board.extend(Direction.WEST);
 		}
-		if(posPlayer.getCoordY() > board.getHeight() - 10){
+		if(posPlayer.getCoordY() > board.getHeight() - 5){
 			board.extend(Direction.SOUTH);
 		}
-		if(posPlayer.getCoordY() < 10){
+		if(posPlayer.getCoordY() < 5){
 			board.extend(Direction.NORTH);
 		}
 	}
