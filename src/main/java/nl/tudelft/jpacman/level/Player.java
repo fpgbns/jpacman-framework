@@ -35,6 +35,11 @@ public class Player extends Unit {
 	private boolean alive;
 
 	/**
+	 * <code>true</code> iff this player is under the Hunter Mode.
+	 */
+	private boolean hunterMode = false;
+
+	/**
 	 * Creates a new player with a score of 0 points.
 	 * 
 	 * @param spriteMap
@@ -57,6 +62,22 @@ public class Player extends Unit {
 	 */
 	public boolean isAlive() {
 		return alive;
+	}
+
+	/**
+	 * Return the actual game mode
+	 *
+	 * @return true iff the game is under the Hunter Mode
+     */
+	public boolean getHunterMode() {
+		return hunterMode;
+	}
+
+	/**
+	 * Change the Game Mode.
+	 */
+	public void setHunterMode(boolean mode) {
+		hunterMode = mode;
 	}
 
 	/**

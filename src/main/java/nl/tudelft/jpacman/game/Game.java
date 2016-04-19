@@ -6,6 +6,7 @@ import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.level.Level;
 import nl.tudelft.jpacman.level.Level.LevelObserver;
 import nl.tudelft.jpacman.level.Player;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 
 /**
  * A basic implementation of a Pac-Man game.
@@ -61,6 +62,13 @@ public abstract class Game implements LevelObserver {
 		}
 	}
 
+	@Override
+	public void startHunterMode() {
+		synchronized (progressLock) {
+			getLevel().startHunterMode();
+		}
+	}
+
 	/**
 	 * @return <code>true</code> iff the game is started and in progress.
 	 */
@@ -91,6 +99,12 @@ public abstract class Game implements LevelObserver {
 			// execute player move.
 			getLevel().move(player, direction);
 		}
+	}
+
+	@Override
+	public void respawnGhost()
+	{
+		getLevel().respawnGhost();
 	}
 	
 	@Override
