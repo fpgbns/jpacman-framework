@@ -107,7 +107,9 @@ public class Level {
 		this.players = new ArrayList<>();
 		this.collisions = collisionMap;
 		this.observers = new ArrayList<>();
-		level = this;
+		if(level == null) {
+			level = this;
+		}
 	}
 
 	/**
@@ -260,6 +262,7 @@ public class Level {
 			l.start();
 		}
 		this.npcs.putAll(l.getNpcs());
+		//l.getNpcs().putAll(this.getNpcs());
 		this.start();
 		for (NPC npc : npcs.keySet())
 		{
