@@ -247,6 +247,34 @@ public class Board {
 	}
 
 	/**
+	 * Determine the square on the middle of the Board.
+	 *
+	 * @return The square on the middle of the Board (never null).
+	 */
+	public Square getMiddleOfTheMap()
+	{
+		Square result = null;
+		if(((getHeight()/2)%2 != 0) && ((getWidth()/2)%2 != 0))
+		{
+			result = board[(getWidth()/2)][(getHeight()/2)];
+		}
+		if(((getHeight()/2)%2 == 0) && ((getWidth()/2)%2 != 0))
+		{
+			result = board[(getWidth()/2)][(getHeight()/2)-1];
+		}
+		if(((getHeight()/2)%2 != 0) && ((getWidth()/2)%2 == 0))
+		{
+			result = board[(getWidth()/2)-1][(getHeight()/2)];
+		}
+		if(((getHeight()/2)%2 == 0) && ((getWidth()/2)%2 == 0))
+		{
+			result = board[(getWidth()/2)-1][(getHeight()/2)-1];
+		}
+		assert result != null : "Follows from invariant.";
+		return result;
+	}
+
+	/**
 	 * Retourne le board actuel
 	 * @return Le board du jeu
      */

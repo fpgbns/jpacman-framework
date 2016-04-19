@@ -25,5 +25,15 @@ public enum GhostColor {
 	/**
 	 * Pokey, a.k.a. Clyde.
 	 */
-	ORANGE;
+	ORANGE,
+
+	/**
+	 * The eatable Ghost
+	 */
+	VUL_BLUE,
+
+	/**
+	 * The end of eatable Ghost
+	 */
+	VUL_WHITE;
 }

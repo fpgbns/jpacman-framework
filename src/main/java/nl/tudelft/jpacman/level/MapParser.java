@@ -86,31 +86,37 @@ public class MapParser {
 	}
 
 	private void addSquare(Square[][] grid, List<NPC> ghosts,
-			List<Square> startPositions, int x, int y, char c) {
-		switch (c) {
-		case ' ':
-			grid[x][y] = boardCreator.createGround();
-			break;
-		case '#':
-			grid[x][y] = boardCreator.createWall();
-			break;
-		case '.':
-			Square pelletSquare = boardCreator.createGround();
-			grid[x][y] = pelletSquare;
-			levelCreator.createPellet().occupy(pelletSquare);
-			break;
-		case 'G':
-			Square ghostSquare = makeGhostSquare(ghosts);
-			grid[x][y] = ghostSquare;
-			break;
-		case 'P':
-			Square playerSquare = boardCreator.createGround();
-			grid[x][y] = playerSquare;
-			startPositions.add(playerSquare);
-			break;
-		default:
-			throw new PacmanConfigurationException("Invalid character at "
-					+ x + "," + y + ": " + c);
+						   List<Square> startPositions, int x, int y, char c) {
+		switch (c)
+		{
+			case ' ':
+				grid[x][y] = boardCreator.createGround();
+				break;
+			case '#':
+				grid[x][y] = boardCreator.createWall();
+				break;
+			case '.':
+				Square pelletSquare = boardCreator.createGround();
+				grid[x][y] = pelletSquare;
+				levelCreator.createPellet().occupy(pelletSquare);
+				break;
+			case 'G':
+				Square ghostSquare = makeGhostSquare(ghosts);
+				grid[x][y] = ghostSquare;
+				break;
+			case 'P':
+				Square playerSquare = boardCreator.createGround();
+				grid[x][y] = playerSquare;
+				startPositions.add(playerSquare);
+				break;
+			case 'o':
+				Square superPelletSquare = boardCreator.createGround();
+				grid[x][y] = superPelletSquare;
+				levelCreator.createSuperPellet().occupy(superPelletSquare);
+				break;
+			default:
+				throw new PacmanConfigurationException("Invalid character at "
+						+ x + "," + y + ": " + c);
 		}
 	}
 

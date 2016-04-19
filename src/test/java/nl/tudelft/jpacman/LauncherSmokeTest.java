@@ -83,20 +83,31 @@ public class LauncherSmokeTest {
         move(game, Direction.NORTH, 6);
         assertEquals(120, player.getScore());
 
+        // reach the top of the map
+        move(game, Direction.NORTH, 8);
+        assertEquals(200, player.getScore());
+
+        // go until the super pellet
+        // test if the super pellet give 50 points.
+        move(game, Direction.EAST, 4);
+        assertEquals(280, player.getScore());
+
         // no more points to earn here.
         move(game, Direction.WEST, 2);
-        assertEquals(120, player.getScore());
+        assertEquals(280, player.getScore());
 
-        move(game, Direction.NORTH, 2);
+        //move(game, Direction.NORTH, 2);
         
         // Sleeping in tests is generally a bad idea.
         // Here we do it just to let the monsters move.
-        Thread.sleep(500L);
+        Thread.sleep(5000L);
       
         // we're close to monsters, this will get us killed.
         move(game, Direction.WEST, 10);
         move(game, Direction.EAST, 10);
-        assertFalse(player.isAlive());
+
+        //Hunter mode is up ! Pacman can't die.
+        assertTrue(player.isAlive());
 
         game.stop();
         assertFalse(game.isInProgress());

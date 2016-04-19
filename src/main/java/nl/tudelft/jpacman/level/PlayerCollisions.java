@@ -2,6 +2,7 @@ package nl.tudelft.jpacman.level;
 
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.level.Level;
 
 /**
  * A simple implementation of a collision map for the JPacman player.
@@ -16,6 +17,11 @@ import nl.tudelft.jpacman.npc.ghost.Ghost;
 
 public class PlayerCollisions implements CollisionMap {
 
+	/**
+	 * The number of Ghost eat by Pacman during a Hunter Mode.
+	 */
+	public static Ghost ateGhost = null;
+
 	@Override
 	public void collide(Unit mover, Unit collidedOn) {
 		
@@ -29,29 +35,64 @@ public class PlayerCollisions implements CollisionMap {
 	
 	private void playerColliding(Player player, Unit collidedOn) {
 		if (collidedOn instanceof Ghost) {
-			playerVersusGhost(player, (Ghost) collidedOn);
+			if (((Ghost) collidedOn).getFearedMode()){
+				playerVersusEatableGhost(player, (Ghost) collidedOn);
+			}
+			else {
+				playerVersusGhost(player);
+			}
 		}
-		
 		if (collidedOn instanceof Pellet) {
 			playerVersusPellet(player, (Pellet) collidedOn);
-		}		
+		}
 	}
 	
 	private void ghostColliding(Ghost ghost, Unit collidedOn) {
-		if (collidedOn instanceof Player) {
-			playerVersusGhost((Player) collidedOn, ghost);
+		if (ghost.getFearedMode() && collidedOn instanceof Player) {
+			playerVersusEatableGhost((Player) collidedOn, ghost);
+		}
+		else if (collidedOn instanceof Player) {
+			playerVersusGhost((Player) collidedOn);
 		}
 	}
 	
 	
 	/**
-	 * Actual case of player bumping into ghost or vice versa.
+	 * Normal case of player bumping into ghost or vice versa.
      *
      * @param player The player involved in the collision.
-     * @param ghost The ghost involved in the collision.
 	 */
-	public void playerVersusGhost(Player player, Ghost ghost) {
+	public void playerVersusGhost(Player player) {
 		player.setAlive(false);
+	}
+
+
+	/**
+	 * Special case of player bumping into ghost or vice versa.
+	 * In this case, the player is under the Hunter Mode.
+	 * He is able to eat Ghost.
+	 *
+	 * @param player The player involved in the collision.
+	 * @param ghost The ghost involved in the collision.
+	 */
+	public void playerVersusEatableGhost(Player player, Ghost ghost)
+	{
+		PlayerCollisions.ateGhost = ghost;
+		ghost.leaveSquare();
+		Level.ghostLeft--;
+		Level.ghostAte++;
+		if(Level.ghostAte == 1){
+			player.addPoints(200);
+		}
+		if(Level.ghostAte == 2) {
+			player.addPoints(400);
+		}
+		if(Level.ghostAte == 3) {
+			player.addPoints(800);
+		}
+		if(Level.ghostAte == 4) {
+			player.addPoints(1600);
+		}
 	}
 	
 	/**
@@ -62,7 +103,10 @@ public class PlayerCollisions implements CollisionMap {
 	 */
 	public void playerVersusPellet(Player player, Pellet pellet) {
 		pellet.leaveSquare();
-		player.addPoints(pellet.getValue());		
+		player.addPoints(pellet.getValue());
+		if(pellet.getValue() == 50) {
+			player.setHunterMode(true);
+		}
 	}
 
 }

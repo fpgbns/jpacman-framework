@@ -32,6 +32,11 @@ public class LevelFactory {
 	private static final int PELLET_VALUE = 10;
 
 	/**
+	 * The default value of a super pellet.
+	 */
+	private static final int SUPERPELLET_VALUE = 50;
+
+	/**
 	 * The sprite store that provides sprites for units.
 	 */
 	private final PacManSprites sprites;
@@ -110,6 +115,13 @@ public class LevelFactory {
 	public Pellet createPellet() {
 		return new Pellet(PELLET_VALUE, sprites.getPelletSprite());
 	}
+
+	/**
+	 * Creates a new super pellet.
+	 *
+	 * @return The new super pellet.
+	 */
+	public Pellet createSuperPellet() { return new Pellet(SUPERPELLET_VALUE, sprites.getSuperPelletSprite()); }
 
 	/**
 	 * Implementation of an NPC that wanders around randomly.

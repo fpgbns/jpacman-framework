@@ -14,6 +14,7 @@ import nl.tudelft.jpacman.board.BoardFactory;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.level.CollisionInteractionMap;
 import nl.tudelft.jpacman.level.LevelFactory;
 import nl.tudelft.jpacman.level.MapParser;
 import nl.tudelft.jpacman.level.Pellet;
@@ -37,6 +38,8 @@ public class NavigationTest {
 	 * Map parser used to construct boards.
 	 */
 	private MapParser parser;
+
+	private CollisionInteractionMap cim;
 
 	/**
 	 * Set up the map parser.
@@ -170,4 +173,23 @@ public class NavigationTest {
 		assertEquals(unit.getSpeed(), 1.1, 0.0);
 	}
 
+	/**
+	 * Verifies that the game is able to make a difference between
+	 * a pellet and a super pellet.
+	 */
+	@Test
+	public void testSuperPelletPoint() {
+		Board b = parser
+				.parseMap(Lists.newArrayList("#####", "# .o#", "#####"))
+				.getBoard();
+		Square s1 = b.squareAt(1, 1);
+		Square s2 = b.squareAt(3, 1);
+		Unit unitPellet = Navigation.findUnit(Pellet.class, s2);
+		//To verify the unit is a Pellet.
+		assertNotNull(unitPellet);
+		Pellet pellet = (Pellet) unitPellet;
+		//To verify the unit is a super Pellet
+		//and his score is 50 for the player.
+		assertEquals(pellet.getValue(), 50);
+	}
 }
