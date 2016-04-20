@@ -3,6 +3,8 @@ package nl.tudelft.jpacman.board;
 import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.level.Level;
 
+import java.util.Random;
+
 /**
  * A top-down view of a matrix of {@link Square}s.
  *
@@ -99,7 +101,9 @@ public class Board {
 	private Level setOptions()
 	{
 		Launcher launcher = Launcher.getLauncher();
-		launcher.setBoardToUse("/boardExtendedAdd.txt");
+		Random random = new Random();
+		int nombre = random.nextInt(3);
+		launcher.setBoardToUse("/boardExtendedAdd" + (nombre+1) + ".txt");
 		Level lev = launcher.makeLevel();
 		Level game = Level.getLevel();
 		game.addGhost(lev);

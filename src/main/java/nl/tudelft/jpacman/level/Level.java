@@ -315,11 +315,11 @@ public class Level {
 				o.respawnGhost();
 			}
 		}*/
-		if (remainingPellets() == 0) {
+		/*if (remainingPellets() == 0) {
 			for (LevelObserver o : observers) {
 				o.levelWon();
 			}
-		}
+		}*/
 	}
 
 	/**
