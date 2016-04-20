@@ -7,9 +7,12 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import nl.tudelft.jpacman.board.Board;
+import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.game.Game;
+import nl.tudelft.jpacman.level.Level;
+import nl.tudelft.jpacman.level.Player;
 
 /**
  * Panel displaying a game.
@@ -39,6 +42,16 @@ class BoardPanel extends JPanel {
 	 * The game to display.
 	 */
 	private final Game game;
+
+	/**
+	 * Taille d'un board de base pour recentrer le dessin
+	 */
+	private int scalex, scaley;
+
+	/**
+	 * Savoir si c'est le premier traçage ou non
+	 */
+	private boolean first = true;
 
 	/**
 	 * Creates a new board panel that will display the provided game.
@@ -78,18 +91,45 @@ class BoardPanel extends JPanel {
 	 *            The dimensions to scale the rendered board to.
 	 */
 	private void render(Board board, Graphics g, Dimension window) {
-		int cellW = window.width / board.getWidth();
-		int cellH = window.height / board.getHeight();
+		int cellW;
+		int cellH;
+		if(this.first)
+		{
+			this.scalex = board.getWidth();
+			this.scaley = board.getHeight();
+			this.first = false;
+		}
+		cellW = window.width / this.scalex;
+		cellH = window.height / this.scaley;
+		Player pl = this.game.getPlayers().get(0);
+		Square posPlayer = pl.getSquare();
 
 		g.setColor(BACKGROUND_COLOR);
 		g.fillRect(0, 0, window.width, window.height);
 
-		for (int y = 0; y < board.getHeight(); y++) {
-			for (int x = 0; x < board.getWidth(); x++) {
-				int cellX = x * cellW;
-				int cellY = y * cellH;
+		for (int y = 0; y < board.getHeight(); y++)
+		{
+			for (int x = 0; x < board.getWidth(); x++)
+			{
+				int cellX = ((this.scalex/2 - posPlayer.getCoordX()) + x) * cellW;
+				int cellY = ((((int) (this.scaley/1.4)) - posPlayer.getCoordY()) + y) * cellH;
 				Square square = board.squareAt(x, y);
 				render(square, g, cellX, cellY, cellW, cellH);
+			}
+		}
+		Level l = Level.getLevel();
+		if(l.isInProgress()) {
+			if (posPlayer.getCoordX() > board.getWidth() - 11) {
+				board.extend(Direction.EAST);
+			}
+			if (posPlayer.getCoordX() < 11) {
+				board.extend(Direction.WEST);
+			}
+			if (posPlayer.getCoordY() > board.getHeight() - 10) {
+				board.extend(Direction.SOUTH);
+			}
+			if (posPlayer.getCoordY() < 10) {
+				board.extend(Direction.NORTH);
 			}
 		}
 	}

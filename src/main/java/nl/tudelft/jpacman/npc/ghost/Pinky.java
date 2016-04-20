@@ -74,7 +74,7 @@ public class Pinky extends Ghost {
 
 	@Override
 	public long getInterval() {
-		return MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
+		return ((int) (MOVE_INTERVAL/this.speed)) + new Random().nextInt(INTERVAL_VARIATION);
 	}
 
 	/**

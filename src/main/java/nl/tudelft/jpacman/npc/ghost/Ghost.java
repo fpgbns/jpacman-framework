@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.npc.NPC;
@@ -49,6 +48,12 @@ public abstract class Ghost extends NPC {
 	 */
 	private static final int MOVE_INTERVAL = 500;
 
+
+	/**
+	 * Modificateur de vitesse du ghost
+	 */
+	protected double speed = 1.0;
+
 	/**
 	 * Creates a new ghost.
 	 * 
@@ -60,7 +65,9 @@ public abstract class Ghost extends NPC {
 	}
 
 	@Override
-	public Sprite getSprite() { return sprites.get(getDirection()); }
+	public Sprite getSprite() {
+		return sprites.get(getDirection());
+	}
 
 	public void setSprite(Map<Direction, Sprite> sprite) {
 		this.sprites = sprite;
@@ -69,7 +76,7 @@ public abstract class Ghost extends NPC {
 	/**
 	 *
 	 * @return true iff the game is under the Hunter Mode
-     */
+	 */
 	public boolean getFearedMode(){ return fearedMode; }
 
 	/**
@@ -160,7 +167,7 @@ public abstract class Ghost extends NPC {
 	/**
 	 *
 	 * @return the last position of the ghost
-     */
+	 */
 	protected Square getLastSquare() {
 		return this.lastSquare;
 	}
@@ -189,5 +196,21 @@ public abstract class Ghost extends NPC {
 		int i = new Random().nextInt(directions.size());
 		this.lastSquare = getSquare();
 		return directions.get(i);
+	}
+
+	/**
+	 * Permet d'obtenir la vitesse du ghost
+	 * @return La vitesse du ghost
+     */
+	public double getSpeed() {
+		return speed;
+	}
+
+	/**
+	 * Permet de mettre a jour la vitesse du ghost
+	 * @param speed La nouvelle vitesse
+     */
+	public void setSpeed(double speed) {
+		this.speed = speed;
 	}
 }

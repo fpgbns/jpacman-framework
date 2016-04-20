@@ -14,15 +14,16 @@ import nl.tudelft.jpacman.board.BoardFactory;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
-import nl.tudelft.jpacman.level.*;
+import nl.tudelft.jpacman.level.CollisionInteractionMap;
+import nl.tudelft.jpacman.level.LevelFactory;
+import nl.tudelft.jpacman.level.MapParser;
+import nl.tudelft.jpacman.level.Pellet;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
-
-
 
 /**
  * Tests the various methods provided by the {@link Navigation} class.
@@ -38,9 +39,7 @@ public class NavigationTest {
 	 */
 	private MapParser parser;
 
-
 	private CollisionInteractionMap cim;
-
 
 	/**
 	 * Set up the map parser.
@@ -153,7 +152,7 @@ public class NavigationTest {
 	/**
 	 * Verifies that there is ghost on the default board
 	 * next to cell [1, 1].
-	 *
+	 *  
 	 * @throws IOException if board reading fails.
 	 */
 	@Test
@@ -164,6 +163,15 @@ public class NavigationTest {
 		assertNotNull(unit);
 	}
 
+	@Test
+	public void testSpeedGhost() throws IOException {
+		Board b = parser.parseMap(getClass().getResourceAsStream("/board.txt")).getBoard();
+		Square s1 = b.squareAt(1, 1);
+		Ghost unit = (Ghost) (Navigation.findNearest(Ghost.class, s1));
+		assertEquals(unit.getSpeed(), 1.0, 0.0);
+		unit.setSpeed(unit.getSpeed() + 0.1);
+		assertEquals(unit.getSpeed(), 1.1, 0.0);
+	}
 
 	/**
 	 * Verifies that the game is able to make a difference between

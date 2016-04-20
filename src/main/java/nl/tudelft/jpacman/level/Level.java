@@ -11,13 +11,13 @@ import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.NPC;
-import nl.tudelft.jpacman.npc.ghost.*;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 /**
  * A level of Pac-Man. A level consists of the board with the players and the
  * AIs on it.
- *
+ * 
  * @author Jeroen Roosen 
  */
 public class Level {
@@ -26,6 +26,8 @@ public class Level {
 	 * The board of this level.
 	 */
 	private final Board board;
+
+	private boolean hunterMode;
 
 	/**
 	 * The lock that ensures moves are executed sequential.
@@ -48,8 +50,6 @@ public class Level {
 	 * and NPCs can move.
 	 */
 	private boolean inProgress;
-
-	private boolean hunterMode;
 
 	/**
 	 * The squares from which players can start this game.
@@ -88,16 +88,23 @@ public class Level {
 
 	public static int ghostAte = 0;
 
+
+	private static Level level = null;
+
 	/**
 	 * Creates a new level for the board.
-	 *
-	 * @param b              The board for the level.
-	 * @param ghosts         The ghosts on the board.
-	 * @param startPositions The squares on which players start on this board.
-	 * @param collisionMap   The collection of collisions that should be handled.
+	 * 
+	 * @param b
+	 *            The board for the level.
+	 * @param ghosts
+	 *            The ghosts on the board.
+	 * @param startPositions
+	 *            The squares on which players start on this board.
+	 * @param collisionMap
+	 *            The collection of collisions that should be handled.
 	 */
 	public Level(Board b, List<NPC> ghosts, List<Square> startPositions,
-				 CollisionMap collisionMap) {
+			CollisionMap collisionMap) {
 		assert b != null;
 		assert ghosts != null;
 		assert startPositions != null;
@@ -114,6 +121,9 @@ public class Level {
 		this.players = new ArrayList<>();
 		this.collisions = collisionMap;
 		this.observers = new ArrayList<>();
+		if(level == null) {
+			level = this;
+		}
 	}
 
 	/**
@@ -142,8 +152,9 @@ public class Level {
 	 * Registers a player on this level, assigning him to a starting position. A
 	 * player can only be registered once, registering a player again will have
 	 * no effect.
-	 *
-	 * @param p The player to register.
+	 * 
+	 * @param p
+	 *            The player to register.
 	 */
 	public void registerPlayer(Player p) {
 		assert p != null;
@@ -161,7 +172,7 @@ public class Level {
 
 	/**
 	 * Returns the board of this level.
-	 *
+	 * 
 	 * @return The board of this level.
 	 */
 	public Board getBoard() {
@@ -171,9 +182,11 @@ public class Level {
 	/**
 	 * Moves the unit into the given direction if possible and handles all
 	 * collisions.
-	 *
-	 * @param unit      The unit to move.
-	 * @param direction The direction to move the unit in.
+	 * 
+	 * @param unit
+	 *            The unit to move.
+	 * @param direction
+	 *            The direction to move the unit in.
 	 */
 	public void move(Unit unit, Direction direction) {
 		assert unit != null;
@@ -252,9 +265,31 @@ public class Level {
 	}
 
 	/**
+	 * Permet d'ajouter des ghosts dans le jeu
+	 * @param l Le Level qui contient les ghost a ajouter
+     */
+	public void addGhost(Level l)
+	{
+		if(this.isInProgress())
+		{
+			l.start();
+		}
+		this.npcs.putAll(l.getNpcs());
+		this.stop();
+		//l.getNpcs().putAll(this.getNpcs());
+		this.start();
+		for (NPC npc : npcs.keySet())
+		{
+			Ghost g = (Ghost) (npc);
+			g.setSpeed(g.getSpeed() + 0.05);
+		}
+
+	}
+
+	/**
 	 * Returns whether this level is in progress, i.e. whether moves can be made
 	 * on the board.
-	 *
+	 * 
 	 * @return <code>true</code> iff this level is in progress.
 	 */
 	public boolean isInProgress() {
@@ -275,11 +310,11 @@ public class Level {
 				o.startHunterMode();
 			}
 		}
-		if (ghostLeft != 4) {
+		/*if (ghostLeft != 4) {
 			for (LevelObserver o : observers) {
 				o.respawnGhost();
 			}
-		}
+		}*/
 		if (remainingPellets() == 0) {
 			for (LevelObserver o : observers) {
 				o.levelWon();
@@ -290,9 +325,9 @@ public class Level {
 	/**
 	 * Returns <code>true</code> iff at least one of the players in this level
 	 * is alive.
-	 *
+	 * 
 	 * @return <code>true</code> if at least one of the registered players is
-	 * alive.
+	 *         alive.
 	 */
 	public boolean isAnyPlayerAlive() {
 		for (Player p : players) {
@@ -395,7 +430,7 @@ public class Level {
 
 	/**
 	 * Counts the pellets remaining on the board.
-	 *
+	 * 
 	 * @return The amount of pellets remaining on the board.
 	 */
 	public int remainingPellets() {
@@ -433,10 +468,18 @@ public class Level {
 		return superPellets;
 	}
 
+	public Map<NPC, ScheduledExecutorService> getNpcs() {
+		return npcs;
+	}
+
+	public static Level getLevel() {
+		return level;
+	}
+
 	/**
 	 * A task that moves an NPC and reschedules itself after it finished.
-	 *
-	 * @author Jeroen Roosen
+	 * 
+	 * @author Jeroen Roosen 
 	 */
 	private final class NpcMoveTask implements Runnable {
 
@@ -452,7 +495,7 @@ public class Level {
 
 		/**
 		 * Creates a new task.
-		 *
+		 * 
 		 * @param s
 		 *            The service that executes the task.
 		 * @param n

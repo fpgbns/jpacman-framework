@@ -1,15 +1,21 @@
 package nl.tudelft.jpacman.level;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.npc.NPC;
 
+import nl.tudelft.jpacman.npc.ghost.Clyde;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.npc.ghost.GhostColor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -152,5 +158,28 @@ public class LevelTest {
 		level.registerPlayer(p2);
 		level.registerPlayer(p3);
 		verify(p3).occupy(square1);
+	}
+
+	@Test
+	@SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+	public void testSetBoardToUse() {
+		Launcher la = new Launcher();
+		assertEquals(la.getBoardToUse(), "/boardExtendedBase.txt");
+		la.setBoardToUse("/boardExtendedAdd.txt");
+		assertEquals(la.getBoardToUse(), "/boardExtendedAdd.txt");
+	}
+
+	@Test
+	@SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+	public void testAddGhost() {
+		Launcher la = new Launcher();
+		la.setBoardToUse("/boardExtendedAdd.txt");
+		Level l1 = la.makeLevel();
+		Level l2 = la.makeLevel();
+		System.out.println(l1.getNpcs().size());
+		assertTrue(l1.getNpcs().size() == 1);
+		assertTrue(l2.getNpcs().size() == 1);
+		l1.addGhost(l2);
+		assertTrue(l1.getNpcs().size() == 2);
 	}
 }

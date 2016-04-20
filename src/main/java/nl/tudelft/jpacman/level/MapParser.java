@@ -53,7 +53,6 @@ public class MapParser {
 	 * <li>'.' (period) a square with a pellet.
 	 * <li>'P' (capital P) a starting square for players.
 	 * <li>'G' (capital G) a square with a ghost.
-	 * <li>'o' (small O) a square with a super pellet.
 	 * </ul>
 	 * 
 	 * @param map
@@ -87,7 +86,7 @@ public class MapParser {
 	}
 
 	private void addSquare(Square[][] grid, List<NPC> ghosts,
-			List<Square> startPositions, int x, int y, char c) {
+						   List<Square> startPositions, int x, int y, char c) {
 		switch (c)
 		{
 			case ' ':

@@ -28,9 +28,23 @@ import nl.tudelft.jpacman.ui.PacManUiBuilder;
 public class Launcher {
 
 	private static final PacManSprites SPRITE_STORE = new PacManSprites();
+	/**
+	 * L'instance du launcher
+	 */
+	private static Launcher launcher;
 
 	private PacManUI pacManUI;
 	private Game game;
+
+	/**
+	 * Le .txt qui doit etre choisi comme map
+	 */
+	private String boardToUse = "/boardExtendedBase.txt";
+
+	public Launcher()
+	{
+		Launcher.launcher = this;
+	}
 
 	/**
 	 * @return The game object this launcher will start when {@link #launch()}
@@ -60,7 +74,7 @@ public class Launcher {
 	public Level makeLevel() {
 		MapParser parser = getMapParser();
 		try (InputStream boardStream = Launcher.class
-				.getResourceAsStream("/board.txt")) {
+				.getResourceAsStream(this.boardToUse)) {
 			return parser.parseMap(boardStream);
 		} catch (IOException e) {
 			throw new PacmanConfigurationException("Unable to create level.", e);
@@ -196,5 +210,30 @@ public class Launcher {
 	 */
 	public static void main(String[] args) throws IOException {
 		new Launcher().launch();
+	}
+
+	/**
+	 * Permet d'obtenir l'instance du launcher
+	 * @return L'instance de launcher
+     */
+	public static Launcher getLauncher()
+	{
+		return launcher;
+	}
+
+	/**
+	 * Permet de mettre a jour la map a dessiner
+	 * @param boardToUse Le nouveau fichier de la map
+     */
+	public void setBoardToUse(String boardToUse) {
+		this.boardToUse = boardToUse;
+	}
+
+	/**
+	 * Permet d'obtenir le fichier correspondant a la map
+	 * @return Le fichier de la map
+     */
+	public String getBoardToUse() {
+		return boardToUse;
 	}
 }
