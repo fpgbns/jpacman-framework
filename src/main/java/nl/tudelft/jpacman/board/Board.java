@@ -2,6 +2,8 @@ package nl.tudelft.jpacman.board;
 
 import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.level.Level;
+import nl.tudelft.jpacman.level.Player;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 
 import java.util.Random;
 
@@ -255,24 +257,19 @@ public class Board {
 	 *
 	 * @return The square on the middle of the Board (never null).
 	 */
-	public Square getMiddleOfTheMap()
-	{
+	public Square getMiddleOfTheMap() {
 		Square result = null;
-		if(((getHeight()/2)%2 != 0) && ((getWidth()/2)%2 != 0))
-		{
-			result = board[(getWidth()/2)][(getHeight()/2)];
+		if (((getHeight() / 2) % 2 != 0) && ((getWidth() / 2) % 2 != 0)) {
+			result = board[(getWidth() / 2)][(getHeight() / 2)];
 		}
-		if(((getHeight()/2)%2 == 0) && ((getWidth()/2)%2 != 0))
-		{
-			result = board[(getWidth()/2)][(getHeight()/2)-1];
+		if (((getHeight() / 2) % 2 == 0) && ((getWidth() / 2) % 2 != 0)) {
+			result = board[(getWidth() / 2)][(getHeight() / 2) - 1];
 		}
-		if(((getHeight()/2)%2 != 0) && ((getWidth()/2)%2 == 0))
-		{
-			result = board[(getWidth()/2)-1][(getHeight()/2)];
+		if (((getHeight() / 2) % 2 != 0) && ((getWidth() / 2) % 2 == 0)) {
+			result = board[(getWidth() / 2) - 1][(getHeight() / 2)];
 		}
-		if(((getHeight()/2)%2 == 0) && ((getWidth()/2)%2 == 0))
-		{
-			result = board[(getWidth()/2)-1][(getHeight()/2)-1];
+		if (((getHeight() / 2) % 2 == 0) && ((getWidth() / 2) % 2 == 0)) {
+			result = board[(getWidth() / 2) - 1][(getHeight() / 2) - 1];
 		}
 		assert result != null : "Follows from invariant.";
 		return result;

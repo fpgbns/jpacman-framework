@@ -49,6 +49,9 @@ class BoardPanel extends JPanel {
 	 */
 	private int scalex, scaley;
 
+
+	int X, Y;
+
 	/**
 	 * Savoir si c'est le premier traçage ou non
 	 */
@@ -116,7 +119,7 @@ class BoardPanel extends JPanel {
 
 	/**
 	 * Renders the board on the given graphics context to the given dimensions.
-	 * 
+	 *
 	 * @param board
 	 *            The board to render.
 	 * @param g
@@ -141,9 +144,13 @@ class BoardPanel extends JPanel {
 		g.setColor(BACKGROUND_COLOR);
 		g.fillRect(0, 0, window.width, window.height);
 
-		for (int y = 0; y < board.getHeight(); y++)
+		int X = posPlayer.getCoordX();
+		int Y = posPlayer.getCoordY();
+
+		//System.out.println("X-Y : (" + X + "," + Y + ").");
+		for (int y = Y-15; y < Y+6; y++)
 		{
-			for (int x = 0; x < board.getWidth(); x++)
+			for (int x = X-11; x < X+12; x++)
 			{
 				int cellX = ((this.scalex/2 - posPlayer.getCoordX()) + x) * cellW;
 				int cellY = ((((int) (this.scaley/1.4)) - posPlayer.getCoordY()) + y) * cellH;
@@ -153,16 +160,20 @@ class BoardPanel extends JPanel {
 		}
 		Level lvl = Level.getLevel();
 		if(lvl.isInProgress()) {
-			if (posPlayer.getCoordX() > board.getWidth() - 11) {
+			if (posPlayer.getCoordX() > board.getWidth() - 13) {
+				//System.out.println("extend EAST !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
 				board.extend(Direction.EAST);
 			}
-			if (posPlayer.getCoordX() < 11) {
+			if (posPlayer.getCoordX() < 13) {
+				//System.out.println("extend WEST !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
 				board.extend(Direction.WEST);
 			}
-			if (posPlayer.getCoordY() > board.getHeight() - 10) {
+			if (posPlayer.getCoordY() > board.getHeight() - 12) {
+				//System.out.println("extend SOUTH !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
 				board.extend(Direction.SOUTH);
 			}
-			if (posPlayer.getCoordY() < 10) {
+			if (posPlayer.getCoordY() < 18) {
+				//System.out.println("extend NORTH !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
 				board.extend(Direction.NORTH);
 			}
 		}
