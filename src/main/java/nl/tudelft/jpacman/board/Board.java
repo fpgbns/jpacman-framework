@@ -103,9 +103,14 @@ public class Board {
 		Launcher launcher = Launcher.getLauncher();
 		Random random = new Random();
 		int nombre = random.nextInt(3);
-		launcher.setBoardToUse("/boardExtendedAdd" + (nombre+1) + ".txt");
-		Level lev = launcher.makeLevel();
+		if(Level.ghostLeft < 20) {
+			launcher.setBoardToUse("/boardExtendedAdd" + (nombre + 1) + ".txt");
+		}
+		else{
+			launcher.setBoardToUse("/boardExtendedAdd" + (nombre + 2) + ".txt");
+		}
 		Level game = Level.getLevel();
+		Level lev = launcher.makeLevel();
 		game.addGhost(lev);
 		return lev;
 	}

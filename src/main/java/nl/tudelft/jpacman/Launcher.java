@@ -20,6 +20,8 @@ import nl.tudelft.jpacman.ui.Action;
 import nl.tudelft.jpacman.ui.PacManUI;
 import nl.tudelft.jpacman.ui.PacManUiBuilder;
 
+import javax.swing.*;
+
 /**
  * Creates and launches the JPacMan UI.
  * 
@@ -28,18 +30,20 @@ import nl.tudelft.jpacman.ui.PacManUiBuilder;
 public class Launcher {
 
 	private static final PacManSprites SPRITE_STORE = new PacManSprites();
+
 	/**
 	 * L'instance du launcher
 	 */
 	private static Launcher launcher;
 
 	private PacManUI pacManUI;
+
 	private Game game;
 
 	/**
-	 * Le .txt qui doit etre choisi comme map
+	 * Le .txt qui doit etre choisi comme map (définit dans PacManUI)
 	 */
-	private String boardToUse = "/boardExtendedBase.txt";
+	private String boardToUse = null;
 
 	public Launcher()
 	{
@@ -61,7 +65,29 @@ public class Launcher {
 	 */
 	public Game makeGame() {
 		GameFactory gf = getGameFactory();
+		String[] board = {"Jeu normal", "Map infinie"};
+		JOptionPane jop = new JOptionPane();
+		String nom = (String)jop.showInputDialog(null,
+				"Veuillez choisir un mode de jeu !",
+				"PACMAN GAME !",
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				board,
+				board[0]);
+
+		if(nom == board[1]) {
+			boardToUse = "/boardExtendedBase.txt";
+		}
+		else{
+			boardToUse = "/board.txt";
+		}
 		Level level = makeLevel();
+		if(boardToUse == "/boardExtendedBase.txt"){
+			level.infiniteMode = true;
+		}
+		else{
+			level.infiniteMode = false;
+		}
 		return gf.createSinglePlayerGame(level);
 	}
 
