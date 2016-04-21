@@ -6,6 +6,7 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
+import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
@@ -77,7 +78,40 @@ class BoardPanel extends JPanel {
 	@Override
 	public void paint(Graphics g) {
 		assert g != null;
-		render(game.getLevel().getBoard(), g, getSize());
+		Launcher launcher = Launcher.getLauncher();
+		if(launcher.getBoardToUse() == "/board.txt") {
+			render(game.getLevel().getBoard(), g, getSize());
+		}
+		else {
+			renderInfinite(game.getLevel().getBoard(), g, getSize());
+		}
+	}
+
+	/**
+	 * Renders the board on the given graphics context to the given dimensions.
+	 *
+	 * @param board
+	 *            The board to render.
+	 * @param g
+	 *            The graphics context to draw on.
+	 * @param window
+	 *            The dimensions to scale the rendered board to.
+	 */
+	private void render(Board board, Graphics g, Dimension window) {
+		int cellW = window.width / board.getWidth();
+		int cellH = window.height / board.getHeight();
+
+		g.setColor(BACKGROUND_COLOR);
+		g.fillRect(0, 0, window.width, window.height);
+
+		for (int y = 0; y < board.getHeight(); y++) {
+			for (int x = 0; x < board.getWidth(); x++) {
+				int cellX = x * cellW;
+				int cellY = y * cellH;
+				Square square = board.squareAt(x, y);
+				render(square, g, cellX, cellY, cellW, cellH);
+			}
+		}
 	}
 
 	/**
@@ -90,7 +124,7 @@ class BoardPanel extends JPanel {
 	 * @param window
 	 *            The dimensions to scale the rendered board to.
 	 */
-	private void render(Board board, Graphics g, Dimension window) {
+	private void renderInfinite(Board board, Graphics g, Dimension window) {
 		int cellW;
 		int cellH;
 		if(this.first)
@@ -117,8 +151,8 @@ class BoardPanel extends JPanel {
 				render(square, g, cellX, cellY, cellW, cellH);
 			}
 		}
-		Level l = Level.getLevel();
-		if(l.isInProgress()) {
+		Level lvl = Level.getLevel();
+		if(lvl.isInProgress()) {
 			if (posPlayer.getCoordX() > board.getWidth() - 11) {
 				board.extend(Direction.EAST);
 			}
