@@ -24,8 +24,8 @@ import javax.swing.*;
 
 /**
  * Creates and launches the JPacMan UI.
- * 
- * @author Jeroen Roosen 
+ *
+ * @author Jeroen Roosen
  */
 public class Launcher {
 
@@ -60,12 +60,12 @@ public class Launcher {
 
 	/**
 	 * Creates a new game using the level from {@link #makeLevel()}.
-	 * 
+	 *
 	 * @return a new Game.
 	 */
 	public Game makeGame() {
 		GameFactory gf = getGameFactory();
-		String[] board = {"Jeu normal", "Map infinie"};
+		String[] board = {"Jeu normal", "Map infinie", "Jeu avec fruits"};
 		JOptionPane jop = new JOptionPane();
 		String nom = (String)jop.showInputDialog(null,
 				"Veuillez choisir un mode de jeu !",
@@ -77,6 +77,9 @@ public class Launcher {
 
 		if(nom == board[1]) {
 			boardToUse = "/boardExtendedBase.txt";
+		}
+		else if(nom == board[2]){
+			boardToUse = "/boardFruit.txt";
 		}
 		else{
 			boardToUse = "/board.txt";
@@ -94,7 +97,7 @@ public class Launcher {
 	/**
 	 * Creates a new level. By default this method will use the map parser to
 	 * parse the default board stored in the <code>board.txt</code> resource.
-	 * 
+	 *
 	 * @return A new level.
 	 */
 	public Level makeLevel() {
@@ -161,14 +164,14 @@ public class Launcher {
 
 	/**
 	 * Adds key events UP, DOWN, LEFT and RIGHT to a game.
-	 * 
+	 *
 	 * @param builder
 	 *            The {@link PacManUiBuilder} that will provide the UI.
 	 * @param game
 	 *            The game that will process the events.
 	 */
 	protected void addSinglePlayerKeys(final PacManUiBuilder builder,
-			final Game game) {
+									   final Game game) {
 		final Player p1 = getSinglePlayer(game);
 
 		builder.addKey(KeyEvent.VK_UP, new Action() {
@@ -228,7 +231,7 @@ public class Launcher {
 
 	/**
 	 * Main execution method for the Launcher.
-	 * 
+	 *
 	 * @param args
 	 *            The command line arguments - which are ignored.
 	 * @throws IOException
@@ -241,7 +244,7 @@ public class Launcher {
 	/**
 	 * Permet d'obtenir l'instance du launcher
 	 * @return L'instance de launcher
-     */
+	 */
 	public static Launcher getLauncher()
 	{
 		return launcher;
@@ -250,7 +253,7 @@ public class Launcher {
 	/**
 	 * Permet de mettre a jour la map a dessiner
 	 * @param boardToUse Le nouveau fichier de la map
-     */
+	 */
 	public void setBoardToUse(String boardToUse) {
 		this.boardToUse = boardToUse;
 	}
@@ -258,7 +261,7 @@ public class Launcher {
 	/**
 	 * Permet d'obtenir le fichier correspondant a la map
 	 * @return Le fichier de la map
-     */
+	 */
 	public String getBoardToUse() {
 		return boardToUse;
 	}

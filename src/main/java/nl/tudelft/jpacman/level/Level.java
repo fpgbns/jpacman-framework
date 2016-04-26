@@ -10,8 +10,16 @@ import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.fruit.Fruit;
+import nl.tudelft.jpacman.fruit.FruitFactory;
+import nl.tudelft.jpacman.level.Bridge;
+import nl.tudelft.jpacman.npc.Bullet;
+import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.NPC;
+import nl.tudelft.jpacman.npc.ghost.Blinky;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.npc.ghost.GhostColor;
+import nl.tudelft.jpacman.npc.ghost.GhostFactory;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 /**
@@ -27,7 +35,6 @@ public class Level {
 	 */
 	private final Board board;
 
-
 	/**
 	 * The lock that ensures moves are executed sequential.
 	 */
@@ -38,6 +45,7 @@ public class Level {
 	 * other.
 	 */
 	private final Object startStopLock = new Object();
+
 
 	/**
 	 * The NPCs of this level and, if they are running, their schedules.
@@ -61,6 +69,11 @@ public class Level {
 	 * The start current selected starting square.
 	 */
 	private int startSquareIndex;
+	
+	/**
+	 * The Fruit factory for this level.
+	 */
+	private FruitFactory fruitFactory;
 
 	/**
 	 * The players on this level.
@@ -85,12 +98,15 @@ public class Level {
 
 	private Timer timerWarning = new Timer();
 
+	private Timer addGhostTask = new Timer();
+
+	private Timer addFruitTask = new Timer();
+
 	public static int ghostLeft;
 
 	public static int ghostAte = 0;
 
 	public static int superPelletLeft;
-
 
 	private static Level level = null;
 
@@ -128,6 +144,16 @@ public class Level {
 			level = this;
 		}
 	}
+	
+	/**
+	 * Setup the fruit for this level if the board specified that some square may contain a fruit.
+	 * @param fruitpositions the list of the squares where a fruit may appear
+	 * @param npcs the list of the NPC registered on this level at the time of setting-up the fruits. 
+	 */
+	public void setupFruits(List<Square> fruitpositions, List<NPC> npcs) {
+		fruitFactory = new FruitFactory(SPRITE_STORE, fruitpositions, npcs);
+	}
+	
 
 	/**
 	 * Adds an observer that will be notified when the level is won or lost
@@ -195,7 +221,7 @@ public class Level {
 		assert unit != null;
 		assert direction != null;
 
-		if (!isInProgress()) {
+		if (!isInProgress() || (unit instanceof DirectionCharacter && !((DirectionCharacter) unit).getMobility())) {
 			return;
 		}
 
@@ -203,8 +229,9 @@ public class Level {
 			unit.setDirection(direction);
 			Square location = unit.getSquare();
 			Square destination = location.getSquareAt(direction);
-
-			if (destination.isAccessibleTo(unit)) {
+			
+			if (destination.isAccessibleTo(unit) && !(Bridge.blockedBybridge(unit, direction))) {
+				unit.setOnBridge(false);
 				List<Unit> occupants = destination.getOccupants();
 				unit.occupy(destination);
 				for (Unit occupant : occupants) {
@@ -228,6 +255,10 @@ public class Level {
 			inProgress = true;
 			updateObservers();
 		}
+		Random random = new Random();
+		int nbr = random.nextInt(11);
+		addGhostTask.schedule(new TimerAddGhostTask(), (nbr+10)*1000);
+		addFruitTask.schedule(new TimerAddFruitTask(), (nbr+10)*1000);
 	}
 
 	/**
@@ -269,23 +300,84 @@ public class Level {
 
 	/**
 	 * Permet d'ajouter des ghosts dans le jeu
-	 * @param l Le Level qui contient les ghost a ajouter
      */
-	public void addGhost(Level l)
+	public void addGhostTask()
 	{
-		//System.out.println("Ghost en vie : " + this.npcs.size());
-		if(this.npcs.size() < 20) {
-			ghostLeft =  this.npcs.size();
-			System.out.println("Ghost left : " + ghostLeft);
-			if (this.isInProgress()) {
-				l.start();
+		System.out.println("ghost en vie début : " + this.npcs.size());
+		ScheduledExecutorService service = Executors
+				.newSingleThreadScheduledExecutor();
+		GhostFactory ghostFact = new GhostFactory(SPRITE_STORE);
+		Random random = new Random();
+		int nombre = random.nextInt(6);
+		int ghostIndex = random.nextInt(4);
+		addGhostTask.cancel();
+		addGhostTask = new Timer();
+		addGhostTask.schedule(new TimerAddGhostTask(), ((nombre+4)+this.npcs.size())*1000);
+		Ghost g;
+		switch (ghostIndex) {
+			case 0:
+				g = ghostFact.createBlinky();
+				break;
+			case 1:
+				g = ghostFact.createInky();
+				break;
+			case 2:
+				g = ghostFact.createPinky();
+				break;
+			case 3:
+				g = ghostFact.createClyde();
+				break;
+			default:
+				g = ghostFact.createBlinky();
+				break;
+		}
+		npcs.put(g, service);
+		Square squareGhost = null;
+		while(squareGhost == null){
+			Square posPlayer = players.get(0).getSquare();
+			int X = posPlayer.getCoordX();
+			int Y = posPlayer.getCoordY();
+			int i = (X-15) + random.nextInt(4);
+			int j = (Y-11) + random.nextInt(22);
+			squareGhost = board.squareAt(i, j);
+			if(squareGhost.isAccessibleTo(g));
+			g.occupy(squareGhost);
+		}
+		stopNPCs();
+		startNPCs();
+		for (NPC npc : npcs.keySet()) {
+			g = (Ghost) (npc);
+			g.setSpeed(g.getSpeed() + 0.1);
+		}
+		System.out.println("ghost en vie fin : " + this.npcs.size());
+	}
+
+	/**
+	 * Permet d'ajouter des ghosts dans le jeu
+	 */
+	public void addFruitTask()
+	{
+		Random random = new Random();
+		int nbr = random.nextInt(6);
+		addFruitTask.cancel();
+		addFruitTask = new Timer();
+		addFruitTask.schedule(new TimerAddFruitTask(), (nbr+10)*1000);
+		fruitFactory = new FruitFactory(SPRITE_STORE, null, null);
+		Fruit fruit = fruitFactory.getRandomFruit();
+		System.out.println("fruit : " + fruit);
+		Square squareFruit = null;
+		while(squareFruit == null) {
+			Square posPlayer = players.get(0).getSquare();
+			int X = posPlayer.getCoordX();
+			int Y = posPlayer.getCoordY();
+			int i = (X - 15) + random.nextInt(4);
+			int j = (Y - 11) + random.nextInt(22);
+			squareFruit = board.squareAt(i, j);
+			if (squareFruit.isAccessibleTo(fruit)) {
+				fruit.occupy(squareFruit);
 			}
-			this.npcs.putAll(l.getNpcs());
-			stopNPCs();
-			startNPCs();
-			for (NPC npc : npcs.keySet()) {
-				Ghost g = (Ghost) (npc);
-				g.setSpeed(g.getSpeed() + 0.01);
+			else {
+				squareFruit = null;
 			}
 		}
 	}
@@ -306,16 +398,6 @@ public class Level {
 	 * Updates the observers about the state of this level.
 	 */
 	private void updateObservers() {
-		if (!isAnyPlayerAlive()) {
-			for (LevelObserver o : observers) {
-				o.levelLost();
-			}
-		}
-		if (isAnyPlayerInHunterMode()) {
-			for (LevelObserver o : observers) {
-				o.startHunterMode();
-			}
-		}
 		if(!infiniteMode) {
 			if (ghostLeft != 4) {
 				for (LevelObserver o : observers) {
@@ -326,6 +408,32 @@ public class Level {
 				for (LevelObserver o : observers) {
 					o.levelWon();
 				}
+			}
+		}
+		if (!isAnyPlayerAlive()) {
+			for (LevelObserver o : observers) {
+				o.levelLost();
+			}
+		}
+		if (isAnyPlayerInHunterMode()) {
+			for (LevelObserver o : observers) {
+				o.startHunterMode();
+			}
+		}
+		if (anyPlayerDesserveFruits()) {
+			for (LevelObserver o : observers) {
+					o.fruitEvent();
+			}
+		}
+		if (isAnyPlayerShooting()) {
+			for (LevelObserver o : observers) {
+					o.ShootingEvent();
+			}
+		}
+		List<NPC> deadNPCs = NPCToClean() ;
+		if(deadNPCs.size() > 0) {
+			for (LevelObserver o : observers) {
+				o.NPCCleanEvent(deadNPCs, npcs);
 			}
 		}
 	}
@@ -344,6 +452,64 @@ public class Level {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if at lest one of the player meet the criteria for making a fruit appear.
+	 * 
+	 * @return <code>true</code> if at lest one of the player has 500 or 1500 points.
+	 */
+	public boolean anyPlayerDesserveFruits() {
+		for (Player p : players) {
+			if (fruitFactory != null && (p.getScore() == 500 || p.getScore() == 1500)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns <code>true</code> if at lest one of the player meet the criteria for making a fruit appear.
+	 *
+	 * @return <code>true</code> if at lest one of the player has 500 or 1500 points.
+	 */
+	public boolean anyPlayerDesserveFruits2() {
+		for (Player p : players) {
+			if (fruitFactory != null && (p.getScore() == 500 || p.getScore() == 1500)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if at lest one of the player can shoot bullets.
+	 * 
+	 * @return <code>true</code> if at lest one of the player can shoot bullets.
+	 */
+	public boolean isAnyPlayerShooting() {
+		for (Player p : players) {
+			if (p.isShooting()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if at least one NPC is dead and need to be cleaned from the board.
+	 * 
+	 * @return <code>true</code> if at least one NPC is dead and need to be cleaned from the board.
+	 */
+	private List<NPC> NPCToClean() {
+		List<NPC> deadNPCs = new ArrayList<>();
+		for (NPC npc : npcs.keySet()) {
+			if (((npc instanceof Bullet) && !((Bullet) npc).isAlive())
+					|| ((npc instanceof Ghost) && ((Ghost) npc).hasExploded())) {
+				deadNPCs.add(npc);
+			}
+		}
+		return deadNPCs;
 	}
 
 	public boolean isAnyPlayerInHunterMode() {
@@ -456,6 +622,14 @@ public class Level {
 		}
 		return pellets;
 	}
+	
+	/**
+	 * returns the fruit factory for this level.
+	 * @return the fruit factory for this level.
+	 */
+	public FruitFactory getFruitFactory(){
+		return fruitFactory;
+	}
 
 	public Map<NPC, ScheduledExecutorService> getNpcs() {
 		return npcs;
@@ -560,6 +734,25 @@ public class Level {
 		public void run() { warningMode(); }
 	}
 
+
+	/**
+	 * A task that handle the end of Hunter Mode.
+	 *
+	 * @author Yarol Timur
+	 */
+	private final class TimerAddGhostTask extends TimerTask {
+
+		@Override
+		public void run() { addGhostTask(); }
+	}
+
+	private final class TimerAddFruitTask extends TimerTask {
+
+		@Override
+		public void run() { addFruitTask(); }
+	}
+
+
 	/**
 	 * An observer that will be notified when the level is won or lost.
 	 *
@@ -588,5 +781,34 @@ public class Level {
 		 * A ghost need to be respawned.
 		 */
 		void respawnGhost();
+		
+		/**
+		 * A Fruit can appear.
+		 */
+		void fruitEvent();
+		
+		/**
+		 * A Player can shoot bullets
+		 */
+		void ShootingEvent();
+		
+		/**
+		 * A NPC is dead and need to be cleared from the board
+		 * @param deadNPCs the list of the NPCs that are dead
+		 * @param npcs the npcs that are still in the game.
+		 */
+		void NPCCleanEvent(List<NPC> deadNPCs, Map<NPC, ScheduledExecutorService> npcs);
+	}
+
+	/**
+	 * enable the movment of a bullet
+	 * @param b the bullet that have to be moved.
+	 */
+	public void animateBullet(Bullet b) {
+			ScheduledExecutorService service = Executors
+					.newSingleThreadScheduledExecutor();
+			service.schedule(new NpcMoveTask(service, b),
+					b.getInterval() / 2, TimeUnit.MILLISECONDS);
+			npcs.put(b, service);
 	}
 }

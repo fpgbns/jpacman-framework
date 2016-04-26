@@ -3,6 +3,7 @@ package nl.tudelft.jpacman.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -14,12 +15,13 @@ import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.game.Game;
 import nl.tudelft.jpacman.level.Level;
 import nl.tudelft.jpacman.level.Player;
+import nl.tudelft.jpacman.level.Bridge;
 
 /**
  * Panel displaying a game.
- * 
+ *
  * @author Jeroen Roosen 
- * 
+ *
  */
 class BoardPanel extends JPanel {
 
@@ -49,6 +51,9 @@ class BoardPanel extends JPanel {
 	 */
 	private int scalex, scaley;
 
+
+	int X, Y;
+
 	/**
 	 * Savoir si c'est le premier traçage ou non
 	 */
@@ -56,7 +61,7 @@ class BoardPanel extends JPanel {
 
 	/**
 	 * Creates a new board panel that will display the provided game.
-	 * 
+	 *
 	 * @param game
 	 *            The game to display.
 	 */
@@ -79,7 +84,7 @@ class BoardPanel extends JPanel {
 	public void paint(Graphics g) {
 		assert g != null;
 		Launcher launcher = Launcher.getLauncher();
-		if(launcher.getBoardToUse() == "/board.txt") {
+		if(launcher.getBoardToUse() == "/board.txt" || launcher.getBoardToUse() == "/boardFruit.txt") {
 			render(game.getLevel().getBoard(), g, getSize());
 		}
 		else {
@@ -116,7 +121,7 @@ class BoardPanel extends JPanel {
 
 	/**
 	 * Renders the board on the given graphics context to the given dimensions.
-	 * 
+	 *
 	 * @param board
 	 *            The board to render.
 	 * @param g
@@ -144,7 +149,7 @@ class BoardPanel extends JPanel {
 		int X = posPlayer.getCoordX();
 		int Y = posPlayer.getCoordY();
 
-
+		//System.out.println("X-Y : (" + X + "," + Y + ").");
 		for (int y = Y-15; y < Y+6; y++)
 		{
 			for (int x = X-11; x < X+12; x++)
@@ -158,15 +163,19 @@ class BoardPanel extends JPanel {
 		Level lvl = Level.getLevel();
 		if(lvl.isInProgress()) {
 			if (posPlayer.getCoordX() > board.getWidth() - 13) {
+				//System.out.println("extend EAST !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
 				board.extend(Direction.EAST);
 			}
 			if (posPlayer.getCoordX() < 13) {
+				//System.out.println("extend WEST !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
 				board.extend(Direction.WEST);
 			}
 			if (posPlayer.getCoordY() > board.getHeight() - 12) {
+				//System.out.println("extend SOUTH !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
 				board.extend(Direction.SOUTH);
 			}
 			if (posPlayer.getCoordY() < 18) {
+				//System.out.println("extend NORTH !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
 				board.extend(Direction.NORTH);
 			}
 		}
@@ -175,7 +184,7 @@ class BoardPanel extends JPanel {
 	/**
 	 * Renders a single square on the given graphics context on the specified
 	 * rectangle.
-	 * 
+	 *
 	 * @param square
 	 *            The square to render.
 	 * @param g
@@ -191,8 +200,11 @@ class BoardPanel extends JPanel {
 	 */
 	private void render(Square square, Graphics g, int x, int y, int w, int h) {
 		square.getSprite().draw(g, x, y, w, h);
-		for (Unit unit : square.getOccupants()) {
-			unit.getSprite().draw(g, x, y, w, h);
+		List<Unit> occupants = square.getOccupants();
+		for (Unit unit : occupants) {
+			if((unit instanceof Bridge) || !(occupants.get(0) instanceof Bridge) || unit.isOnBridge()){
+				unit.getSprite().draw(g, x, y, w, h);
+			}
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package nl.tudelft.jpacman.board;
 
+import nl.tudelft.jpacman.fruit.Fruit;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 import nl.tudelft.jpacman.sprite.Sprite;
 

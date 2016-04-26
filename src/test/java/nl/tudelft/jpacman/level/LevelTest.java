@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Tests various aspects of level.
- * 
+ *
  * @author Jeroen Roosen 
  */
 public class LevelTest {
@@ -52,7 +52,7 @@ public class LevelTest {
 	 * The board for this level.
 	 */
 	private final Board board = mock(Board.class);
-	
+
 	/**
 	 * The collision map.
 	 */
@@ -167,19 +167,5 @@ public class LevelTest {
 		assertEquals(la.getBoardToUse(), "/boardExtendedBase.txt");
 		la.setBoardToUse("/boardExtendedAdd.txt");
 		assertEquals(la.getBoardToUse(), "/boardExtendedAdd.txt");
-	}
-
-	@Test
-	@SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
-	public void testAddGhost() {
-		Launcher la = new Launcher();
-		la.setBoardToUse("/boardExtendedAdd.txt");
-		Level l1 = la.makeLevel();
-		Level l2 = la.makeLevel();
-		System.out.println(l1.getNpcs().size());
-		assertTrue(l1.getNpcs().size() == 1);
-		assertTrue(l2.getNpcs().size() == 1);
-		l1.addGhost(l2);
-		assertTrue(l1.getNpcs().size() == 2);
 	}
 }

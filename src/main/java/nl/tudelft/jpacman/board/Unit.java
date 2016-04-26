@@ -1,5 +1,10 @@
 package nl.tudelft.jpacman.board;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import nl.tudelft.jpacman.level.Player;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.sprite.Sprite;
 
 /**
@@ -18,12 +23,27 @@ public abstract class Unit {
 	 * The direction this unit is facing.
 	 */
 	private Direction direction;
+	
+	/**
+	 * Whether this unit is on a bridge.
+	 */
+	private boolean onBridge;
 
 	/**
 	 * Creates a unit that is facing east.
 	 */
+
+	private static final int ACCELERATED_MOVE_INTERVAL = 125;
+
+	/**
+	 * Whether the NPC is speed-up
+	 */
+	protected boolean acceleration = false;
+
+
 	protected Unit() {
 		this.direction = Direction.EAST;
+		this.onBridge = false;
 	}
 	
 	/**
@@ -40,6 +60,22 @@ public abstract class Unit {
 	 */
 	public Direction getDirection() {
 		return this.direction;
+	}
+	
+	/**
+	 * set the new postion of this unit with respect to a bridge
+	 * @param boolean newValue the new position of this unit with respect to a bridge.
+	 */
+	public void setOnBridge(boolean newValue) {
+		onBridge = newValue;
+	}
+	
+	/**
+	 * Returns whether this unit is on a bridge or not.
+	 * @return true if this unit is on a bridge, false otherwise.
+	 */
+	public boolean isOnBridge() {
+		return onBridge;
 	}
 	
 	/**
@@ -103,4 +139,19 @@ public abstract class Unit {
 	 */
 	public abstract Sprite getSprite();
 
+	/**
+	 * Set the acceleration state of this NPC.
+	 * @param value true to make the NPC move faster, false otherwise.
+	 */
+	public void setAcceleration(boolean value) {
+		acceleration = value;
+	}
+
+	/**
+	 * Returns whether the NPC is speed-up
+	 * @return true if the speed of this NPC is accelerated.
+	 */
+	public boolean getAcceleration() {
+		return acceleration;
+	}
 }
