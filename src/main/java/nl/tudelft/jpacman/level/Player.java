@@ -178,8 +178,7 @@ public class Player extends Unit implements DirectionCharacter{
 		}
 	}
 
-	/*@Override
-	public Direction nextMove() {
+	/*public Direction nextMove() {
 		return getDirection();
 	}*/
 
