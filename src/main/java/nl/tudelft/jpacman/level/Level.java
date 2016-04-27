@@ -257,7 +257,9 @@ public class Level {
 		}
 		Random random = new Random();
 		int nbr = random.nextInt(11);
-		addGhostTask.schedule(new TimerAddGhostTask(), (nbr+10)*1000);
+		if(infiniteMode) {
+			addGhostTask.schedule(new TimerAddGhostTask(), 1000);//(nbr+10)*1000);
+		}
 		addFruitTask.schedule(new TimerAddFruitTask(), (nbr+10)*1000);
 	}
 
@@ -271,6 +273,8 @@ public class Level {
 				return;
 			}
 			stopNPCs();
+			addGhostTask.cancel();
+			addFruitTask.cancel();
 			inProgress = false;
 		}
 	}
@@ -303,57 +307,72 @@ public class Level {
      */
 	public void addGhostTask()
 	{
-		System.out.println("ghost en vie début : " + this.npcs.size());
-		ScheduledExecutorService service = Executors
-				.newSingleThreadScheduledExecutor();
-		GhostFactory ghostFact = new GhostFactory(SPRITE_STORE);
-		Random random = new Random();
-		int nombre = random.nextInt(6);
-		int ghostIndex = random.nextInt(4);
-		addGhostTask.cancel();
-		addGhostTask = new Timer();
-		addGhostTask.schedule(new TimerAddGhostTask(), ((nombre+4)+this.npcs.size())*1000);
-		Ghost g;
-		switch (ghostIndex) {
-			case 0:
-				g = ghostFact.createBlinky();
-				break;
-			case 1:
-				g = ghostFact.createInky();
-				break;
-			case 2:
-				g = ghostFact.createPinky();
-				break;
-			case 3:
-				g = ghostFact.createClyde();
-				break;
-			default:
-				g = ghostFact.createBlinky();
-				break;
+		if(this.npcs.size() < 10) {
+			System.out.println("ghost en vie début : " + this.npcs.size());
+			ScheduledExecutorService service = Executors
+					.newSingleThreadScheduledExecutor();
+			GhostFactory ghostFact = new GhostFactory(SPRITE_STORE);
+			Random random = new Random();
+			int nombre = random.nextInt(6);
+			int ghostIndex = random.nextInt(4);
+			addGhostTask.cancel();
+			addGhostTask = new Timer();
+			addGhostTask.schedule(new TimerAddGhostTask(), 1000);//((nombre + 4) + this.npcs.size()) * 1000);
+			Ghost g;
+			switch (ghostIndex) {
+				case 0:
+					g = ghostFact.createBlinky();
+					break;
+				case 1:
+					g = ghostFact.createInky();
+					break;
+				case 2:
+					g = ghostFact.createPinky();
+					break;
+				case 3:
+					g = ghostFact.createClyde();
+					break;
+				default:
+					g = ghostFact.createBlinky();
+					break;
+			}
+			npcs.put(g, service);
+			Square squareGhost = null;
+			while (squareGhost == null) {
+				Square posPlayer = players.get(0).getSquare();
+				int X = posPlayer.getCoordX();
+				int Y = posPlayer.getCoordY();
+				int i, j;
+				if (X - 10 < 0) {
+					i = random.nextInt(23);
+				} else {
+					i = (X - 10) + random.nextInt(23);
+				}
+				if (Y - 14 < 0) {
+					j = random.nextInt(4);
+				} else {
+					j = (Y - 14) + random.nextInt(4);
+				}
+				squareGhost = board.squareAt(i, j);
+				if (squareGhost.isAccessibleTo(g)) {
+					g.occupy(squareGhost);
+				}
+				else{
+					squareGhost = null;
+				}
+			}
+			stopNPCs();
+			startNPCs();
+			for (NPC npc : npcs.keySet()) {
+				g = (Ghost) (npc);
+				g.setSpeed(g.getSpeed() + 0.1);
+			}
+			System.out.println("ghost en vie fin : " + this.npcs.size());
 		}
-		npcs.put(g, service);
-		Square squareGhost = null;
-		while(squareGhost == null){
-			Square posPlayer = players.get(0).getSquare();
-			int X = posPlayer.getCoordX();
-			int Y = posPlayer.getCoordY();
-			int i = (X-15) + random.nextInt(4);
-			int j = (Y-11) + random.nextInt(22);
-			squareGhost = board.squareAt(i, j);
-			if(squareGhost.isAccessibleTo(g));
-			g.occupy(squareGhost);
-		}
-		stopNPCs();
-		startNPCs();
-		for (NPC npc : npcs.keySet()) {
-			g = (Ghost) (npc);
-			g.setSpeed(g.getSpeed() + 0.1);
-		}
-		System.out.println("ghost en vie fin : " + this.npcs.size());
 	}
 
 	/**
-	 * Permet d'ajouter des ghosts dans le jeu
+	 * Permet d'ajouter des fruits dans le jeu
 	 */
 	public void addFruitTask()
 	{
@@ -364,14 +383,24 @@ public class Level {
 		addFruitTask.schedule(new TimerAddFruitTask(), (nbr+10)*1000);
 		fruitFactory = new FruitFactory(SPRITE_STORE, null, null);
 		Fruit fruit = fruitFactory.getRandomFruit();
-		System.out.println("fruit : " + fruit);
 		Square squareFruit = null;
 		while(squareFruit == null) {
 			Square posPlayer = players.get(0).getSquare();
 			int X = posPlayer.getCoordX();
 			int Y = posPlayer.getCoordY();
-			int i = (X - 15) + random.nextInt(4);
-			int j = (Y - 11) + random.nextInt(22);
+			int i, j;
+			if(X-10 < 0){
+				i =  random.nextInt(23);
+			}
+			else{
+				i = (X-10) + random.nextInt(23);
+			}
+			if(Y-14 < 0){
+				j = random.nextInt(4);
+			}
+			else{
+				j = (Y-14) + random.nextInt(4);
+			}
 			squareFruit = board.squareAt(i, j);
 			if (squareFruit.isAccessibleTo(fruit)) {
 				fruit.occupy(squareFruit);
@@ -420,7 +449,7 @@ public class Level {
 				o.startHunterMode();
 			}
 		}
-		if (anyPlayerDesserveFruits()) {
+		if (anyPlayerDeserveFruits()) {
 			for (LevelObserver o : observers) {
 					o.fruitEvent();
 			}
@@ -459,21 +488,7 @@ public class Level {
 	 * 
 	 * @return <code>true</code> if at lest one of the player has 500 or 1500 points.
 	 */
-	public boolean anyPlayerDesserveFruits() {
-		for (Player p : players) {
-			if (fruitFactory != null && (p.getScore() == 500 || p.getScore() == 1500)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Returns <code>true</code> if at lest one of the player meet the criteria for making a fruit appear.
-	 *
-	 * @return <code>true</code> if at lest one of the player has 500 or 1500 points.
-	 */
-	public boolean anyPlayerDesserveFruits2() {
+	public boolean anyPlayerDeserveFruits() {
 		for (Player p : players) {
 			if (fruitFactory != null && (p.getScore() == 500 || p.getScore() == 1500)) {
 				return true;
