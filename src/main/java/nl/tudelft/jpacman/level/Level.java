@@ -262,7 +262,7 @@ public class Level {
 		Random random = new Random();
 		int nbr = random.nextInt(11);
 		if(infiniteMode) {
-			addGhostTask.schedule(new TimerAddGhostTask(), 1000);//(nbr+10)*1000);
+			addGhostTask.schedule(new TimerAddGhostTask(), (nbr+10)*1000);
 			speedUpTask.schedule(new TimerSpeedUpTask(), 10000, 10000);
 		}
 		addFruitTask.schedule(new TimerAddFruitTask(), (nbr+10)*1000);
@@ -323,7 +323,7 @@ public class Level {
 			int ghostIndex = random.nextInt(4);
 			addGhostTask.cancel();
 			addGhostTask = new Timer();
-			addGhostTask.schedule(new TimerAddGhostTask(), 1000);//((nombre + 4) + this.npcs.size()) * 1000);
+			addGhostTask.schedule(new TimerAddGhostTask(), ((nombre + 4) + this.npcs.size()) * 1000);
 			Ghost g;
 			switch (ghostIndex) {
 				case 0:
