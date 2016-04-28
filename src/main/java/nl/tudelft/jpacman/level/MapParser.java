@@ -122,9 +122,6 @@ public class MapParser {
 		setTeleports(teleportList, teleportrefs, board);
 		setBridges(bridgeList, bridgeRefs, fruitPositions);
 		Level l = levelCreator.createLevel(board, ghosts, startPositions, fruitPositions);
-		if(fruitPositions.size() > 0){
-			l.setupFruits(fruitPositions, ghosts);
-		}
 		return l;
 	}
 
@@ -195,9 +192,6 @@ public class MapParser {
 		makeGrid(map, width, height, grid, ghosts, startPositions, null, null, fruitPositions);
 		Board board = boardCreator.createBoard(grid);
 		Level l = levelCreator.createLevel(board, ghosts, startPositions, fruitPositions);
-		if(fruitPositions.size() > 0){
-			l.setupFruits(fruitPositions, ghosts);
-		}
 		return l;
 	}
 	
