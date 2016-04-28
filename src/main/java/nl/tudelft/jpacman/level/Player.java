@@ -3,6 +3,7 @@ package nl.tudelft.jpacman.level;
 import java.util.Map;
 
 import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.sprite.AnimatedSprite;
@@ -13,7 +14,7 @@ import nl.tudelft.jpacman.sprite.Sprite;
  * 
  * @author Jeroen Roosen 
  */
-public class Player extends NPC implements DirectionCharacter {
+public class Player extends Unit implements DirectionCharacter{
 	
 	/**
 	 * The base movement interval.
@@ -61,7 +62,12 @@ public class Player extends NPC implements DirectionCharacter {
 	private boolean mobile;
 
 	/**
-	 * Creates a new player with a score of 0 points.true
+	 * <code>true</code> iff this player is under the Hunter Mode.
+	 */
+	private boolean hunterMode = false;
+
+	/**
+	 * Creates a new player with a score of 0 points.
 	 * 
 	 * @param spriteMap
 	 *            A map containing a sprite for this player for every direction.
@@ -85,6 +91,22 @@ public class Player extends NPC implements DirectionCharacter {
 	 */
 	public boolean isAlive() {
 		return alive;
+	}
+
+	/**
+	 * Return the actual game mode
+	 *
+	 * @return true iff the game is under the Hunter Mode
+     */
+	public boolean getHunterMode() {
+		return hunterMode;
+	}
+
+	/**
+	 * Change the Game Mode.
+	 */
+	public void setHunterMode(boolean mode) {
+		hunterMode = mode;
 	}
 
 	/**
@@ -147,7 +169,6 @@ public class Player extends NPC implements DirectionCharacter {
 		this.invincible = value;
 	}
 
-	@Override
 	public long getInterval() {
 		if(!getAcceleration()){
 			return MOVE_INTERVAL;
@@ -157,10 +178,9 @@ public class Player extends NPC implements DirectionCharacter {
 		}
 	}
 
-	@Override
-	public Direction nextMove() {
+	/*public Direction nextMove() {
 		return getDirection();
-	}
+	}*/
 
 	public boolean isShooting() {
 		return shooting;

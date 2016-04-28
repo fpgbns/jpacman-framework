@@ -75,10 +75,10 @@ public class Inky extends Ghost {
 	@Override
 	public long getInterval() {
 		if(!getAcceleration()){
-			return MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
+			return ((int) (MOVE_INTERVAL/this.speed)) + new Random().nextInt(INTERVAL_VARIATION);
 		}
 		else{
-			return ACCELERATED_MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
+			return ((int) (ACCELERATED_MOVE_INTERVAL/this.speed)) + new Random().nextInt(INTERVAL_VARIATION);
 		}
 	}
 
@@ -111,6 +111,11 @@ public class Inky extends Ghost {
 	// CHECKSTYLE:OFF To keep this more readable.
 	@Override
 	public Direction nextMove() {
+		if (this.getFearedMode())
+		{
+			Direction d = randomMoveAtCrossroads();
+			return d;
+		}
 		Unit blinky = Navigation.findNearest(Blinky.class, getSquare());
 		if (blinky == null) {
 			Direction d = randomMove();
@@ -151,5 +156,4 @@ public class Inky extends Ghost {
 		return d;
 	}
 	// CHECKSTYLE:ON
-
 }

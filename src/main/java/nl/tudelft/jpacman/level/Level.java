@@ -1,9 +1,6 @@
 package nl.tudelft.jpacman.level;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -13,12 +10,16 @@ import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.fruit.Fruit;
 import nl.tudelft.jpacman.fruit.FruitFactory;
 import nl.tudelft.jpacman.level.Bridge;
 import nl.tudelft.jpacman.npc.Bullet;
 import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.NPC;
+import nl.tudelft.jpacman.npc.ghost.Blinky;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.npc.ghost.GhostColor;
+import nl.tudelft.jpacman.npc.ghost.GhostFactory;
 import nl.tudelft.jpacman.sprite.PacManSprites;
 
 /**
@@ -45,6 +46,7 @@ public class Level {
 	 */
 	private final Object startStopLock = new Object();
 
+
 	/**
 	 * The NPCs of this level and, if they are running, their schedules.
 	 */
@@ -55,6 +57,8 @@ public class Level {
 	 * and NPCs can move.
 	 */
 	private boolean inProgress;
+
+	public boolean infiniteMode;
 
 	/**
 	 * The squares from which players can start this game.
@@ -86,6 +90,30 @@ public class Level {
 	 */
 	private final List<LevelObserver> observers;
 
+	private static final PacManSprites SPRITE_STORE = new PacManSprites();
+
+	private Timer timerHunterMode = new Timer();
+
+	private Timer timerRespawn = new Timer();
+
+	private Timer timerWarning = new Timer();
+
+	private Timer addGhostTask = new Timer();
+
+	private Timer addFruitTask = new Timer();
+
+	private Timer speedUpTask = new Timer();
+
+	public static int ghostLeft;
+
+	private static int c = 1;
+
+	public static int ghostAte = 0;
+
+	public static int superPelletLeft;
+
+	private static Level level = null;
+
 	/**
 	 * Creates a new level for the board.
 	 * 
@@ -109,12 +137,16 @@ public class Level {
 		this.npcs = new HashMap<>();
 		for (NPC g : ghosts) {
 			npcs.put(g, null);
+			ghostLeft++;
 		}
 		this.startSquares = startPositions;
 		this.startSquareIndex = 0;
 		this.players = new ArrayList<>();
 		this.collisions = collisionMap;
 		this.observers = new ArrayList<>();
+		if(level == null) {
+			level = this;
+		}
 	}
 	
 	/**
@@ -123,16 +155,15 @@ public class Level {
 	 * @param npcs the list of the NPC registered on this level at the time of setting-up the fruits. 
 	 */
 	public void setupFruits(List<Square> fruitpositions, List<NPC> npcs) {
-		if(fruitpositions.size() > 0)
-			fruitFactory = new FruitFactory(new PacManSprites(), fruitpositions, npcs);
+		fruitFactory = new FruitFactory(SPRITE_STORE, fruitpositions, npcs);
 	}
 	
 
 	/**
-	 * Adds an observer that will be notified when the level is won or lost.
-	 * 
-	 * @param observer
-	 *            The observer that will be notified.
+	 * Adds an observer that will be notified when the level is won or lost
+	 * or change his state (Hunter mode).
+	 *
+	 * @param observer The observer that will be notified.
 	 */
 	public void addObserver(LevelObserver observer) {
 		if (observers.contains(observer)) {
@@ -143,9 +174,8 @@ public class Level {
 
 	/**
 	 * Removes an observer if it was listed.
-	 * 
-	 * @param observer
-	 *            The observer to be removed.
+	 *
+	 * @param observer The observer to be removed.
 	 */
 	public void removeObserver(LevelObserver observer) {
 		observers.remove(observer);
@@ -167,7 +197,6 @@ public class Level {
 			return;
 		}
 		players.add(p);
-		npcs.put(p, null);
 		Square square = startSquares.get(startSquareIndex);
 		p.occupy(square);
 		startSquareIndex++;
@@ -230,6 +259,13 @@ public class Level {
 			inProgress = true;
 			updateObservers();
 		}
+		Random random = new Random();
+		int nbr = random.nextInt(11);
+		if(infiniteMode) {
+			addGhostTask.schedule(new TimerAddGhostTask(), (nbr+10)*1000);
+			speedUpTask.schedule(new TimerSpeedUpTask(), 10000, 10000);
+		}
+		addFruitTask.schedule(new TimerAddFruitTask(), (nbr+10)*1000);
 	}
 
 	/**
@@ -242,6 +278,9 @@ public class Level {
 				return;
 			}
 			stopNPCs();
+			addGhostTask.cancel();
+			addFruitTask.cancel();
+			speedUpTask.cancel();
 			inProgress = false;
 		}
 	}
@@ -270,6 +309,119 @@ public class Level {
 	}
 
 	/**
+	 * Permet d'ajouter des ghosts dans le jeu
+     */
+	public void addGhostTask()
+	{
+		if(this.npcs.size() < 10) {
+			System.out.println("ghost en vie début : " + this.npcs.size());
+			ScheduledExecutorService service = Executors
+					.newSingleThreadScheduledExecutor();
+			GhostFactory ghostFact = new GhostFactory(SPRITE_STORE);
+			Random random = new Random();
+			int nombre = random.nextInt(6);
+			int ghostIndex = random.nextInt(4);
+			addGhostTask.cancel();
+			addGhostTask = new Timer();
+			addGhostTask.schedule(new TimerAddGhostTask(), ((nombre + 4) + this.npcs.size()) * 1000);
+			Ghost g;
+			switch (ghostIndex) {
+				case 0:
+					g = ghostFact.createBlinky();
+					break;
+				case 1:
+					g = ghostFact.createInky();
+					break;
+				case 2:
+					g = ghostFact.createPinky();
+					break;
+				case 3:
+					g = ghostFact.createClyde();
+					break;
+				default:
+					g = ghostFact.createBlinky();
+					break;
+			}
+			npcs.put(g, service);
+			Square squareGhost = null;
+			while (squareGhost == null) {
+				Square posPlayer = players.get(0).getSquare();
+				int X = posPlayer.getCoordX();
+				int Y = posPlayer.getCoordY();
+				int i, j;
+				if (X - 10 < 0) {
+					i = random.nextInt(23);
+				} else {
+					i = (X - 10) + random.nextInt(23);
+				}
+				if (Y - 14 < 0) {
+					j = random.nextInt(4);
+				} else {
+					j = (Y - 14) + random.nextInt(4);
+				}
+				squareGhost = board.squareAt(i, j);
+				if (squareGhost.isAccessibleTo(g)) {
+					g.occupy(squareGhost);
+				}
+				else{
+					squareGhost = null;
+				}
+			}
+			stopNPCs();
+			startNPCs();
+			System.out.println("ghost en vie fin : " + this.npcs.size());
+		}
+	}
+
+	private void speedUpTask(){
+		Ghost g;
+		for (NPC npc : npcs.keySet()) {
+			g = (Ghost) (npc);
+			g.setSpeed(g.getSpeed() + 0.05);
+		}
+	}
+
+	/**
+	 * Permet d'ajouter des fruits dans le jeu
+	 */
+	public void addFruitTask()
+	{
+		Random random = new Random();
+		int nbr = random.nextInt(6);
+		addFruitTask.cancel();
+		addFruitTask = new Timer();
+		addFruitTask.schedule(new TimerAddFruitTask(), (nbr+10)*1000);
+		fruitFactory = new FruitFactory(SPRITE_STORE, null, null);
+		Fruit fruit = fruitFactory.getRandomFruit();
+		Square squareFruit = null;
+		while(squareFruit == null) {
+			Square posPlayer = players.get(0).getSquare();
+			int X = posPlayer.getCoordX();
+			int Y = posPlayer.getCoordY();
+			int i, j;
+			if(X-10 < 0){
+				i =  random.nextInt(22)+1;
+			}
+			else{
+				i = (X-10) + random.nextInt(23);
+			}
+			if(Y-14 < 0){
+				j = random.nextInt(20)+1;
+			}
+			else{
+				j = (Y-14) + random.nextInt(21);
+			}
+			squareFruit = board.squareAt(i, j);
+			if (squareFruit.isAccessibleTo(fruit)) {
+				fruit.occupy(squareFruit);
+			}
+			else {
+				squareFruit = null;
+			}
+		}
+	}
+
+	/**
 	 * Returns whether this level is in progress, i.e. whether moves can be made
 	 * on the board.
 	 * 
@@ -279,21 +431,35 @@ public class Level {
 		return inProgress;
 	}
 
+	private boolean isInfiniteMode() { return infiniteMode; }
+
 	/**
 	 * Updates the observers about the state of this level.
 	 */
 	private void updateObservers() {
+		if(!infiniteMode) {
+			if (ghostLeft != 4) {
+				for (LevelObserver o : observers) {
+					o.respawnGhost();
+				}
+			}
+			if (remainingPellets() == 0) {
+				for (LevelObserver o : observers) {
+					o.levelWon();
+				}
+			}
+		}
 		if (!isAnyPlayerAlive()) {
 			for (LevelObserver o : observers) {
 				o.levelLost();
 			}
 		}
-		if (remainingPellets() == 0) {
+		if (isAnyPlayerInHunterMode()) {
 			for (LevelObserver o : observers) {
-				o.levelWon();
+				o.startHunterMode();
 			}
 		}
-		if (anyPlayerDesserveFruits()) {
+		if (anyPlayerDeserveFruits()) {
 			for (LevelObserver o : observers) {
 					o.fruitEvent();
 			}
@@ -332,9 +498,10 @@ public class Level {
 	 * 
 	 * @return <code>true</code> if at lest one of the player has 500 or 1500 points.
 	 */
-	public boolean anyPlayerDesserveFruits() {
+	public boolean anyPlayerDeserveFruits() {
 		for (Player p : players) {
-			if (fruitFactory != null && (p.getScore() == 500 || p.getScore() == 1500)) {
+			if (fruitFactory != null && (p.getScore() >= c*1000 && p.getScore() < c*1050)) {
+				c++;
 				return true;
 			}
 		}
@@ -366,9 +533,101 @@ public class Level {
 			if (((npc instanceof Bullet) && !((Bullet) npc).isAlive())
 					|| ((npc instanceof Ghost) && ((Ghost) npc).hasExploded())) {
 				deadNPCs.add(npc);
+				ghostLeft--;
 			}
 		}
 		return deadNPCs;
+	}
+
+	public boolean isAnyPlayerInHunterMode() {
+		for (Player p : players) {
+			if (p.getHunterMode()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	/**
+	 * Start the Hunter Mode for Pacman.
+	 * Start the Feared Mode for Ghosts.
+	 */
+	public void startHunterMode() {
+		Board b = getBoard();
+		superPelletLeft--;
+		for (int x = 0; x < b.getWidth(); x++) {
+			for (int y = 0; y < b.getHeight(); y++) {
+				for (Unit u : b.squareAt(x, y).getOccupants()) {
+					if (u instanceof Ghost) {
+						timerHunterMode.cancel();
+						timerWarning.cancel();
+						timerHunterMode = new Timer();
+						timerWarning = new Timer();
+						if (superPelletLeft >= 2) {
+							timerHunterMode.schedule(new TimerHunterTask(), 7000);
+							timerWarning.schedule(new TimerWarningTask(), 5000, 250);
+						} else {
+							timerHunterMode.schedule(new TimerHunterTask(), 5000);
+							timerWarning.schedule(new TimerWarningTask(), 3000, 250);
+						}
+						((Ghost) u).startFearedMode();
+					}
+				}
+			}
+		}
+		for (Player p : players) {
+			p.setHunterMode(false);
+			ghostAte = 0;
+		}
+	}
+
+	/**
+	 * Stop the Hunter Mode for Pacman.
+	 * Stop the Feared Mode for Ghosts.
+	 */
+	public void stopHunterMode() {
+		Board b = getBoard();
+		timerWarning.cancel();
+		for (int x = 0; x < b.getWidth(); x++) {
+			for (int y = 0; y < b.getHeight(); y++) {
+				for (Unit u : b.squareAt(x, y).getOccupants()) {
+					if (u instanceof Ghost) {
+						((Ghost) u).stopFearedMode();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Handle the end of the Hunter Mode for Pacman and
+	 * warning him about that.
+	 */
+	public void warningMode()
+	{
+		Board b = getBoard();
+		Ghost.count++;
+		for (int x = 0; x < b.getWidth(); x++) {
+			for (int y = 0; y < b.getHeight(); y++) {
+				for (Unit u : b.squareAt(x, y).getOccupants()) {
+					if (u instanceof Ghost) {
+						((Ghost) u).warningMode();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Start the Timer to respawn a ghost after being ate by Pacman.
+	 */
+	public void respawnGhost()
+	{
+		ghostLeft++;
+		Ghost ateGhost = PlayerCollisions.ateGhost;
+		timerRespawn = new Timer();
+		timerRespawn.schedule(new TimerRespawnTask(ateGhost), 5000);
 	}
 
 	/**
@@ -397,6 +656,14 @@ public class Level {
 	 */
 	public FruitFactory getFruitFactory(){
 		return fruitFactory;
+	}
+
+	public Map<NPC, ScheduledExecutorService> getNpcs() {
+		return npcs;
+	}
+
+	public static Level getLevel() {
+		return level;
 	}
 
 	/**
@@ -432,18 +699,97 @@ public class Level {
 		@Override
 		public void run() {
 			Direction nextMove = npc.nextMove();
+			long interval;
 			if (nextMove != null) {
 				move(npc, nextMove);
 			}
-			long interval = npc.getInterval();
+			if(((Ghost) npc).getFearedMode()) {
+				interval = ((Ghost) npc).getFearedInterval();
+			}
+			else {
+				interval = npc.getInterval();
+			}
 			service.schedule(this, interval, TimeUnit.MILLISECONDS);
 		}
 	}
 
 	/**
+	 * A task that stop the Hunter Mode after an amount of time.
+	 *
+	 * @author Yarol Timur
+	 */
+	private final class TimerHunterTask extends TimerTask {
+		@Override
+		public void run() {
+			stopHunterMode();
+		}
+	}
+
+	/**
+	 * A task that respawn an NPC after being eat by Pacman.
+	 *
+	 * @author Yarol Timur
+	 */
+	private final class TimerRespawnTask extends TimerTask {
+
+		private Ghost ghost;
+
+		private TimerRespawnTask(Ghost ghost)
+		{
+			this.ghost = ghost;
+		}
+
+		@Override
+		public void run() {
+			Board b = getBoard();
+			ghost.occupy(b.getMiddleOfTheMap());
+			ghost.stopFearedMode();
+			stopNPCs();
+			startNPCs();
+			this.cancel();
+		}
+	}
+
+	/**
+	 * A task that handle the end of Hunter Mode.
+	 *
+	 * @author Yarol Timur
+	 */
+	private final class TimerWarningTask extends TimerTask {
+
+		@Override
+		public void run() { warningMode(); }
+	}
+
+
+	/**
+	 * A task that handle the end of Hunter Mode.
+	 *
+	 * @author Yarol Timur
+	 */
+	private final class TimerAddGhostTask extends TimerTask {
+
+		@Override
+		public void run() { addGhostTask(); }
+	}
+
+	private final class TimerAddFruitTask extends TimerTask {
+
+		@Override
+		public void run() { addFruitTask(); }
+	}
+
+	private final class TimerSpeedUpTask extends TimerTask {
+
+		@Override
+		public void run() { speedUpTask(); }
+	}
+
+
+	/**
 	 * An observer that will be notified when the level is won or lost.
-	 * 
-	 * @author Jeroen Roosen 
+	 *
+	 * @author Jeroen Roosen
 	 */
 	public interface LevelObserver {
 
@@ -458,6 +804,16 @@ public class Level {
 		 * this event is received.
 		 */
 		void levelLost();
+
+		/**
+		 * The level mode change for a while. Pacman become a Hunter and the Ghost are feared.
+		 */
+		void startHunterMode();
+
+		/**
+		 * A ghost need to be respawned.
+		 */
+		void respawnGhost();
 		
 		/**
 		 * A Fruit can appear.
@@ -471,8 +827,8 @@ public class Level {
 		
 		/**
 		 * A NPC is dead and need to be cleared from the board
-		 * @param List<NPC> deadNPC the list of the NPCs that are dead
-		 * @param Map<NPC, ScheduledExecutorService> npcs the npcs that are still in the game.
+		 * @param deadNPCs the list of the NPCs that are dead
+		 * @param npcs the npcs that are still in the game.
 		 */
 		void NPCCleanEvent(List<NPC> deadNPCs, Map<NPC, ScheduledExecutorService> npcs);
 	}

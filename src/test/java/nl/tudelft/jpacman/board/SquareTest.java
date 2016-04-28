@@ -10,7 +10,7 @@ import org.junit.Test;
 
 /**
  * Test suite to confirm the public API of {@link Square} works as desired.
- * 
+ *
  * @author Jeroen Roosen 
  */
 public class SquareTest {
@@ -64,5 +64,12 @@ public class SquareTest {
 
 		Object[] occupantsAsArray = square.getOccupants().toArray();
 		assertArrayEquals(new Object[] { o1, o2 }, occupantsAsArray);
+	}
+
+	@Test
+	public void testCoord(){
+		square.setCoord(1, 2);
+		assertTrue(square.getCoordX() == 1);
+		assertTrue(square.getCoordY() == 2);
 	}
 }

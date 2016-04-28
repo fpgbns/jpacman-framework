@@ -1,15 +1,21 @@
 package nl.tudelft.jpacman.level;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.npc.NPC;
 
+import nl.tudelft.jpacman.npc.ghost.Clyde;
+import nl.tudelft.jpacman.npc.ghost.Ghost;
+import nl.tudelft.jpacman.npc.ghost.GhostColor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +23,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Tests various aspects of level.
- * 
+ *
  * @author Jeroen Roosen 
  */
 public class LevelTest {
@@ -46,7 +52,7 @@ public class LevelTest {
 	 * The board for this level.
 	 */
 	private final Board board = mock(Board.class);
-	
+
 	/**
 	 * The collision map.
 	 */
@@ -152,5 +158,14 @@ public class LevelTest {
 		level.registerPlayer(p2);
 		level.registerPlayer(p3);
 		verify(p3).occupy(square1);
+	}
+
+	@Test
+	@SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+	public void testSetBoardToUse() {
+		Launcher la = new Launcher();
+		assertEquals(la.getBoardToUse(), "/boardExtendedBase.txt");
+		la.setBoardToUse("/boardExtendedAdd1.txt");
+		assertEquals(la.getBoardToUse(), "/boardExtendedAdd1.txt");
 	}
 }

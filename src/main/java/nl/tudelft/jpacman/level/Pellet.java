@@ -19,6 +19,7 @@ public class Pellet extends Unit {
 	 * The point value of this pellet.
 	 */
 	private final int value;
+
 	
 	/**
 	 * Creates a new pellet.
@@ -37,6 +38,7 @@ public class Pellet extends Unit {
 	public int getValue() {
 		return value;
 	}
+
 	
 	@Override
 	public Sprite getSprite() {

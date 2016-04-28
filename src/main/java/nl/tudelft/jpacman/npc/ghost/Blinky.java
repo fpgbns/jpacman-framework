@@ -73,11 +73,11 @@ public class Blinky extends Ghost {
 		// TODO Blinky should speed up when there are a few pellets left, but he
 		// has no way to find out how many there are.
 		if(!getAcceleration()){
-			return MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
+			return ((int) (MOVE_INTERVAL/this.speed)) + new Random().nextInt(INTERVAL_VARIATION);
 		}
 		else{
 			System.out.println("Test");
-			return ACCELERATED_MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
+			return ((int) (ACCELERATED_MOVE_INTERVAL/this.speed)) + new Random().nextInt(INTERVAL_VARIATION);
 		}
 	}
 
@@ -98,6 +98,11 @@ public class Blinky extends Ghost {
 	public Direction nextMove() {
 		// TODO Blinky should patrol his corner every once in a while
 		// TODO Implement his actual behaviour instead of simply chasing.
+		if (this.getFearedMode())
+		{
+			Direction d = randomMoveAtCrossroads();
+			return d;
+		}
 		Square target = Navigation.findNearest(Player.class, getSquare())
 				.getSquare();
 

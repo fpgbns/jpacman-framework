@@ -81,10 +81,10 @@ public class Pinky extends Ghost {
 	@Override
 	public long getInterval() {
 		if(!getAcceleration()){
-			return MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
+			return ((int) (MOVE_INTERVAL/this.speed)) + new Random().nextInt(INTERVAL_VARIATION);
 		}
 		else{
-			return ACCELERATED_MOVE_INTERVAL + new Random().nextInt(INTERVAL_VARIATION);
+			return ((int) (ACCELERATED_MOVE_INTERVAL/this.speed)) + new Random().nextInt(INTERVAL_VARIATION);
 		}
 	}
 
@@ -104,6 +104,11 @@ public class Pinky extends Ghost {
 	 */
 	@Override
 	public Direction nextMove() {
+		if (this.getFearedMode())
+		{
+			Direction d = randomMoveAtCrossroads();
+			return d;
+		}
 		Unit player = Navigation.findNearest(Player.class, getSquare());
 		if (player == null) {
 			Direction d = randomMove();

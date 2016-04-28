@@ -260,6 +260,13 @@ public class PacManSprites extends SpriteStore {
 	}
 
 	/**
+	 * @return The sprite for the super pellet.
+	 */
+	public Sprite getSuperPelletSprite() {
+		return loadSprite("/sprite/superPellet.png");
+	}
+
+	/**
 	 * Overloads the default sprite loading, ignoring the exception. This class
 	 * assumes all sprites are provided, hence the exception will be thrown as a
 	 * {@link RuntimeException}.

@@ -20,17 +20,35 @@ import nl.tudelft.jpacman.ui.Action;
 import nl.tudelft.jpacman.ui.PacManUI;
 import nl.tudelft.jpacman.ui.PacManUiBuilder;
 
+import javax.swing.*;
+
 /**
  * Creates and launches the JPacMan UI.
- * 
- * @author Jeroen Roosen 
+ *
+ * @author Jeroen Roosen
  */
 public class Launcher {
 
 	private static final PacManSprites SPRITE_STORE = new PacManSprites();
 
+	/**
+	 * L'instance du launcher
+	 */
+	private static Launcher launcher;
+
 	private PacManUI pacManUI;
+
 	private Game game;
+
+	/**
+	 * Le .txt qui doit etre choisi comme map (définit dans PacManUI)
+	 */
+	private String boardToUse = null;
+
+	public Launcher()
+	{
+		Launcher.launcher = this;
+	}
 
 	/**
 	 * @return The game object this launcher will start when {@link #launch()}
@@ -42,24 +60,50 @@ public class Launcher {
 
 	/**
 	 * Creates a new game using the level from {@link #makeLevel()}.
-	 * 
+	 *
 	 * @return a new Game.
 	 */
 	public Game makeGame() {
 		GameFactory gf = getGameFactory();
+		String[] board = {"Jeu normal", "Map infinie", "Jeu avec fruits"};
+		JOptionPane jop = new JOptionPane();
+		String nom = (String)jop.showInputDialog(null,
+				"Veuillez choisir un mode de jeu !",
+				"PACMAN GAME !",
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				board,
+				board[0]);
+
+		if(nom == board[1]) {
+			boardToUse = "/boardExtendedBase.txt";
+		}
+		else if(nom == board[2]){
+			boardToUse = "/boardFruit.txt";
+		}
+		else{
+			boardToUse = "/board.txt";
+		}
 		Level level = makeLevel();
+		if(boardToUse == "/boardExtendedBase.txt"){
+			level.infiniteMode = true;
+		}
+		else{
+			level.infiniteMode = false;
+		}
 		return gf.createSinglePlayerGame(level);
 	}
 
 	/**
 	 * Creates a new level. By default this method will use the map parser to
 	 * parse the default board stored in the <code>board.txt</code> resource.
-	 * 
+	 *
 	 * @return A new level.
 	 */
 	public Level makeLevel() {
 		MapParser parser = getMapParser();
-		try (InputStream boardStream = Launcher.class.getResourceAsStream("/board.txt")) {
+		try (InputStream boardStream = Launcher.class
+				.getResourceAsStream(this.boardToUse)) {
 			return parser.parseMap(boardStream);
 		} catch (IOException e) {
 			throw new PacmanConfigurationException("Unable to create level.", e);
@@ -120,14 +164,14 @@ public class Launcher {
 
 	/**
 	 * Adds key events UP, DOWN, LEFT and RIGHT to a game.
-	 * 
+	 *
 	 * @param builder
 	 *            The {@link PacManUiBuilder} that will provide the UI.
 	 * @param game
 	 *            The game that will process the events.
 	 */
 	protected void addSinglePlayerKeys(final PacManUiBuilder builder,
-			final Game game) {
+									   final Game game) {
 		final Player p1 = getSinglePlayer(game);
 
 		builder.addKey(KeyEvent.VK_UP, new Action() {
@@ -187,7 +231,7 @@ public class Launcher {
 
 	/**
 	 * Main execution method for the Launcher.
-	 * 
+	 *
 	 * @param args
 	 *            The command line arguments - which are ignored.
 	 * @throws IOException
@@ -195,5 +239,30 @@ public class Launcher {
 	 */
 	public static void main(String[] args) throws IOException {
 		new Launcher().launch();
+	}
+
+	/**
+	 * Permet d'obtenir l'instance du launcher
+	 * @return L'instance de launcher
+	 */
+	public static Launcher getLauncher()
+	{
+		return launcher;
+	}
+
+	/**
+	 * Permet de mettre a jour la map a dessiner
+	 * @param boardToUse Le nouveau fichier de la map
+	 */
+	public void setBoardToUse(String boardToUse) {
+		this.boardToUse = boardToUse;
+	}
+
+	/**
+	 * Permet d'obtenir le fichier correspondant a la map
+	 * @return Le fichier de la map
+	 */
+	public String getBoardToUse() {
+		return boardToUse;
 	}
 }

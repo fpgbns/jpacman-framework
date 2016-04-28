@@ -7,17 +7,21 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.board.Board;
+import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.game.Game;
+import nl.tudelft.jpacman.level.Level;
+import nl.tudelft.jpacman.level.Player;
 import nl.tudelft.jpacman.level.Bridge;
 
 /**
  * Panel displaying a game.
- * 
+ *
  * @author Jeroen Roosen 
- * 
+ *
  */
 class BoardPanel extends JPanel {
 
@@ -43,8 +47,21 @@ class BoardPanel extends JPanel {
 	private final Game game;
 
 	/**
+	 * Taille d'un board de base pour recentrer le dessin
+	 */
+	private int scalex, scaley;
+
+
+	int X, Y;
+
+	/**
+	 * Savoir si c'est le premier traçage ou non
+	 */
+	private boolean first = true;
+
+	/**
 	 * Creates a new board panel that will display the provided game.
-	 * 
+	 *
 	 * @param game
 	 *            The game to display.
 	 */
@@ -66,12 +83,18 @@ class BoardPanel extends JPanel {
 	@Override
 	public void paint(Graphics g) {
 		assert g != null;
-		render(game.getLevel().getBoard(), g, getSize());
+		Launcher launcher = Launcher.getLauncher();
+		if(launcher.getBoardToUse() == "/board.txt" || launcher.getBoardToUse() == "/boardFruit.txt") {
+			render(game.getLevel().getBoard(), g, getSize());
+		}
+		else {
+			renderInfinite(game.getLevel().getBoard(), g, getSize());
+		}
 	}
 
 	/**
 	 * Renders the board on the given graphics context to the given dimensions.
-	 * 
+	 *
 	 * @param board
 	 *            The board to render.
 	 * @param g
@@ -97,9 +120,71 @@ class BoardPanel extends JPanel {
 	}
 
 	/**
+	 * Renders the board on the given graphics context to the given dimensions.
+	 *
+	 * @param board
+	 *            The board to render.
+	 * @param g
+	 *            The graphics context to draw on.
+	 * @param window
+	 *            The dimensions to scale the rendered board to.
+	 */
+	private void renderInfinite(Board board, Graphics g, Dimension window) {
+		int cellW;
+		int cellH;
+		if(this.first)
+		{
+			this.scalex = board.getWidth();
+			this.scaley = board.getHeight();
+			this.first = false;
+		}
+		cellW = window.width / this.scalex;
+		cellH = window.height / this.scaley;
+		Player pl = this.game.getPlayers().get(0);
+		Square posPlayer = pl.getSquare();
+
+		g.setColor(BACKGROUND_COLOR);
+		g.fillRect(0, 0, window.width, window.height);
+
+		int X = posPlayer.getCoordX();
+		int Y = posPlayer.getCoordY();
+
+		//System.out.println("X-Y : (" + X + "," + Y + ").");
+		for (int y = Y-15; y < Y+6; y++)
+		{
+			for (int x = X-11; x < X+12; x++)
+			{
+				int cellX = ((this.scalex/2 - posPlayer.getCoordX()) + x) * cellW;
+				int cellY = ((((int) (this.scaley/1.4)) - posPlayer.getCoordY()) + y) * cellH;
+				Square square = board.squareAt(x, y);
+				render(square, g, cellX, cellY, cellW, cellH);
+			}
+		}
+		Level lvl = Level.getLevel();
+		if(lvl.isInProgress()) {
+			if (posPlayer.getCoordX() > board.getWidth() - 13) {
+				//System.out.println("extend EAST !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
+				board.extend(Direction.EAST);
+			}
+			if (posPlayer.getCoordX() < 13) {
+				//System.out.println("extend WEST !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
+				board.extend(Direction.WEST);
+			}
+			if (posPlayer.getCoordY() > board.getHeight() - 12) {
+				//System.out.println("extend SOUTH !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
+				board.extend(Direction.SOUTH);
+			}
+			if (posPlayer.getCoordY() < 18) {
+				//System.out.println("extend NORTH !! Map size : (" + board.getHeight() + "," + board.getWidth() + ").");
+				board.extend(Direction.NORTH);
+			}
+		}
+	}
+
+	/**
 	 * Renders a single square on the given graphics context on the specified
 	 * rectangle.
-	 * 
+	 *
 	 * @param square
 	 *            The square to render.
 	 * @param g
