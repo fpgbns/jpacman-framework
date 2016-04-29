@@ -1,9 +1,11 @@
 package nl.tudelft.jpacman.level;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import nl.tudelft.jpacman.board.Unit;
 import nl.tudelft.jpacman.fruit.Fruit;
 import nl.tudelft.jpacman.npc.Bullet;
-import nl.tudelft.jpacman.npc.DirectionCharacter;
 import nl.tudelft.jpacman.npc.ghost.Ghost;
 import nl.tudelft.jpacman.level.Level;
 
@@ -55,7 +57,7 @@ public class PlayerCollisions implements CollisionMap {
 				playerVersusEatableGhost(player, (Ghost) collidedOn);
 			}
 			else {
-				playerVersusGhost(player);
+				playerVersusGhost(player, (Ghost) collidedOn);
 			}
 		}
 		if (collidedOn instanceof Pellet) {
@@ -74,55 +76,13 @@ public class PlayerCollisions implements CollisionMap {
 			playerVersusFruit(player, (Fruit) collidedOn);
 		}
 	}
-	
-	/*private void BulletColliding(Bullet mover, Unit collidedOn) { Ceci est un mix entre notre playerColliding et la BulletColliding de Florent
-		if (collidedOn instanceof Ghost) {
-<<<<<<< HEAD
-			if (((Ghost) collidedOn).getFearedMode()){
-				playerVersusEatableGhost(player, (Ghost) collidedOn);
-			}
-			else {
-				playerVersusGhost(player);
-			}
-=======
-			ghostVersusBullet((Ghost) collidedOn, mover);
-		}
-		if (collidedOn instanceof Bridge) {
-			characterVersusBridge((Unit) mover, (Bridge) collidedOn);
-		}
-	}
-
-	private void playerColliding(Player player, Unit collidedOn) {
-		if (collidedOn instanceof Ghost && !(player.isInvincible())) {
-			playerVersusGhost(player, (Ghost) collidedOn);
->>>>>>> 4f44fd19b1a3d98c468e90e0f7f3709429db353e
-		}
-		if (collidedOn instanceof Pellet) {
-			playerVersusPellet(player, (Pellet) collidedOn);
-		}
-<<<<<<< HEAD
-=======
-		if (collidedOn instanceof Hole) {
-			characterVersusHole((Unit) player, (Hole) collidedOn);
-		}
-		if (collidedOn instanceof Teleport) {
-			playerVersusTeleport(player, (Teleport) collidedOn);
-		}
-		if (collidedOn instanceof Bridge) {
-			characterVersusBridge((Unit) player, (Bridge) collidedOn);
-		}
-		if (collidedOn instanceof Fruit) {
-			playerVersusFruit(player, (Fruit) collidedOn);
-		}
->>>>>>> 4f44fd19b1a3d98c468e90e0f7f3709429db353e
-	}*/
 	
 	private void ghostColliding(Ghost ghost, Unit collidedOn) {
 		if (ghost.getFearedMode() && collidedOn instanceof Player) {
 			playerVersusEatableGhost((Player) collidedOn, ghost);
 		}
 		else if (collidedOn instanceof Player) {
-			playerVersusGhost((Player) collidedOn);
+			playerVersusGhost((Player) collidedOn, ghost);
 		}
 		if (collidedOn instanceof Hole) {
 			characterVersusHole((Unit) ghost, (Hole) collidedOn);
@@ -136,9 +96,19 @@ public class PlayerCollisions implements CollisionMap {
 	}
 
 	private void ghostVersusBullet(Ghost ghost, Bullet collidedOn) {
+		collidedOn.setAlive(false);
 		if(!(ghost.hasExploded())) {
-			collidedOn.setAlive(false);
 			ghost.setExplode(true);
+			TimerTask timerTask = new TimerTask() {
+			    public void run() {
+			    	PlayerCollisions.ateGhost = ghost;
+			    	ghost.leaveSquare();
+			    	Level.ghostLeft--;
+			    }
+			};
+			int deadGhostAnimationTime = 5 * 200;
+			Timer timer = new Timer();
+			timer.schedule(timerTask, deadGhostAnimationTime);
 		}
 	}
 
@@ -147,13 +117,8 @@ public class PlayerCollisions implements CollisionMap {
      *
      * @param player The player involved in the collision.
 	 */
-
-	public void playerVersusGhost(Player player) {
-		player.setAlive(false);
-	}
-
 	public void playerVersusGhost(Player player, Ghost ghost) {
-		if(!(ghost.hasExploded()) && !(player.isInvincible())){
+		if(!ghost.hasExploded()){
 			player.setAlive(false);
 		}
 	}
@@ -208,9 +173,9 @@ public class PlayerCollisions implements CollisionMap {
      * @param hole The hole involved in the collision.
 	 */
 	public void characterVersusHole(Unit unit, Hole hole) {
-		if(unit instanceof DirectionCharacter) {
+		if(unit instanceof MovableCharacter) {
 			hole.leaveSquare();
-			hole.effect((DirectionCharacter) unit);
+			hole.effect((MovableCharacter) unit);
 		}
 	}
 	
