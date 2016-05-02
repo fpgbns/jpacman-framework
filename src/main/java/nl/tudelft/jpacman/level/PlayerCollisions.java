@@ -105,7 +105,7 @@ public class PlayerCollisions implements CollisionMap {
 			    	ateGhost.add(ghost);
 			    	ghost.leaveSquare();
 					Ghost.ghostLeft--;
-			    }
+                }
 			};
 			int deadGhostAnimationTime = 5 * 200;
 			Timer timer = new Timer();
