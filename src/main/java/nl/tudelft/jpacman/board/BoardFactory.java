@@ -100,7 +100,12 @@ public class BoardFactory {
 
 		@Override
 		public boolean isAccessibleTo(Unit unit) {
-			return false;
+			if(unit instanceof PassThroughWall){
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 
 		@Override
