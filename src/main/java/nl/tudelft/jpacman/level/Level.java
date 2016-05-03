@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import nl.tudelft.jpacman.Launcher;
 import nl.tudelft.jpacman.board.Board;
 import nl.tudelft.jpacman.board.Direction;
 import nl.tudelft.jpacman.board.Square;
@@ -26,7 +27,7 @@ import nl.tudelft.jpacman.sprite.PacManSprites;
 /**
  * A level of Pac-Man. A level consists of the board with the players and the
  * AIs on it.
- * 
+ *
  * @author Jeroen Roosen 
  */
 public class Level {
@@ -52,7 +53,7 @@ public class Level {
 	 * The NPCs of this level and, if they are running, their schedules.
 	 */
 	private final Map<Ghost, ScheduledExecutorService> ghosts;
-	
+
 	/**
 	 * The NPCs of this level and, if they are running, their schedules.
 	 */
@@ -75,7 +76,7 @@ public class Level {
 	 * The start current selected starting square.
 	 */
 	private int startSquareIndex;
-	
+
 	/**
 	 * The Fruit factory for this level.
 	 */
@@ -85,7 +86,7 @@ public class Level {
 	 * The players on this level.
 	 */
 	private final Map<Player, ScheduledExecutorService> players;
-	
+
 
 	/**
 	 * The table of possible collisions between units.
@@ -111,13 +112,15 @@ public class Level {
 
 	private Timer speedUpTask = new Timer();
 
+	private boolean norm;
+
 	private static int c = 1;
 
 	private static Level level = null;
 
 	/**
 	 * Creates a new level for the board.
-	 * 
+	 *
 	 * @param b
 	 *            The board for the level.
 	 * @param ghosts
@@ -128,7 +131,7 @@ public class Level {
 	 *            The collection of collisions that should be handled.
 	 */
 	public Level(Board b, List<NPC> ghosts, List<Square> startPositions,
-			CollisionMap collisionMap) {
+				 CollisionMap collisionMap) {
 		assert b != null;
 		assert ghosts != null;
 		assert startPositions != null;
@@ -148,6 +151,14 @@ public class Level {
 		this.players = new HashMap<>();
 		this.collisions = collisionMap;
 		this.observers = new ArrayList<>();
+		Launcher la = Launcher.getLauncher();
+		if(la.getBoardToUse() == "/Board.txt" || la.getBoardToUse() == "BoardFruit.txt"){
+			this.norm = true;
+		}
+		else
+		{
+			this.norm = false;
+		}
 		if(level == null) {
 			level = this;
 		}
@@ -179,7 +190,7 @@ public class Level {
 	 * Registers a player on this level, assigning him to a starting position. A
 	 * player can only be registered once, registering a player again will have
 	 * no effect.
-	 * 
+	 *
 	 * @param p
 	 *            The player to register.
 	 */
@@ -199,7 +210,7 @@ public class Level {
 
 	/**
 	 * Returns the board of this level.
-	 * 
+	 *
 	 * @return The board of this level.
 	 */
 	public Board getBoard() {
@@ -209,7 +220,7 @@ public class Level {
 	/**
 	 * Moves the unit into the given direction if possible and handles all
 	 * collisions.
-	 * 
+	 *
 	 * @param unit
 	 *            The unit to move.
 	 * @param direction
@@ -227,7 +238,7 @@ public class Level {
 			unit.setDirection(direction);
 			Square location = unit.getSquare();
 			Square destination = location.getSquareAt(direction);
-			
+
 			if (destination.isAccessibleTo(unit) && !(Bridge.blockedBybridge(unit, direction))) {
 				unit.setOnBridge(false);
 				List<Unit> occupants = destination.getOccupants();
@@ -328,7 +339,7 @@ public class Level {
 
 	/**
 	 * Permet d'ajouter des ghosts dans le jeu
-     */
+	 */
 	public void addGhostTask()
 	{
 		if(this.ghosts.size() < 10) {
@@ -417,8 +428,15 @@ public class Level {
 		while(squareFruit == null) {
 			Player p = players.keySet().iterator().next();
 			Square posPlayer = p.getSquare();
-			int X = posPlayer.getCoordX();
-			int Y = posPlayer.getCoordY();
+			int X, Y;
+			if(this.norm){
+				X = posPlayer.getCoordX();
+				Y = posPlayer.getCoordY();
+			}
+			else{
+				X = 0;
+				Y = 0;
+			}
 			int i, j;
 			if(X-10 < 0){
 				i =  random.nextInt(board.getWidthOfOneMap()-2);
@@ -427,18 +445,18 @@ public class Level {
 				i = (X-10) + random.nextInt(board.getWidthOfOneMap()-2);
 			}
 			if(Y-14 < 0){
-				j = random.nextInt(4);
+				j = random.nextInt(board.getHeightOfOneMap()-2);
 			}
 			else{
-				j = (Y-14) + random.nextInt(4);
+				j = (Y-14) + random.nextInt(board.getHeightOfOneMap()-2);
 			}
 			squareFruit = board.squareAt(i, j);
 			if (Navigation.shortestPath(posPlayer, squareFruit, p) != null) {
 				fruit.occupy(squareFruit);
 				TimerTask timerTask = new TimerTask() {
-				    public void run() {
-				    	fruit.leaveSquare();
-				    }
+					public void run() {
+						fruit.leaveSquare();
+					}
 				};
 				Timer timer = new Timer();
 				timer.schedule(timerTask, fruit.getLifetime() * 1000);
@@ -452,7 +470,7 @@ public class Level {
 	/**
 	 * Returns whether this level is in progress, i.e. whether moves can be made
 	 * on the board.
-	 * 
+	 *
 	 * @return <code>true</code> iff this level is in progress.
 	 */
 	public boolean isInProgress() {
@@ -487,7 +505,7 @@ public class Level {
 		}
 		if (isAnyPlayerShooting()) {
 			for (LevelObserver o : observers) {
-					o.ShootingEvent();
+				o.ShootingEvent();
 			}
 		}
 		List<Bullet> deadBullets = BulletToClean() ;
@@ -501,7 +519,7 @@ public class Level {
 	/**
 	 * Returns <code>true</code> iff at least one of the players in this level
 	 * is alive.
-	 * 
+	 *
 	 * @return <code>true</code> if at least one of the registered players is
 	 *         alive.
 	 */
@@ -513,10 +531,10 @@ public class Level {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if at lest one of the player can shoot bullets.
-	 * 
+	 *
 	 * @return <code>true</code> if at lest one of the player can shoot bullets.
 	 */
 	public boolean isAnyPlayerShooting() {
@@ -527,10 +545,10 @@ public class Level {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if at least one NPC is dead and need to be cleaned from the board.
-	 * 
+	 *
 	 * @return <code>true</code> if at least one NPC is dead and need to be cleaned from the board.
 	 */
 	private List<Bullet> BulletToClean() {
@@ -634,7 +652,7 @@ public class Level {
 		timerRespawn = new Timer();
 		timerRespawn.schedule(new TimerRespawnTask(ateGhost), 5000);
 	}
-	
+
 	public void respawnParticularGhost(Ghost ghost)
 	{
 		timerRespawn = new Timer();
@@ -643,7 +661,7 @@ public class Level {
 
 	/**
 	 * Counts the pellets remaining on the board.
-	 * 
+	 *
 	 * @return The amount of pellets remaining on the board.
 	 */
 	public int remainingPellets() {
@@ -660,7 +678,7 @@ public class Level {
 		}
 		return pellets;
 	}
-	
+
 	/**
 	 * returns the fruit factory for this level.
 	 * @return the fruit factory for this level.
@@ -679,8 +697,8 @@ public class Level {
 
 	/**
 	 * A task that moves an NPC and reschedules itself after it finished.
-	 * 
-	 * @author Jeroen Roosen 
+	 *
+	 * @author Jeroen Roosen
 	 */
 	private final class CharacterMoveTask implements Runnable {
 
@@ -696,7 +714,7 @@ public class Level {
 
 		/**
 		 * Creates a new task.
-		 * 
+		 *
 		 * @param s
 		 *            The service that executes the task.
 		 * @param c
@@ -714,12 +732,12 @@ public class Level {
 			if (nextMove != null) {
 				move(character, nextMove);
 			}
-			
+
 			//Ce code est dégeux et devrait être déplacé dans la méthode getInterval de chaque fantômes.
 			if(character instanceof Ghost && ((Ghost) character).getFearedMode()) {
 				interval = ((Ghost) character).getFearedInterval();
 			}
-			
+
 			else {
 				interval = character.getInterval();
 			}
@@ -829,12 +847,12 @@ public class Level {
 		 * A ghost need to be respawned.
 		 */
 		void respawnGhost();
-		
+
 		/**
 		 * A Player can shoot bullets
 		 */
 		void ShootingEvent();
-		
+
 		/**
 		 * A NPC is dead and need to be cleared from the board
 		 * @param deadBullets the list of the NPCs that are dead

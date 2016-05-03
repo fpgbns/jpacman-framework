@@ -105,6 +105,7 @@ public class Board {
 		int nombre = random.nextInt(3);
 		launcher.setBoardToUse("/boardExtendedAdd" + (nombre+1) + ".txt");
 		Level lev = launcher.makeLevel();
+		Level game = Level.getLevel();
 		return lev;
 	}
 

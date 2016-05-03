@@ -3,6 +3,9 @@ package nl.tudelft.jpacman.level;
 import java.util.Map;
 
 import nl.tudelft.jpacman.board.Direction;
+import nl.tudelft.jpacman.board.Unit;
+import nl.tudelft.jpacman.npc.DirectionCharacter;
+import nl.tudelft.jpacman.npc.NPC;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.sprite.AnimatedSprite;
 import nl.tudelft.jpacman.sprite.Sprite;
@@ -12,8 +15,9 @@ import nl.tudelft.jpacman.sprite.Sprite;
  * 
  * @author Jeroen Roosen 
  */
+
 public class Player extends MovableCharacter {
-	
+
 	/**
 	 * The base movement interval.
 	 */
@@ -168,6 +172,7 @@ public class Player extends MovableCharacter {
 	
 	public void setDirection(Direction direction) {
 		Square square = getSquare();
+		System.out.println(square);
 		if(isMovable() && square.getSquareAt(direction).isAccessibleTo(this)) {
 			super.setDirection(direction);
 		}
